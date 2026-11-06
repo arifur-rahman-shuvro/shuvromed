@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:db": "vitest run --config vitest.db.config.ts",
     "typecheck": "tsc -b"
   },
   "dependencies": {
@@ -25,11 +26,13 @@
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
     "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^31.0.0",
     "oxlint": "^1.90.0",
+    "pg": "^8.23.1",
     "tailwindcss": "^4.3.4",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
