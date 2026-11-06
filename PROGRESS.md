@@ -10,7 +10,8 @@ Last updated: 2026-11-06
   - 78 real-PostgreSQL tests (`npm run test:db`) incl. cross-user isolation and structural guards.
   - Supabase auth in the frontend: sign up, sign in, sign out, forgot/reset password, protected `/app`, session persistence, not-configured screen. 30 UI tests (`npm test`).
   - Migrations APPLIED to the hosted project (jnpqrwutxwjoyoxntfbt, Postgres 17) on 2026-11-06; verified there (see below).
-  - CI workflow written (.github/workflows/ci.yml); not yet run on GitHub.
+  - CI workflow (.github/workflows/ci.yml). Owner reported the first GitHub run's `verify` job green (2026-11-06); not independently viewable from the build sandbox.
+  - Pushed to https://github.com/arifur-rahman-shuvro/shuvromed (public, per owner). Remote `main` verified identical to local at c61f6b9 before this docs commit.
 
 ## Verified by running (2026-11-06)
 - `npm run typecheck`: clean. `npm test`: 30/30. `npm run test:db`: 78/78 (local PostgreSQL 16 + shim).
@@ -23,7 +24,7 @@ Last updated: 2026-11-06
 - Nothing.
 
 ## Blocked / needs owner
-- GitHub push, if it fails (see owner actions).
+- Nothing on GitHub (push and CI done).
 - Real sign-up/sign-in against hosted Auth NOT tested: the sandbox proxy denies *.supabase.co from the shell (policy), so only the management API was reachable.
 
 ## Next
@@ -31,9 +32,14 @@ Last updated: 2026-11-06
 - Phase 3: subjects/topics, question schema (Zod), CLI validator, import, player, scoring.
 
 ## Owner actions
-1. Fix GitHub access if push failed (steps in the status message).
-2. Follow docs/AUTH_SETUP.md (confirm-email, min password 8, redirect URLs, SMTP before real users).
-3. After you sign up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
+1. Follow docs/AUTH_SETUP.md (confirm-email, min password 8, redirect URLs, SMTP before real users).
+2. After you sign up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
+3. Confirm go-ahead for Phase 3 (not started; waiting for owner).
+4. Decide on hardening (needs approval, production write): revoke public execute on Supabase's `rls_auto_enable()` and on `set_updated_at()`; add typed confirmation + recent-login check to account deletion (Phase 7).
+
+## Phase 2 security review notes (2026-11-06, read-only)
+- `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap).
+- BACKUP.md and RESTORE.md do not exist yet (Phase 7).
 
 ## Known limitations
 - Local DB tests run on PostgreSQL 16 with a shim; hosted is PostgreSQL 17 (docs/TESTING.md). The hosted isolation script above covers that gap for the key paths, not the full 78 tests.
