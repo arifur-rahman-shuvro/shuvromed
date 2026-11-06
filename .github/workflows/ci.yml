@@ -27,6 +27,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run test:db
+      - run: npm run content:validate -- --fail-on-warnings
       - run: npm run build
         env:
           VITE_SUPABASE_URL: https://example.supabase.co

@@ -1,49 +1,58 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-06
+Last updated: 2026-11-06 (end of Phase 3)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
-- Phase 1: scaffold, design system, layout, landing, dashboard shell.
-- Phase 2:
-  - 4 SQL migrations (supabase/migrations): catalogue, per-user tables, strict RLS, signup trigger, `delete_my_account()`, `backup_runs` guards.
-  - 78 real-PostgreSQL tests (`npm run test:db`) incl. cross-user isolation and structural guards.
-  - Supabase auth in the frontend: sign up, sign in, sign out, forgot/reset password, protected `/app`, session persistence, not-configured screen. 30 UI tests (`npm test`).
-  - Migrations APPLIED to the hosted project (jnpqrwutxwjoyoxntfbt, Postgres 17) on 2026-11-06; verified there (see below).
-  - CI workflow (.github/workflows/ci.yml). Owner reported the first GitHub run's `verify` job green (2026-11-06); not independently viewable from the build sandbox.
-  - Pushed to https://github.com/arifur-rahman-shuvro/shuvromed (public, per owner). Remote `main` verified identical to local at c61f6b9 before this docs commit.
+- Phase 1: scaffold, design system, responsive layout, landing, dashboard shell.
+- Phase 2: Supabase auth UI, 4 SQL migrations with strict RLS (applied to hosted project jnpqrwutxwjoyoxntfbt), 78 real-Postgres tests, CI. Pushed; GitHub CI green on c61f6b9 and 18f7d79 (read with `gh`, all steps `success`).
+- Phase 3 (data-driven content + practice):
+  - Content is data under `content/` (subjects, topics, exam styles, question formats, questions). Adding any of these needs no code change (docs/CONTENT.md).
+  - Zod schemas + cross-reference validator + CLI (`npm run content:validate`), run in CI with `--fail-on-warnings`.
+  - Build step validates and writes static files to `public/content/` (only student-visible questions; drafts never ship).
+  - Bulk import for CSV/JSON (`npm run content:import`): always writes draft + unreviewed, never publishes, writes nothing unless the whole set validates.
+  - Runtime loader re-validates downloaded content with the same schemas; per-subject lazy files; version-busted URLs; retry after failure.
+  - Subjects page (searchable), hierarchical topic library with real counts/attempted/accuracy/mastery/difficulty mix/exam styles, practice setup (subject, topic, style, difficulty, count, timed, shuffle questions/options, all/unattempted/incorrect-only), question player, scoring, session summary.
+  - Option shuffling is seeded and always scores against the original option id.
+  - Attempts are stored on this device per signed-in user (client-generated UUID, duplicate-safe, corrupt-entry tolerant, failure is shown not hidden). Dashboard numbers (answers, accuracy, today's goal/time, streak, recent days) come from them.
 
 ## Verified by running (2026-11-06)
-- `npm run typecheck`: clean. `npm test`: 30/30. `npm run test:db`: 78/78 (local PostgreSQL 16 + shim).
-- `npm run build`: succeeds. Real publishable key is not in the bundle.
-- Hosted project: all 16 public tables have RLS on. A self-rolling-back isolation script on the hosted DB passed 16/16 checks (profile trigger, A cannot read/write B, no self-promotion to admin, anon blocked, account deletion cascades and spares others). Test left 0 rows behind.
-- Security advisor (hosted): 0 errors. Remaining notes are intentional or not ours: `admins` has RLS with no policy (by design); `is_admin()` and `delete_my_account()` are callable via RPC (needed by policies / the delete-account button); `rls_auto_enable()` is a Supabase platform helper, left untouched.
-- `npm audit --audit-level=high`: passes (no high/critical). 6 low/moderate in dev tooling, unaddressed.
+- `npm run typecheck`: clean.
+- `npm test`: 144/144 (auth 24, app 6, validator 37, importer 20, practice logic 33, practice UI/journey 24).
+- `npm run test:db`: 78/78 on local PostgreSQL 16 (unchanged from Phase 2).
+- `npm run content:validate -- --fail-on-warnings`: OK (15 subjects, 8 topics, 8 questions, all DEMO/draft/unreviewed).
+- Import CLI exercised end to end in an isolated copy: dry run, duplicate id, unknown topic, real write, existing-file refusal, `--force`, path escape refusal, validator afterwards. Repo content untouched.
+- `npm run build`: succeeds; main JS chunk ~550 kB (content layer is lazy-loaded); `npm audit --audit-level=high` passes.
 
 ## In progress
 - Nothing.
 
-## Blocked / needs owner
-- Nothing on GitHub (push and CI done).
-- Real sign-up/sign-in against hosted Auth NOT tested: the sandbox proxy denies *.supabase.co from the shell (policy), so only the management API was reachable.
+## Blocked / waiting on owner
+- Separate approval for the database hardening in docs/PROPOSED_HARDENING.md (NOT applied; no production change made in Phase 3).
+- Auth dashboard steps in docs/AUTH_SETUP.md and a real sign-up on a phone.
 
 ## Next
-- Owner does the Auth dashboard steps in docs/AUTH_SETUP.md, then one real sign-up on a phone as the smoke test.
-- Phase 3: subjects/topics, question schema (Zod), CLI validator, import, player, scoring.
+- Phase 4: bookmarks (collections), notes, flags, confidence rating, incorrect-question notebook, spaced repetition, cross-device sync of attempts; enables the bookmarked and revision-due practice modes.
+- Then Phase 5 (mock exams, XP, streak rules, badges), Phase 6 (analytics, weak topics), Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
+
+## Known limitations (honest)
+- The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
+- Attempts live only on the device that answered. Nothing is uploaded to Supabase yet; clearing browser data loses them. Sync is Phase 4. There is no backup yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
+- Player has no bookmark, flag, note or confidence controls yet (Phase 4). Practice modes "bookmarked" and "revision due" are shown disabled.
+- Dashboard: XP/level shown as "—" (Phase 5), due revisions 0 (Phase 4), no weak-topics panel yet (Phase 6).
+- A session is rebuilt if the page is refreshed mid-session (answers already given stay saved, but the question list is re-selected).
+- Timed mode is a single countdown of 90 seconds per question; there is no per-question timer.
+- No owner-only admin web page yet; content import/review is by command line.
+- Not verified: layout on a real phone/Chromium viewport (jsdom tests only), real Supabase sign-in/sign-up (sandbox cannot reach supabase.co from the shell), accessibility with a screen reader, offline behaviour (Phase 8).
+- Lint: 0 errors; some React-compiler style warnings remain (setState in effects for data loading, fast-refresh export notes).
+- Hosted migration versions are timestamped by the platform and differ from repo filenames; reconcile with `supabase migration repair` before using the Supabase CLI against this project.
 
 ## Owner actions
-1. Follow docs/AUTH_SETUP.md (confirm-email, min password 8, redirect URLs, SMTP before real users).
-2. After you sign up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
-3. Confirm go-ahead for Phase 3 (not started; waiting for owner).
-4. Decide on hardening (needs approval, production write): revoke public execute on Supabase's `rls_auto_enable()` and on `set_updated_at()`; add typed confirmation + recent-login check to account deletion (Phase 7).
+1. Approve or decline docs/PROPOSED_HARDENING.md (optional; low practical risk).
+2. docs/AUTH_SETUP.md dashboard steps, then one real sign-up and sign-in on your phone.
+3. After signing up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
+4. Tell me when to start Phase 4.
 
-## Phase 2 security review notes (2026-11-06, read-only)
-- `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap).
-- BACKUP.md and RESTORE.md do not exist yet (Phase 7).
-
-## Known limitations
-- Local DB tests run on PostgreSQL 16 with a shim; hosted is PostgreSQL 17 (docs/TESTING.md). The hosted isolation script above covers that gap for the key paths, not the full 78 tests.
-- Auth UI tests use an in-memory stand-in; real Supabase Auth not yet exercised end to end.
-- Hosted migration versions are timestamped by the platform at apply time and differ from the repo filenames; SQL is identical. Reconcile (`supabase migration repair`) before ever using the Supabase CLI against this project.
-- Main JS chunk is ~548 kB (supabase-js + auth pages in the entry). Code-splitting is a Phase 8 item.
-- Dashboard numbers are zeros until Phase 3+ writes attempts; Subjects/Revision/Mock/Analytics/Settings are placeholders.
+## Security review notes (2026-11-06, read-only)
+- `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).
+- Platform helper `rls_auto_enable()` and our `set_updated_at()` are executable by anon (see docs/PROPOSED_HARDENING.md).
