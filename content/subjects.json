@@ -1,0 +1,17 @@
+[
+  { "id": "anatomy", "name": "Anatomy", "sortOrder": 10 },
+  { "id": "physiology", "name": "Physiology", "sortOrder": 20 },
+  { "id": "biochemistry", "name": "Biochemistry", "sortOrder": 30 },
+  { "id": "embryology", "name": "Embryology", "sortOrder": 40 },
+  { "id": "histology", "name": "Histology", "sortOrder": 50 },
+  { "id": "pathology", "name": "Pathology", "sortOrder": 60 },
+  { "id": "pharmacology", "name": "Pharmacology", "sortOrder": 70 },
+  { "id": "microbiology", "name": "Microbiology", "sortOrder": 80 },
+  { "id": "immunology", "name": "Immunology", "sortOrder": 90 },
+  { "id": "forensic-medicine", "name": "Forensic Medicine", "sortOrder": 100 },
+  { "id": "community-medicine", "name": "Community Medicine", "sortOrder": 110 },
+  { "id": "medicine", "name": "Medicine", "sortOrder": 120 },
+  { "id": "surgery", "name": "Surgery", "sortOrder": 130 },
+  { "id": "obstetrics-gynaecology", "name": "Obstetrics & Gynaecology", "sortOrder": 140 },
+  { "id": "paediatrics", "name": "Paediatrics", "sortOrder": 150 }
+]

@@ -1,0 +1,4 @@
+[
+  { "id": "pharmacology-autonomic", "subjectId": "pharmacology", "parentId": null, "name": "Autonomic pharmacology", "sortOrder": 10 },
+  { "id": "pharmacology-beta-blockers", "subjectId": "pharmacology", "parentId": "pharmacology-autonomic", "name": "Beta-blockers", "sortOrder": 10 }
+]

@@ -10,7 +10,12 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:db": "vitest run --config vitest.db.config.ts",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "content:validate": "tsx scripts/validate-content.ts",
+    "content:build": "tsx scripts/build-content.ts",
+    "content:import": "tsx scripts/import-content.ts",
+    "predev": "npm run content:build",
+    "prebuild": "npm run content:build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -34,6 +39,7 @@
     "oxlint": "^1.90.0",
     "pg": "^8.23.1",
     "tailwindcss": "^4.3.4",
+    "tsx": "^4.23.15",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vite-plugin-pwa": "^2.0.0",

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "demo-pharm-beta-001",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "pharmacology",
+    "topicId": "pharmacology-beta-blockers",
+    "difficulty": "easy",
+    "format": "sba-5",
+    "examTags": ["mbbs", "ukmla"],
+    "stem": "Which of the following is a cardioselective (beta-1 selective) beta-blocker?",
+    "options": [
+      { "id": "A", "text": "Propranolol" },
+      { "id": "B", "text": "Atenolol" },
+      { "id": "C", "text": "Nadolol" },
+      { "id": "D", "text": "Timolol" },
+      { "id": "E", "text": "Labetalol" }
+    ],
+    "correctOptionId": "B",
+    "explanation": "Atenolol is relatively selective for beta-1 receptors in the heart. Propranolol, nadolol and timolol are non-selective, and labetalol blocks both alpha-1 and beta receptors.",
+    "optionAnalysis": {
+      "A": "Incorrect. Propranolol is a non-selective beta-blocker.",
+      "B": "Correct. Atenolol is a beta-1 selective antagonist.",
+      "C": "Incorrect. Nadolol is a non-selective beta-blocker.",
+      "D": "Incorrect. Timolol is a non-selective beta-blocker.",
+      "E": "Incorrect. Labetalol is a combined alpha-1 and non-selective beta antagonist."
+    },
+    "clinicalPearl": "Selectivity is relative and is lost at higher doses.",
+    "references": [],
+    "learningObjectives": ["Classify common beta-blockers by receptor selectivity."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  },
+  {
+    "id": "demo-pharm-beta-002",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "pharmacology",
+    "topicId": "pharmacology-beta-blockers",
+    "difficulty": "medium",
+    "format": "sba-5",
+    "examTags": ["usmle", "plab"],
+    "stem": "A non-selective beta-blocker is relatively contraindicated in which of the following conditions?",
+    "options": [
+      { "id": "A", "text": "Asthma" },
+      { "id": "B", "text": "Hypertension" },
+      { "id": "C", "text": "Stable angina" },
+      { "id": "D", "text": "Secondary prevention after myocardial infarction" },
+      { "id": "E", "text": "Rate control in atrial fibrillation" }
+    ],
+    "correctOptionId": "A",
+    "explanation": "Blocking beta-2 receptors in the airways can cause bronchoconstriction, so non-selective beta-blockers are relatively contraindicated in asthma.",
+    "optionAnalysis": {
+      "A": "Correct. Beta-2 blockade can precipitate bronchospasm in people with asthma.",
+      "B": "Incorrect. Hypertension is an accepted indication for beta-blockers, not a contraindication.",
+      "C": "Incorrect. Beta-blockers reduce myocardial oxygen demand in stable angina.",
+      "D": "Incorrect. Beta-blockers are used in secondary prevention after myocardial infarction.",
+      "E": "Incorrect. Beta-blockers slow the ventricular rate in atrial fibrillation."
+    },
+    "clinicalPearl": "Reactive airway disease is the classic reason to avoid non-selective beta-blockers.",
+    "references": [],
+    "learningObjectives": ["State the main contraindication to non-selective beta-blockers."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "id": "demo-anat-cor-001",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "anatomy",
+    "topicId": "anatomy-coronary-arteries",
+    "difficulty": "easy",
+    "format": "sba-5",
+    "examTags": ["mbbs", "ukmla"],
+    "stem": "Which artery is the most common source of the sinoatrial (SA) nodal artery?",
+    "options": [
+      { "id": "A", "text": "Right coronary artery" },
+      { "id": "B", "text": "Left anterior descending artery" },
+      { "id": "C", "text": "Posterior interventricular artery" },
+      { "id": "D", "text": "Left marginal artery" },
+      { "id": "E", "text": "First diagonal branch" }
+    ],
+    "correctOptionId": "A",
+    "explanation": "The SA nodal artery arises from the right coronary artery in roughly 60% of people and from the left circumflex artery in most of the remainder, so the right coronary artery is the most common source.",
+    "optionAnalysis": {
+      "A": "Correct. The right coronary artery gives rise to the SA nodal artery in about 60% of people.",
+      "B": "Incorrect. The left anterior descending artery supplies the anterior left ventricle and anterior septum; it is not the usual source of the SA nodal artery.",
+      "C": "Incorrect. The posterior interventricular artery supplies the inferior parts of the ventricles and the posterior septum.",
+      "D": "Incorrect. The left marginal artery is a branch of the left circumflex artery supplying the lateral left ventricle.",
+      "E": "Incorrect. A diagonal branch comes off the left anterior descending artery and supplies the anterolateral left ventricle."
+    },
+    "clinicalPearl": "Proximal right coronary artery disease can disturb sinus node function, one reason inferior infarcts are often accompanied by bradycardia.",
+    "references": [],
+    "learningObjectives": ["Name the usual arterial supply of the sinoatrial node."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  },
+  {
+    "id": "demo-anat-cor-002",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "anatomy",
+    "topicId": "anatomy-coronary-arteries",
+    "difficulty": "medium",
+    "format": "sba-5",
+    "examTags": ["mbbs", "mrcs"],
+    "stem": "In a right-dominant coronary circulation, from which vessel does the posterior interventricular (posterior descending) artery arise?",
+    "options": [
+      { "id": "A", "text": "Right coronary artery" },
+      { "id": "B", "text": "Left anterior descending artery" },
+      { "id": "C", "text": "Left circumflex artery" },
+      { "id": "D", "text": "Left main coronary artery" },
+      { "id": "E", "text": "Acute marginal artery" }
+    ],
+    "correctOptionId": "A",
+    "explanation": "Coronary dominance is defined by the artery that gives rise to the posterior interventricular artery. In right dominance, which is the most common pattern, this is the right coronary artery.",
+    "optionAnalysis": {
+      "A": "Correct. In right dominance the right coronary artery gives off the posterior interventricular artery.",
+      "B": "Incorrect. The left anterior descending artery runs in the anterior interventricular groove.",
+      "C": "Incorrect. The left circumflex artery gives rise to the posterior interventricular artery only in left dominance.",
+      "D": "Incorrect. The left main artery divides into the left anterior descending and left circumflex arteries.",
+      "E": "Incorrect. The acute marginal artery is a branch of the right coronary artery supplying the right ventricle."
+    },
+    "clinicalPearl": "Dominance determines which territory is affected by an occlusion near the crux of the heart, so it matters when interpreting infarct patterns.",
+    "references": [],
+    "learningObjectives": ["Define coronary dominance.", "State the usual dominance pattern."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  },
+  {
+    "id": "demo-anat-cor-003",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "anatomy",
+    "topicId": "anatomy-coronary-arteries",
+    "difficulty": "medium",
+    "format": "sba-5",
+    "examTags": ["usmle", "plab"],
+    "stem": "Occlusion of the left anterior descending artery most directly compromises the blood supply to which region?",
+    "options": [
+      { "id": "A", "text": "Anterior wall of the left ventricle and the anterior two-thirds of the interventricular septum" },
+      { "id": "B", "text": "Posterior wall of the left ventricle" },
+      { "id": "C", "text": "Sinoatrial node" },
+      { "id": "D", "text": "Free wall of the right atrium" },
+      { "id": "E", "text": "Inferior wall of the right ventricle" }
+    ],
+    "correctOptionId": "A",
+    "explanation": "The left anterior descending artery runs in the anterior interventricular groove and supplies the anterior wall of the left ventricle and the anterior two-thirds of the interventricular septum.",
+    "optionAnalysis": {
+      "A": "Correct. This is the territory of the left anterior descending artery.",
+      "B": "Incorrect. The posterior left ventricle is supplied mainly by the left circumflex or posterior interventricular artery.",
+      "C": "Incorrect. The sinoatrial node is supplied by the SA nodal artery, usually from the right coronary artery.",
+      "D": "Incorrect. The right atrial free wall is supplied by right coronary artery branches.",
+      "E": "Incorrect. The inferior right ventricle is supplied by right coronary artery branches."
+    },
+    "clinicalPearl": "Because it supplies so much left ventricular muscle, proximal left anterior descending occlusion carries a large infarct burden.",
+    "references": [],
+    "learningObjectives": ["Describe the territory supplied by the left anterior descending artery."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  },
+  {
+    "id": "demo-anat-valve-001",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "anatomy",
+    "topicId": "anatomy-cardiac-chambers-valves",
+    "difficulty": "easy",
+    "format": "sba-5",
+    "examTags": ["mbbs"],
+    "stem": "Which valve lies between the left atrium and the left ventricle?",
+    "options": [
+      { "id": "A", "text": "Tricuspid valve" },
+      { "id": "B", "text": "Mitral valve" },
+      { "id": "C", "text": "Aortic valve" },
+      { "id": "D", "text": "Pulmonary valve" },
+      { "id": "E", "text": "Coronary sinus valve" }
+    ],
+    "correctOptionId": "B",
+    "explanation": "The mitral (bicuspid) valve guards the left atrioventricular orifice, between the left atrium and the left ventricle.",
+    "optionAnalysis": {
+      "A": "Incorrect. The tricuspid valve lies between the right atrium and right ventricle.",
+      "B": "Correct. The mitral valve is the left atrioventricular valve.",
+      "C": "Incorrect. The aortic valve lies between the left ventricle and the aorta.",
+      "D": "Incorrect. The pulmonary valve lies between the right ventricle and the pulmonary trunk.",
+      "E": "Incorrect. The coronary sinus valve guards the opening of the coronary sinus into the right atrium."
+    },
+    "clinicalPearl": "The mitral valve is the only atrioventricular valve with two cusps.",
+    "references": [],
+    "learningObjectives": ["Locate each of the four heart valves."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  }
+]

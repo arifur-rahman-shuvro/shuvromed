@@ -1,0 +1,4 @@
+[
+  { "id": "sba-5", "name": "Single best answer (5 options)", "minOptions": 5, "maxOptions": 5 },
+  { "id": "mcq-4", "name": "Multiple choice, one correct (4 options)", "minOptions": 4, "maxOptions": 4 }
+]

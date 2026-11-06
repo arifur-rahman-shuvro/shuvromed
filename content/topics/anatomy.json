@@ -1,0 +1,6 @@
+[
+  { "id": "anatomy-thorax", "subjectId": "anatomy", "parentId": null, "name": "Thorax", "sortOrder": 10 },
+  { "id": "anatomy-heart", "subjectId": "anatomy", "parentId": "anatomy-thorax", "name": "Heart", "sortOrder": 10 },
+  { "id": "anatomy-coronary-arteries", "subjectId": "anatomy", "parentId": "anatomy-heart", "name": "Coronary arteries", "sortOrder": 10 },
+  { "id": "anatomy-cardiac-chambers-valves", "subjectId": "anatomy", "parentId": "anatomy-heart", "name": "Cardiac chambers and valves", "sortOrder": 20 }
+]

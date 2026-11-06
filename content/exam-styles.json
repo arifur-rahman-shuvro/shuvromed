@@ -1,0 +1,7 @@
+[
+  { "id": "mbbs", "name": "MBBS-style", "description": "General undergraduate medical school style questions." },
+  { "id": "mrcs", "name": "MRCS-style", "description": "Surgical membership style single best answer questions." },
+  { "id": "usmle", "name": "USMLE-style", "description": "United States licensing exam style clinical vignettes." },
+  { "id": "ukmla", "name": "UKMLA-style", "description": "United Kingdom medical licensing assessment style questions." },
+  { "id": "plab", "name": "PLAB-style", "description": "PLAB style single best answer questions." }
+]

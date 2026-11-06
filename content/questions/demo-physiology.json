@@ -1,0 +1,70 @@
+[
+  {
+    "id": "demo-phys-cycle-001",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "physiology",
+    "topicId": "physiology-cardiac-cycle",
+    "difficulty": "medium",
+    "format": "sba-5",
+    "examTags": ["mbbs", "usmle"],
+    "stem": "During which phase of the cardiac cycle is ventricular pressure rising while all four heart valves are closed?",
+    "options": [
+      { "id": "A", "text": "Isovolumetric contraction" },
+      { "id": "B", "text": "Rapid ejection" },
+      { "id": "C", "text": "Isovolumetric relaxation" },
+      { "id": "D", "text": "Rapid ventricular filling" },
+      { "id": "E", "text": "Atrial systole" }
+    ],
+    "correctOptionId": "A",
+    "explanation": "In isovolumetric contraction the ventricle has begun to contract, so the atrioventricular valves have closed, but pressure has not yet exceeded aortic or pulmonary pressure, so the semilunar valves are still closed. Volume stays constant while pressure rises.",
+    "optionAnalysis": {
+      "A": "Correct. All valves are closed and ventricular pressure is rising at constant volume.",
+      "B": "Incorrect. During ejection the semilunar valves are open.",
+      "C": "Incorrect. In isovolumetric relaxation all valves are closed, but ventricular pressure is falling, not rising.",
+      "D": "Incorrect. During rapid filling the atrioventricular valves are open.",
+      "E": "Incorrect. During atrial systole the atrioventricular valves are open."
+    },
+    "clinicalPearl": "The first heart sound corresponds to closure of the atrioventricular valves at the start of isovolumetric contraction.",
+    "references": [],
+    "learningObjectives": ["Sequence the phases of the cardiac cycle and the valve states in each."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  },
+  {
+    "id": "demo-phys-cycle-002",
+    "version": 1,
+    "status": "draft",
+    "unreviewed": true,
+    "isDemo": true,
+    "subjectId": "physiology",
+    "topicId": "physiology-cardiac-cycle",
+    "difficulty": "easy",
+    "format": "sba-5",
+    "examTags": ["mbbs", "plab"],
+    "stem": "A resting adult has a stroke volume of 70 mL and a heart rate of 80 beats per minute. What is the cardiac output?",
+    "options": [
+      { "id": "A", "text": "4.0 L/min" },
+      { "id": "B", "text": "4.9 L/min" },
+      { "id": "C", "text": "5.6 L/min" },
+      { "id": "D", "text": "6.4 L/min" },
+      { "id": "E", "text": "8.0 L/min" }
+    ],
+    "correctOptionId": "C",
+    "explanation": "Cardiac output equals stroke volume multiplied by heart rate: 70 mL x 80 per minute = 5600 mL/min, which is 5.6 L/min.",
+    "optionAnalysis": {
+      "A": "Incorrect. 4.0 L/min would need a stroke volume of 50 mL at 80 beats per minute.",
+      "B": "Incorrect. 4.9 L/min would result from 70 mL at 70 beats per minute.",
+      "C": "Correct. 70 mL x 80 per minute = 5.6 L/min.",
+      "D": "Incorrect. 6.4 L/min would need a stroke volume of 80 mL at 80 beats per minute.",
+      "E": "Incorrect. 8.0 L/min would need a stroke volume of 100 mL at 80 beats per minute."
+    },
+    "clinicalPearl": "Cardiac output can be raised by increasing heart rate, stroke volume, or both.",
+    "references": [],
+    "learningObjectives": ["Calculate cardiac output from stroke volume and heart rate."],
+    "createdAt": "2026-11-06T00:00:00Z",
+    "updatedAt": "2026-11-06T00:00:00Z"
+  }
+]
