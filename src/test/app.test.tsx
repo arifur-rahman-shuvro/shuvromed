@@ -1,33 +1,31 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
-import { routes } from '../App'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 import { applyTheme, resolveDark } from '../lib/theme'
-
-function renderAt(path: string) {
-  return render(<RouterProvider router={createMemoryRouter(routes, { initialEntries: [path] })} />)
-}
+import { renderApp } from './utils'
 
 describe('landing', () => {
-  it('shows the educational disclaimer and sign-up link', () => {
-    renderAt('/')
-    expect(screen.getByText(/Educational use only/i)).toBeInTheDocument()
+  it('shows the educational disclaimer and sign-up / sign-in links', async () => {
+    renderApp('/', undefined)
+    expect(await screen.findByText(/Educational use only/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /create free account/i })).toHaveAttribute('href', '/signup')
+    const signInLinks = screen.getAllByRole('link', { name: 'Sign in' })
+    expect(signInLinks.length).toBeGreaterThanOrEqual(1)
+    for (const l of signInLinks) expect(l).toHaveAttribute('href', '/login')
   })
 })
 
-describe('dashboard', () => {
+describe('dashboard (signed in)', () => {
   it('shows real (zero) numbers and an empty state, not fake data', async () => {
-    renderAt('/app')
+    renderApp('/app')
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByText('No activity yet')).toBeInTheDocument()
     expect(screen.getByText('0 days')).toBeInTheDocument()
   })
 
   it('navigates between sections via the sidebar', async () => {
-    renderAt('/app')
+    renderApp('/app')
     await screen.findByRole('heading', { name: 'Dashboard' })
     await userEvent.click(screen.getAllByRole('link', { name: 'Subjects' })[0])
     expect(await screen.findByRole('heading', { name: 'Subjects' })).toBeInTheDocument()

@@ -31,8 +31,8 @@ export default function Landing() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <LinkButton to="/signup">Create free account</LinkButton>
-          <LinkButton to="/app" variant="secondary">
-            Preview the app
+          <LinkButton to="/login" variant="secondary">
+            Sign in
           </LinkButton>
         </div>
       </section>

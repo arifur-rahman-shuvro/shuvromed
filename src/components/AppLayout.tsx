@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
 export const NAV = [
@@ -23,6 +24,13 @@ const tabLink = ({ isActive }: { isActive: boolean }) =>
 
 export default function AppLayout() {
   const [dark, setDark] = useState(() => resolveDark(getThemePref()))
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleSignOut() {
+    await signOut()
+    navigate('/', { replace: true })
+  }
 
   function toggleTheme() {
     const next = dark ? 'light' : 'dark'
@@ -46,15 +54,26 @@ export default function AppLayout() {
       <div className="flex min-w-0 flex-col pb-16 md:pb-0">
         <header className="flex items-center justify-between border-b border-line bg-surface px-4 py-2">
           <p className="font-bold md:hidden">ShuvroMed</p>
-          <p className="hidden text-sm text-muted md:block">Educational use only</p>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-pressed={dark}
-            className="min-h-12 rounded-xl px-4 font-medium hover:bg-surface2"
-          >
-            {dark ? 'Light mode' : 'Dark mode'}
-          </button>
+          <p className="hidden truncate text-sm text-muted md:block">
+            {user?.email ?? 'Educational use only'}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-pressed={dark}
+              className="min-h-12 rounded-xl px-4 font-medium hover:bg-surface2"
+            >
+              {dark ? 'Light mode' : 'Dark mode'}
+            </button>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="min-h-12 rounded-xl px-4 font-medium hover:bg-surface2"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
           <Outlet />
