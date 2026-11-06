@@ -1,8 +1,12 @@
+import { useAuth } from '../auth/AuthContext'
 import { EmptyState, LinkButton, Stat } from '../components/ui'
+import { useAttempts } from '../practice/attempts'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 
 export default function Dashboard() {
-  const s = getDashboardStats()
+  const { user } = useAuth()
+  const attempts = useAttempts(user?.id)
+  const s = getDashboardStats(attempts)
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
 
   return (
@@ -30,24 +34,40 @@ export default function Dashboard() {
 
       <section aria-label="Statistics" className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Streak" value={`${s.streakDays} days`} />
-        <Stat label="XP / Level" value={`${s.xp} XP`} hint={`Level ${s.level}`} />
-        <Stat label="Attempted" value={String(s.attempted)} />
+        <Stat label="XP / Level" value="—" hint="Arrives in Phase 5" />
+        <Stat label="Answers recorded" value={String(s.attempted)} hint="On this device" />
         <Stat label="Accuracy" value={formatAccuracy(s.accuracyPct)} />
         <Stat label="Study time today" value={`${s.studyMinutesToday} min`} />
-        <Stat label="Due revisions" value={String(s.dueRevisions)} />
+        <Stat label="Due revisions" value={String(s.dueRevisions)} hint="Arrives in Phase 4" />
       </section>
 
       <div className="flex flex-wrap gap-3">
         <LinkButton to="/app/subjects">Browse subjects</LinkButton>
-        <LinkButton to="/app/subjects" variant="secondary">
+        <LinkButton to="/app/practice" variant="secondary">
           Quick practice
         </LinkButton>
       </div>
 
-      <EmptyState
-        title="No activity yet"
-        body="Questions you answer will appear here, along with your weak topics and recent activity. Numbers on this page come only from your own attempts."
-      />
+      {s.recentDays.length === 0 ? (
+        <EmptyState
+          title="No activity yet"
+          body="Questions you answer will appear here. Numbers on this page come only from your own answers."
+        />
+      ) : (
+        <section aria-label="Recent activity" className="rounded-2xl border border-line bg-surface p-4">
+          <h2 className="mb-2 font-semibold">Recent activity</h2>
+          <ul className="flex flex-col gap-1">
+            {s.recentDays.map((d) => (
+              <li key={d.date} className="flex justify-between gap-3">
+                <span>{d.date}</span>
+                <span className="text-muted">
+                  {d.answered} answered · {d.correct} correct
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   )
 }
