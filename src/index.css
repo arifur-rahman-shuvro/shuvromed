@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+/* Design tokens. Light is default; dark applies via .dark on <html>. */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --text: #121826;
+  --muted: #566074;
+  --border: #d9dfe8;
+  --brand: #0f766e;
+  --brand-contrast: #ffffff;
+  --accent: #b45309;
+  --danger: #b91c1c;
+  --success: #15803d;
+}
+
+.dark {
+  --bg: #0b1220;
+  --surface: #121a2b;
+  --surface-2: #1a2438;
+  --text: #e8edf6;
+  --muted: #9aa6bd;
+  --border: #26324a;
+  --brand: #2dd4bf;
+  --brand-contrast: #052e2b;
+  --accent: #f59e0b;
+  --danger: #f87171;
+  --success: #4ade80;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface-2);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-brand: var(--brand);
+  --color-brandfg: var(--brand-contrast);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
