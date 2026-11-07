@@ -4,7 +4,7 @@ Do these in https://supabase.com/dashboard, project **shuvromed**. Nothing here 
 
 1. **Authentication > Sign In / Providers**: keep **Email** enabled. Keep **Confirm email** on.
 2. **Authentication > URL Configuration**: set **Site URL** to the live site URL once Cloudflare Pages
-   gives you one (Phase 8). Add the same URL, plus `<url>/login` and `<url>/reset-password`, to
+   gives you one (exact steps are in docs/DEPLOY.md). Add the same URL, plus `<url>/login` and `<url>/reset-password`, to
    **Redirect URLs**. Without this, confirmation and reset links will not return to the app.
 3. **Authentication > Sign In / Providers > Email**: set **Minimum password length** to 8
    (the app also enforces 8 on the form).

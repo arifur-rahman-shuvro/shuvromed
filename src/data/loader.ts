@@ -12,7 +12,7 @@ export const fetchFromSite: Fetcher = async (path) => {
   return res.json()
 }
 
-const ManifestSchema = z.object({
+export const ManifestSchema = z.object({
   schemaVersion: z.literal(1),
   contentVersion: z.string().min(1),
   includesDemo: z.boolean(),

@@ -21,6 +21,7 @@ export default function Landing() {
         </div>
       </header>
 
+      <main>
       <section className="py-16 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
           Learn the topic. Then practise it.
@@ -48,6 +49,7 @@ export default function Landing() {
           </Card>
         ))}
       </section>
+      </main>
 
       <footer className="mt-16 border-t border-line pt-6 text-sm text-muted">
         <p>

@@ -1,0 +1,38 @@
+# Keeps the free Supabase project from pausing after a week with no activity (see docs/FREE_TIER.md).
+# Twice a week it makes one read-only request to the public API with the PUBLISHABLE key and checks the answer.
+# It cannot change data: it asks for one row of a table anyone may read. Needs the two repository VARIABLES
+# VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY that the Preview workflow already uses (no secrets).
+# A red cross emails you. To stop it: Actions > Keep Supabase awake > the "..." menu > Disable workflow.
+# GitHub switches scheduled workflows off after 60 days with no activity in the repository; a new commit or
+# "Run workflow" turns it back on.
+name: Keep Supabase awake
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 * * 1,4' # Monday and Thursday, 04:23 UTC
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the API for one row
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL }}
+          KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::Set the repository variables VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."; exit 1
+          fi
+          case "$URL" in https://*.supabase.co) ;; *) echo "::error::VITE_SUPABASE_URL must look like https://<project>.supabase.co"; exit 1;; esac
+          case "$KEY" in sb_publishable_*) ;; *) echo "::error::That is not a publishable key (it starts with sb_publishable_)."; exit 1;; esac
+          code=$(curl -sS -o body.json -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 10 \
+            -H "apikey: $KEY" "$URL/rest/v1/subjects?select=id&limit=1")
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::Supabase answered HTTP $code. If the project is paused, open the Supabase dashboard and press Restore project."
+            exit 1
+          fi
+          echo "Supabase is awake."

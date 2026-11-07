@@ -17,7 +17,7 @@ The encrypted file is stored as a workflow artifact for 90 days (Actions → the
 encryption matters: **anyone can download the artifact, only your passphrase opens it.**
 
 ### One-time setup (owner, Android Chrome)
-1. Supabase dashboard → open the project → **Connect** → choose **Session pooler** → copy the connection string and put your database password in place of `[YOUR-PASSWORD]`. (The direct connection is IPv6-only, which GitHub's runners cannot use. The password is under Project Settings → Database → "Reset database password" if you do not have it. Do not send it to me.)
+1. Supabase dashboard → open the project → **Connect** → choose **Session pooler** → copy the connection string and put your database password in place of `[YOUR-PASSWORD]`. (The direct connection is IPv6-only unless you buy Supabase's IPv4 add-on, and GitHub-hosted runners have no IPv6, so it fails there: https://supabase.com/docs/guides/database/connecting-to-postgres and https://github.com/actions/runner-images/issues/668. Do not use the Transaction pooler, port 6543. The password is under Project Settings → Database → "Reset database password" if you do not have it. Do not send it to me.)
 2. Make a passphrase of 16+ random characters and save it in your password manager. Without it a backup cannot be opened and nobody can recover it.
 3. Open https://github.com/arifur-rahman-shuvro/shuvromed/settings/secrets/actions → **New repository secret**:
    - Name `SUPABASE_DB_URL`, value: the connection string from step 1.

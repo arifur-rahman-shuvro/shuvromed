@@ -88,6 +88,7 @@ function Exam({ userId, run, questions, topics, finishing }: { userId: string; f
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="sr-only">Mock exam in progress</h1>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-semibold" data-testid="mock-progress">Question {run.current + 1} of {run.questionIds.length}</p>
         <p role="timer" aria-label="Time remaining" className={low ? 'font-bold text-danger' : 'text-muted'}>{formatClock(remaining)} left</p>

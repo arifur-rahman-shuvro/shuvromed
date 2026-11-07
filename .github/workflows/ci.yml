@@ -33,4 +33,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      - name: The installable-app files were produced
+        run: |
+          test -s dist/sw.js
+          test -s dist/manifest.webmanifest
+          test -s dist/icons/icon-512.png
+          test -s dist/_headers
       - run: npm audit --audit-level=high

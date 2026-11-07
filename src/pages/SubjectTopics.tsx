@@ -9,7 +9,7 @@ import { useAttempts, type Attempt } from '../practice/attempts'
 import { topicStats } from '../practice/stats'
 
 function TopicRow({
-  node, topics, questions, attempts, styleName, subjectId,
+  node, topics, questions, attempts, styleName, subjectId, level = 2,
 }: {
   node: TopicNode
   topics: Topic[]
@@ -17,7 +17,10 @@ function TopicRow({
   attempts: Attempt[]
   styleName: (id: string) => string
   subjectId: string
+  /** Heading level: the subject title is the h1, top topics are h2, their children h3, and so on. */
+  level?: 2 | 3 | 4 | 5 | 6
 }) {
+  const Heading = `h${level}` as 'h2'
   const ids = descendantIds(topics, node.topic.id)
   const stats = topicStats(questions.filter((q) => ids.has(q.topicId)), attempts)
   const can = stats.questionCount > 0
@@ -27,7 +30,7 @@ function TopicRow({
       <section aria-labelledby={headingId} className="rounded-2xl border border-line bg-surface p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 id={headingId} className="font-semibold">{node.topic.name}</h3>
+            <Heading id={headingId} className="font-semibold">{node.topic.name}</Heading>
             <p className="text-sm text-muted">
               {stats.questionCount} {stats.questionCount === 1 ? 'question' : 'questions'}
               {' · '}Attempted {stats.attemptedQuestions}/{stats.questionCount}
@@ -56,7 +59,7 @@ function TopicRow({
         {node.children.length > 0 ? (
           <ul className="mt-3 flex flex-col gap-3 border-l-2 border-line pl-3">
             {node.children.map((c) => (
-              <TopicRow key={c.topic.id} node={c} topics={topics} questions={questions} attempts={attempts} styleName={styleName} subjectId={subjectId} />
+              <TopicRow key={c.topic.id} node={c} topics={topics} questions={questions} attempts={attempts} styleName={styleName} subjectId={subjectId} level={Math.min(level + 1, 6) as 3} />
             ))}
           </ul>
         ) : null}

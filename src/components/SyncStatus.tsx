@@ -1,9 +1,13 @@
+import { useOnline } from '../lib/useOnline'
 import { useSync } from '../sync/SyncContext'
 
 /** One short line in the header telling the student whether their progress is safe on the server. */
 export default function SyncStatus() {
   const { state, pending, errors, syncNow } = useSync()
+  const online = useOnline()
   const base = 'text-xs text-muted'
+  // Shown the moment the connection drops, not only when the next sync attempt fails.
+  if (!online) return <p role="status" className={base}>Offline · answers are saved on this device{pending ? ` · ${pending} waiting to sync` : ''}</p>
   if (state === 'off') return <p role="status" className={base}>Saved on this device only</p>
   if (state === 'syncing') return <p role="status" className={base}>Syncing…</p>
   if (state === 'offline') return <p role="status" className={base}>Offline{pending ? ` · ${pending} waiting to sync` : ''}</p>

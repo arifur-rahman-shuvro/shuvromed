@@ -4,7 +4,7 @@ import { Button } from '../components/ui'
 
 export function AuthShell({ title, children, footer }: { title: string; children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">
       <Link to="/" className="text-center text-xl font-bold">
         ShuvroMed
       </Link>
@@ -13,7 +13,7 @@ export function AuthShell({ title, children, footer }: { title: string; children
         {children}
       </div>
       {footer ? <div className="text-center text-sm text-muted">{footer}</div> : null}
-    </div>
+    </main>
   )
 }
 

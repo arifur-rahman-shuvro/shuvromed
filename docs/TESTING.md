@@ -27,3 +27,10 @@ checks on the hosted project after applying migrations.
 `src/test/fakeAuthClient.ts` is an in-memory stand-in for `supabase.auth`. These tests
 cover forms, validation, route protection, redirects and error wording. They do not prove
 the real Supabase Auth service works; that needs a real sign-up against the hosted project.
+
+## Real-browser checks (Phase 8; manual tools, not in CI)
+These need Playwright (not a project dependency) and a built site being served. Build with `VITE_SUPABASE_URL=https://example.supabase.co` because the fake session is stored under that name; they block `supabase.co`, so they test the app shell, caching and offline behaviour, not real sign-in.
+- `node scripts/check-offline.cjs <dist-copy> <base-url>`: manifest, installability, service worker, Save-all, offline navigation and answering, update prompt (it appends to `sw.js` in the copy it is given, so give it a throwaway copy).
+- `node scripts/check-a11y.cjs <base-url>`: axe-core over 40 screens, light and dark.
+- `node scripts/make-icons.cjs`: one-off, regenerates the PNG icons from `public/icon.svg`.
+Unit tests for the same features run in the normal suite: `src/test/pwa.test.tsx`, `src/test/a11y-ui.test.tsx`.

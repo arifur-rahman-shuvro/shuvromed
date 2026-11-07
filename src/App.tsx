@@ -1,17 +1,19 @@
 import { lazy, Suspense, useMemo } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import AppLayout from './components/AppLayout'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Skeleton } from './components/ui'
+import RouteAnnouncer from './components/RouteAnnouncer'
 import { AuthProvider } from './auth/AuthContext'
 import RequireAuth from './auth/RequireAuth'
 import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './auth/pages'
 import PreviewBanner from './components/PreviewBanner'
+import PwaPrompt from './pwa/PwaPrompt'
 import { routerBasename } from './lib/appUrl'
 import { supabase } from './lib/supabase'
 import Landing from './pages/Landing'
 
+const AppLayout = lazy(() => import('./components/AppLayout'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
-const ComingSoon = lazy(() => import('./pages/ComingSoon'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 const ContentRoute = lazy(() => import('./data/ContentContext').then((m) => ({ default: m.ContentRoute })))
 const Subjects = lazy(() => import('./pages/Subjects'))
 const SubjectTopics = lazy(() => import('./pages/SubjectTopics'))
@@ -37,7 +39,16 @@ const fallback = (
 
 const wrap = (el: React.ReactNode) => <Suspense fallback={fallback}>{el}</Suspense>
 
-export const routes = [
+function Root() {
+  return (
+    <>
+      <Outlet />
+      <RouteAnnouncer />
+    </>
+  )
+}
+
+const pages = [
   { path: '/', element: <Landing /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
@@ -48,7 +59,7 @@ export const routes = [
     children: [
       {
         path: '/app',
-        element: <AppLayout />,
+        element: wrap(<AppLayout />),
         children: [
           { index: true, element: wrap(<Dashboard />) },
           {
@@ -74,8 +85,10 @@ export const routes = [
       },
     ],
   },
-  { path: '*', element: wrap(<ComingSoon title="Page not found" phase="never" />) },
+  { path: '*', element: wrap(<NotFound />) },
 ]
+
+export const routes = [{ element: <Root />, children: pages }]
 
 export default function App() {
   const router = useMemo(() => createBrowserRouter(routes, { basename: routerBasename() }), [])
@@ -83,6 +96,7 @@ export default function App() {
     <AuthProvider client={supabase?.auth ?? null}>
       <PreviewBanner />
       <RouterProvider router={router} />
+      <PwaPrompt />
     </AuthProvider>
   )
 }

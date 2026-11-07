@@ -15,6 +15,7 @@ import { MAX_DAILY_GOAL, MIN_DAILY_GOAL, getDailyGoal, setDailyGoal, useDailyGoa
 import { loadUserData } from '../userdata/store'
 import type { ExportFile } from '../backup/export'
 import { CountInput } from '../components/bits'
+import OfflineCard from '../pwa/OfflineCard'
 
 const DELETE_WORD = 'DELETE'
 const label: Record<keyof ImportReport, string> = { attempts: 'answers', collections: 'collections', bookmarks: 'bookmarks', notes: 'notes', flags: 'reports', mockResults: 'mock exams' }
@@ -120,6 +121,8 @@ export default function Settings() {
           <option value="dark">Dark</option>
         </select>
       </Card>
+
+      <OfflineCard />
 
       <Card className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Your data</h2>

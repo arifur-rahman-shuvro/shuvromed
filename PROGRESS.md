@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 7 built; waiting on owner actions + phone check; Phase 8 NOT started)
+Last updated: 2026-11-08 (Phase 8 built and pushed; waiting on the owner's Cloudflare deploy + phone checks. No later phase exists.)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -40,25 +40,30 @@ Mock exams, XP/levels/streaks/12 badges, Progress page (docs/MOCK_AND_PROGRESS.m
 ## Done: Phase 6 (owner phone check passed 2026-11-07)
 Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 
-## In progress: Phase 7 (authorized 2026-11-07) - export, backup, restore, security review, admin
+## Done: Phase 7 (owner checks all passed 2026-11-08: backup secrets, Database backup workflow, Preview, Android backup/restore) - export, backup, restore, security review, admin
 - Built: Settings page (daily goal, appearance, download backup JSON / answers CSV, restore with preview, delete account); Admin page (question reports, backup records); encrypted restore-verified database backup (`scripts/db-backup.sh`, `.github/workflows/backup.yml`) and guarded restore (`scripts/db-restore.sh`); security headers `public/_headers`. Docs: BACKUP.md, RESTORE.md, SECURITY_REVIEW.md, ADMIN.md. No production database change in Phase 7.
 - Verified by running: typecheck clean; `npm test` 293/293; `npm run test:db` 80/80; `npm run test:backup` 14/14 (local PostgreSQL); lint 0 errors; content:validate OK; build OK; audit (high) passes; real Chromium with the CSP applied, 11/11 flows and no violations; secret scan of full git history clean.
 - NOT verified: backup workflow on GitHub and a backup of the real database (needs the two secrets); delete-account, admin and restore against the real Supabase project; auth-users restore into a real project; a real phone.
 
+## In progress: Phase 8 (authorized 2026-11-08) - PWA/offline, accessibility, performance, deploy
+- Built: installable app (manifest, own icon set, service worker via vite-plugin-pwa, prompt-style updates), offline shell, "Save all questions for offline" in Settings, immediate Offline status, skip link, page-change announcements (title + focus), real not-found page, landmark/heading/contrast fixes found by axe, vendor chunk splitting, lazy signed-in shell, cache headers, robots.txt, `.node-version`, Cloudflare Pages guide (docs/DEPLOY.md), keep-alive workflow, CI check that the app files are produced. Docs: PWA.md, ACCESSIBILITY.md, PERFORMANCE.md, DEPLOY.md. No database change.
+- Verified by running (2026-11-08): typecheck clean; `npm test` 318/318 (new: pwa 15, a11y-ui 10); `npm run test:db` 80/80; `npm run test:backup` 14/14; lint 0 errors; content:validate OK; build OK; real Chromium 360x740 `scripts/check-offline.cjs` 24/24 at the site root and 24/24 at the `/shuvromed/` preview sub-path (install, offline, update prompt, no CSP violations); axe-core `scripts/check-a11y.cjs` 40 screens light+dark 0 violations; Lighthouse mobile (simulated) home 97/100/100/100, sign-in 96/100/100/63 (SEO 63 is deliberate robots rule).
+- NOT verified: Cloudflare Pages itself (build, `_headers`, `_redirects` are tested only against an emulation); a real phone (install prompt, airplane mode); a screen reader; keep-alive workflow (never run); real-network performance; iOS.
+
 ## Blocked / waiting on owner
-- Owner: set up the backup secrets and run Database backup (docs/BACKUP.md); try Settings export/restore on the phone; optionally make yourself admin (docs/ADMIN.md); then authorize Phase 8.
+- Deploy to Cloudflare Pages and set the Supabase Site URL / Redirect URLs (docs/DEPLOY.md steps 1-11), then the phone checks (steps 12-15). Run **Keep Supabase awake** once from the Actions tab.
 
 ## Next
-- After the owner checks Phase 7: Phase 8 (PWA/offline, accessibility, performance, deploy).
+- After the owner confirms the Cloudflare site works: nothing further is planned in the master prompt. Candidates: custom SMTP (owner decision), real question content, lazy-loading the Supabase client, TalkBack testing.
 
 ## Known limitations (honest)
 - The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
-- Sync passed the owner's real two-device test; not load-tested. Note conflicts: newest edit wins using device clock vs server time. There is no backup/export yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
+- Sync passed the owner's real two-device test; not load-tested. Note conflicts: newest edit wins using device clock vs server time. Student export/restore and the whole-database backup exist since Phase 7 (docs/BACKUP.md, docs/RESTORE.md).
 - Mock result history is device-only; gamification is client-side.
 - A session is rebuilt if the page is refreshed mid-session (answers already given stay saved, but the question list is re-selected).
 - Timed mode is a single countdown of 90 seconds per question; there is no per-question timer.
 - No owner-only admin web page yet; content import/review is by command line.
-- Not verified: layout on a real phone (checked in desktop Chromium emulation at 360px only), real Supabase sign-in/sign-up (sandbox cannot reach supabase.co from the shell), accessibility with a screen reader, offline behaviour (Phase 8).
+- Not verified: layout on a real phone (checked in desktop Chromium emulation at 360px only), real Supabase sign-in/sign-up from the sandbox (the owner's own checks passed), accessibility with a screen reader. Offline behaviour was tested in Chromium in Phase 8 (docs/PWA.md), not on a phone.
 - Lint: 0 errors; some React-compiler style warnings remain (setState in effects for data loading, fast-refresh export notes).
 - Hosted migration versions are timestamped by the platform and differ from repo filenames; reconcile with `supabase migration repair` before using the Supabase CLI against this project.
 

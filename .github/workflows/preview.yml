@@ -1,7 +1,7 @@
 # TEMPORARY, MANUAL preview for testing real sign-up / email confirmation / login on a phone.
 # It never runs on its own: open the Actions tab, choose "Preview (manual)", tap "Run workflow".
 # It publishes the app to GitHub Pages, so the preview site is PUBLIC while it is up.
-# Phase 8 replaces this with the real Cloudflare Pages deployment.
+# The real site is deployed by Cloudflare Pages (docs/DEPLOY.md). This stays as an optional way to test a build on a phone.
 name: Preview (manual)
 
 on: workflow_dispatch

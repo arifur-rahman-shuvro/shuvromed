@@ -50,6 +50,18 @@ function Shell() {
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[16rem_1fr]">
+      <a
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault()
+          const m = document.getElementById('main')
+          m?.setAttribute('tabindex', '-1')
+          m?.focus()
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-30 focus:rounded-xl focus:bg-brand focus:px-4 focus:py-3 focus:font-semibold focus:text-brandfg"
+      >
+        Skip to main content
+      </a>
       <aside className="hidden border-r border-line bg-surface p-4 md:block" aria-label="Sidebar">
         <p className="px-4 pb-4 text-xl font-bold">ShuvroMed</p>
         <nav aria-label="Main" className="flex flex-col gap-1">
@@ -88,7 +100,7 @@ function Shell() {
             </button>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
+        <main id="main" className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
           <Outlet />
         </main>
       </div>

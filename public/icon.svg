@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ShuvroMed">
+  <rect width="512" height="512" fill="#0f766e"/>
+  <rect x="206" y="116" width="100" height="280" rx="24" fill="#ffffff"/>
+  <rect x="116" y="206" width="280" height="100" rx="24" fill="#ffffff"/>
+</svg>

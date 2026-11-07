@@ -198,6 +198,7 @@ function SessionView({
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="sr-only">Practice session</h1>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-semibold" data-testid="progress-text">Question {index + 1} of {questions.length}</p>
         <p className="text-sm text-muted" aria-label={remaining !== null ? 'Time remaining' : 'Time elapsed'}>

@@ -51,7 +51,7 @@ export default function Progress() {
             <ul className="grid gap-3 md:grid-cols-2">
               {p.badges.map((b) => (
                 <li key={b.id}>
-                  <Card className={`flex flex-col gap-1 ${b.earnedAt ? '' : 'opacity-70'}`}>
+                  <Card className={`flex flex-col gap-1 ${b.earnedAt ? '' : 'border-dashed'}`}>
                     <div className="flex items-center justify-between gap-2">
                       <strong>{b.name}</strong>
                       <Badge tone={b.earnedAt ? 'good' : 'neutral'}>{b.earnedAt ? `Earned ${dateText(b.earnedAt)}` : 'Locked'}</Badge>
