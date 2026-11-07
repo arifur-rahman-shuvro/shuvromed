@@ -7,6 +7,8 @@ export const NAV = [
   { to: '/app', label: 'Dashboard', end: true },
   { to: '/app/subjects', label: 'Subjects', end: false },
   { to: '/app/revision', label: 'Revision', end: false },
+  { to: '/app/bookmarks', label: 'Bookmarks', end: false },
+  { to: '/app/notebook', label: 'Notebook', end: false },
   { to: '/app/mock', label: 'Mock exam', end: false },
   { to: '/app/analytics', label: 'Analytics', end: false },
   { to: '/app/settings', label: 'Settings', end: false },
@@ -84,7 +86,7 @@ export default function AppLayout() {
         aria-label="Primary"
         className="fixed inset-x-0 bottom-0 z-10 flex border-t border-line bg-surface md:hidden"
       >
-        {NAV.filter((n) => n.label !== 'Mock exam').map((n) => (
+        {NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook'].includes(n.label)).map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end} className={tabLink}>
             {n.label}
           </NavLink>

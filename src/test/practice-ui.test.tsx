@@ -92,6 +92,8 @@ describe('topic library', () => {
   })
 })
 
+const answerRadios = () => screen.getAllByRole('radio').filter((r) => r.getAttribute('name') === 'answer')
+
 describe('practice setup', () => {
   it('prefills from the topic, counts matching questions live, and starts a session', async () => {
     renderApp('/app/practice?subject=anatomy&topic=anatomy-coronary-arteries')
@@ -103,12 +105,14 @@ describe('practice setup', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Start practice' }))
     expect(await screen.findByTestId('progress-text')).toHaveTextContent('Question 1 of 3')
   })
-  it('disables Start when nothing matches and lists unavailable modes honestly', async () => {
+  it('disables Start when nothing matches, including the bookmark and revision modes when there are none', async () => {
     renderApp('/app/practice?subject=anatomy&mode=incorrect')
     expect(await screen.findByText('No questions match these settings.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Start practice' })).toBeDisabled()
-    expect(screen.getByLabelText(/Only bookmarked/)).toBeDisabled()
-    expect(screen.getByLabelText(/Only revision due/)).toBeDisabled()
+    await userEvent.click(screen.getByLabelText(/Only my bookmarked/))
+    expect(await screen.findByText('No questions match these settings.')).toBeInTheDocument()
+    await userEvent.click(screen.getByLabelText(/Only questions due for revision/))
+    expect(await screen.findByText('No questions match these settings.')).toBeInTheDocument()
   })
   it('filters by exam style', async () => {
     renderApp('/app/practice')
@@ -125,7 +129,8 @@ describe('question player', () => {
     expect(screen.queryByText('Explanation')).not.toBeInTheDocument()
     expect(screen.queryByText(/Correct answer/)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Submit answer' })).toBeDisabled()
-    expect(screen.getAllByRole('radio')).toHaveLength(5)
+    expect(answerRadios()).toHaveLength(5)
+    expect(screen.getAllByRole('radio', { name: /Guess|Unsure|Maybe|Fairly sure|Certain/ })).toHaveLength(5) // optional confidence
 
     await pick(optionText('demo-anat-cor-001', 'correct'))
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }))
@@ -135,7 +140,7 @@ describe('question player', () => {
     }
     expect(screen.getByText(/No references are attached/)).toBeInTheDocument() // honest: demo has none
     // disabled through the parent <fieldset disabled>, so the browser blocks them (matches :disabled)
-    expect(screen.getAllByRole('radio').every((r) => r.matches(':disabled'))).toBe(true)
+    expect(answerRadios().every((r) => r.matches(':disabled'))).toBe(true)
     expect(screen.queryByRole('button', { name: 'Submit answer' })).not.toBeInTheDocument()
   })
 

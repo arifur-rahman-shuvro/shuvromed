@@ -11,12 +11,17 @@ import { configToParams, newSeed, paramsToConfig } from '../practice/params'
 import { isCorrect, summarize, timeLimitMs, type SessionAnswer } from '../practice/scoring'
 import { selectQuestions, type PracticeConfig } from '../practice/session'
 import { presentQuestion } from '../practice/shuffle'
+import { practiceContext } from '../practice/context'
+import { loadUserData } from '../userdata/store'
+import StudyTools from '../components/StudyTools'
 
 interface Answer {
   selected: OptionId
   correct: boolean
   timeMs: number
 }
+
+const CONFIDENCE: [number, string][] = [[1, 'Guess'], [2, 'Unsure'], [3, 'Maybe'], [4, 'Fairly sure'], [5, 'Certain']]
 
 export function formatClock(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000))
@@ -38,7 +43,8 @@ export default function PracticePlayer() {
     if (session?.key === key) return
     if (cat.status === 'ready' && qs.status === 'ready') {
       const history = user?.id ? loadAttempts(user.id) : []
-      setSession({ key, questions: selectQuestions(qs.questions, cat.catalog.taxonomy.topics, cfg, history, seed) })
+      const ctx = user?.id ? practiceContext(history, loadUserData(user.id)) : {}
+      setSession({ key, questions: selectQuestions(qs.questions, cat.catalog.taxonomy.topics, cfg, history, seed, ctx) })
     }
   }, [session, key, cat, qs, cfg, seed, user?.id])
 
@@ -82,6 +88,7 @@ function SessionView({
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [selected, setSelected] = useState<OptionId | null>(null)
+  const [confidence, setConfidence] = useState<number | null>(null)
   const [finished, setFinished] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -105,6 +112,7 @@ function SessionView({
   useEffect(() => {
     shownAt.current = Date.now()
     setSelected(null)
+    setConfidence(null)
   }, [index])
 
   const question = questions[index]
@@ -126,7 +134,8 @@ function SessionView({
         selectedOptionId: selected,
         isCorrect: correct,
         timeMs,
-        mode: 'practice',
+        mode: cfg.mode === 'due' ? 'revision' : 'practice',
+        ...(confidence ? { confidence } : {}),
         attemptedAt: new Date().toISOString(),
         contentVersion,
       })
@@ -229,9 +238,24 @@ function SessionView({
               )
             })}
           </fieldset>
+          {!answer ? (
+            <fieldset className="flex flex-col gap-1">
+              <legend className="mb-1 text-sm font-medium">How sure are you? (optional)</legend>
+              <div className="flex flex-wrap gap-2">
+                {CONFIDENCE.map(([v, text]) => (
+                  <label key={v} className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm ${confidence === v ? 'border-brand' : 'border-line'}`}>
+                    <input type="radio" name="confidence" value={v} checked={confidence === v} onChange={() => setConfidence(v)} className="size-4" />
+                    {text}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
           {!answer ? <Button type="submit" disabled={!selected}>Submit answer</Button> : null}
         </form>
       </Card>
+
+      {userId ? <StudyTools key={question.id} userId={userId} questionId={question.id} /> : null}
 
       {answer ? (
         <section aria-label="Answer explanation" className="flex flex-col gap-3">

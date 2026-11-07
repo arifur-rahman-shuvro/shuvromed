@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 3 done; temporary Auth preview prepared; Phase 4 NOT started)
+Last updated: 2026-11-07 (Phase 4 in progress: local-first parts done; cross-device sync WAITING on owner approval)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -31,8 +31,9 @@ Last updated: 2026-11-07 (Phase 3 done; temporary Auth preview prepared; Phase 4
 - Import CLI exercised end to end in an isolated copy: dry run, duplicate id, unknown topic, real write, existing-file refusal, `--force`, path escape refusal, validator afterwards. Repo content untouched.
 - `npm run build`: succeeds; main JS chunk ~550 kB (content layer is lazy-loaded); `npm audit --audit-level=high` passes.
 
-## In progress
-- Nothing.
+## In progress (Phase 4, authorized 2026-11-07 after real Auth test passed)
+- Done locally (187/187 tests): bookmarks + collections, notes, confidence rating (optional, before answering), flags, incorrect-question notebook, spaced repetition (src/practice/srs.ts), Revision/Bookmarks/Notebook pages, bookmarked and due practice modes, dashboard due count. All stored on this device.
+- NOT done: cross-device sync. Blocker found by a read-only query: hosted `questions` table has 0 rows and user-data tables have foreign keys to it, so uploading any attempt/bookmark would be rejected. Fixing needs a production migration -> waiting for owner approval (options sent in chat).
 
 ## Blocked / waiting on owner
 - Owner to run the preview and Auth test in docs/AUTH_TEST.md, then authorize Phase 4.

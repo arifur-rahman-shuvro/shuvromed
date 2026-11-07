@@ -7,6 +7,8 @@ import { buildTopicTree, flattenTree } from '../content/tree'
 import { DIFFICULTIES } from '../content/schema'
 import { useCatalog, useQuestions } from '../data/ContentContext'
 import { useAttempts } from '../practice/attempts'
+import { practiceContext } from '../practice/context'
+import { useUserData } from '../userdata/store'
 import { configToParams, newSeed, paramsToConfig } from '../practice/params'
 import { MAX_SESSION_QUESTIONS, clampCount, matchingQuestions, type PracticeConfig, type PracticeMode } from '../practice/session'
 import { SECONDS_PER_QUESTION } from '../practice/scoring'
@@ -20,6 +22,7 @@ export default function PracticeSetup() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const attempts = useAttempts(user?.id)
+  const userData = useUserData(user?.id)
   const [cfg, setCfg] = useState<PracticeConfig>(() => paramsToConfig(params))
   const qs = useQuestions(cfg.subjectId ? [cfg.subjectId] : null)
 
@@ -33,7 +36,7 @@ export default function PracticeSetup() {
   const { taxonomy } = cat.catalog
 
   const set = <K extends keyof PracticeConfig>(k: K, v: PracticeConfig[K]) => setCfg((c) => ({ ...c, [k]: v }))
-  const available = qs.status === 'ready' ? matchingQuestions(qs.questions, taxonomy.topics, cfg, attempts).length : null
+  const available = qs.status === 'ready' ? matchingQuestions(qs.questions, taxonomy.topics, cfg, attempts, practiceContext(attempts, userData)).length : null
   const willUse = available === null ? null : Math.min(available, clampCount(cfg.count))
 
   function start(e: FormEvent) {
@@ -93,18 +96,12 @@ export default function PracticeSetup() {
       <fieldset className="rounded-2xl border border-line p-4">
         <legend className="px-1 text-sm font-medium">Which questions</legend>
         <div className="flex flex-col gap-2">
-          {([['all', 'All matching questions'], ['unattempted', 'Only questions I have not attempted'], ['incorrect', 'Only questions I last got wrong']] as [PracticeMode, string][]).map(([v, text]) => (
+          {([['all', 'All matching questions'], ['unattempted', 'Only questions I have not attempted'], ['incorrect', 'Only questions I last got wrong'], ['bookmarked', 'Only my bookmarked questions'], ['due', 'Only questions due for revision']] as [PracticeMode, string][]).map(([v, text]) => (
             <label key={v} className="flex min-h-12 items-center gap-3">
               <input type="radio" name="mode" value={v} checked={cfg.mode === v} onChange={() => set('mode', v)} className="size-5" />
               {text}
             </label>
           ))}
-          <label className="flex min-h-12 items-center gap-3 text-muted">
-            <input type="radio" name="mode" disabled className="size-5" /> Only bookmarked (coming in Phase 4)
-          </label>
-          <label className="flex min-h-12 items-center gap-3 text-muted">
-            <input type="radio" name="mode" disabled className="size-5" /> Only revision due (coming in Phase 4)
-          </label>
         </div>
       </fieldset>
 

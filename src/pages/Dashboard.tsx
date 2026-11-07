@@ -1,12 +1,14 @@
 import { useAuth } from '../auth/AuthContext'
 import { EmptyState, LinkButton, Stat } from '../components/ui'
 import { useAttempts } from '../practice/attempts'
+import { buildSchedule, dueQuestions } from '../practice/srs'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 
 export default function Dashboard() {
   const { user } = useAuth()
   const attempts = useAttempts(user?.id)
   const s = getDashboardStats(attempts)
+  const due = dueQuestions(buildSchedule(attempts)).length
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
 
   return (
@@ -38,13 +40,22 @@ export default function Dashboard() {
         <Stat label="Answers recorded" value={String(s.attempted)} hint="On this device" />
         <Stat label="Accuracy" value={formatAccuracy(s.accuracyPct)} />
         <Stat label="Study time today" value={`${s.studyMinutesToday} min`} />
-        <Stat label="Due revisions" value={String(s.dueRevisions)} hint="Arrives in Phase 4" />
+        <Stat label="Due revisions" value={String(due)} hint="Open Revision to study them" />
       </section>
 
       <div className="flex flex-wrap gap-3">
         <LinkButton to="/app/subjects">Browse subjects</LinkButton>
         <LinkButton to="/app/practice" variant="secondary">
           Quick practice
+        </LinkButton>
+        <LinkButton to="/app/revision" variant="secondary">
+          Revision ({due} due)
+        </LinkButton>
+        <LinkButton to="/app/bookmarks" variant="secondary">
+          Bookmarks
+        </LinkButton>
+        <LinkButton to="/app/notebook" variant="secondary">
+          Notebook
         </LinkButton>
       </div>
 

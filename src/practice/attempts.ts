@@ -11,6 +11,8 @@ export const AttemptSchema = z.strictObject({
   questionId: z.string().min(1).max(100),
   selectedOptionId: OptionIdSchema,
   isCorrect: z.boolean(),
+  /** Optional self-rating given before answering: 1 = guess ... 5 = certain. */
+  confidence: z.number().int().min(1).max(5).optional(),
   timeMs: z.number().int().min(0).max(3_600_000),
   mode: z.enum(['practice', 'mock', 'revision']),
   attemptedAt: z.iso.datetime({ offset: true }),

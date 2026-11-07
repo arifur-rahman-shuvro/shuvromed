@@ -3,11 +3,13 @@ import type { Difficulty, Question, Topic } from '../content/schema'
 import type { Attempt } from './attempts'
 import { hashSeed, mulberry32, shuffled } from './shuffle'
 
-/**
- * Modes that need data we do not have yet (bookmarks, spaced-repetition schedule) are deliberately
- * absent here rather than faked. They are added in Phase 4.
- */
-export type PracticeMode = 'all' | 'incorrect' | 'unattempted'
+export type PracticeMode = 'all' | 'incorrect' | 'unattempted' | 'bookmarked' | 'due'
+
+/** Extra facts some modes need. Missing sets mean "none": a bookmark/due mode then matches nothing. */
+export interface PracticeContext {
+  bookmarkedIds?: ReadonlySet<string>
+  dueIds?: ReadonlySet<string>
+}
 
 export interface PracticeConfig {
   subjectId: string | null
@@ -51,6 +53,7 @@ export function matchingQuestions(
   topics: readonly Topic[],
   cfg: PracticeConfig,
   history: readonly Attempt[],
+  ctx: PracticeContext = {},
 ): Question[] {
   const topicIds = cfg.topicId ? descendantIds(topics, cfg.topicId) : null
   const latest = latestAttempts(history)
@@ -63,6 +66,8 @@ export function matchingQuestions(
       const last = latest.get(q.id)
       if (cfg.mode === 'unattempted' && last) return false
       if (cfg.mode === 'incorrect' && !(last && !last.isCorrect)) return false
+      if (cfg.mode === 'bookmarked' && !ctx.bookmarkedIds?.has(q.id)) return false
+      if (cfg.mode === 'due' && !ctx.dueIds?.has(q.id)) return false
       return true
     })
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -80,8 +85,9 @@ export function selectQuestions(
   cfg: PracticeConfig,
   history: readonly Attempt[],
   seed: string,
+  ctx: PracticeContext = {},
 ): Question[] {
-  const matches = matchingQuestions(pool, topics, cfg, history)
+  const matches = matchingQuestions(pool, topics, cfg, history, ctx)
   const ordered = cfg.shuffleQuestions ? shuffled(matches, mulberry32(hashSeed(`${seed}:order`))) : matches
   return ordered.slice(0, clampCount(cfg.count))
 }

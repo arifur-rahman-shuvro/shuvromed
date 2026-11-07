@@ -1,7 +1,7 @@
 import { DIFFICULTIES, type Difficulty } from '../content/schema'
 import { DEFAULT_CONFIG, clampCount, type PracticeConfig, type PracticeMode } from './session'
 
-const MODES: PracticeMode[] = ['all', 'incorrect', 'unattempted']
+const MODES: PracticeMode[] = ['all', 'incorrect', 'unattempted', 'bookmarked', 'due']
 
 /** Practice settings live in the URL so a refresh or a shared link restores the same session. */
 export function configToParams(cfg: PracticeConfig, seed?: string): URLSearchParams {
