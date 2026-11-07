@@ -1,0 +1,54 @@
+name: Database backup
+# Weekly and on demand. Makes an ENCRYPTED, restore-verified copy of the database and keeps it as a
+# workflow artifact for 90 days. Needs two repository SECRETS (see docs/BACKUP.md):
+#   SUPABASE_DB_URL    the "Session pooler" connection string from the Supabase dashboard (contains the DB password)
+#   BACKUP_PASSPHRASE  a long random passphrase (16+ characters) that you also keep in a password manager
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 0' # Sundays 03:17 UTC
+permissions:
+  contents: read
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      scratch:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secrets exist
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          PW: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          [ -n "$DB" ] || { echo "::error::Repository secret SUPABASE_DB_URL is missing (see docs/BACKUP.md)."; exit 1; }
+          [ -n "$PW" ] || { echo "::error::Repository secret BACKUP_PASSPHRASE is missing (see docs/BACKUP.md)."; exit 1; }
+          case "$DB" in postgresql://*|postgres://*) ;; *) echo "::error::SUPABASE_DB_URL must start with postgresql://"; exit 1;; esac
+      - name: Install PostgreSQL 17 client tools
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+          pg_dump --version
+      - name: Back up, verify the restore, encrypt
+        env:
+          SOURCE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          SCRATCH_ADMIN_URL: postgresql://postgres@localhost:5432/postgres
+        run: scripts/db-backup.sh out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shuvromed-db-backup
+          path: out/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,6 +1,7 @@
 export type ThemePref = 'light' | 'dark' | 'system'
 
 const KEY = 'shuvromed.theme'
+export const THEME_EVENT = 'shuvromed:theme'
 
 export function getThemePref(): ThemePref {
   try {
@@ -29,4 +30,5 @@ export function applyTheme(pref: ThemePref): void {
   } catch {
     /* ignore */
   }
+  window.dispatchEvent(new Event(THEME_EVENT)) // lets other parts of the screen (the header button) follow
 }

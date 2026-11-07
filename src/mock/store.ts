@@ -63,6 +63,16 @@ export function completeActive(userId: string, result: MockResult): SaveResult {
   return save(userId, { active: null, results: [result, ...s.results.filter((r) => r.id !== result.id)].slice(0, MAX_RESULTS) })
 }
 
+/** Adds finished exams that are not already stored (by id), newest first, keeping the exam in progress. */
+export function mergeResults(userId: string, incoming: readonly MockResult[]): SaveResult {
+  const s = loadMock(userId)
+  const have = new Set(s.results.map((r) => r.id))
+  const fresh = incoming.filter((r) => !have.has(r.id))
+  if (fresh.length === 0) return { ok: true }
+  const merged = [...s.results, ...fresh].sort((a, b) => (a.finishedAt < b.finishedAt ? 1 : a.finishedAt > b.finishedAt ? -1 : 0)).slice(0, MAX_RESULTS)
+  return save(userId, { ...s, results: merged })
+}
+
 export function resetMockCache(): void {
   cache.clear()
   listeners.forEach((l) => l())

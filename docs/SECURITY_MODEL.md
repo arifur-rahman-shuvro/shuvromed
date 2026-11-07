@@ -1,4 +1,4 @@
-# Security model (Phase 2)
+# Security model (Phase 2; see docs/SECURITY_REVIEW.md for the Phase 7 review)
 
 - Every table in `public` has RLS enabled (enforced by a test that fails if a new table does not).
 - `anon` (signed out) can read only active subjects/topics and **Published** questions. It has no privileges on user tables.
@@ -17,3 +17,5 @@
 - A user can insert their own `user_achievements` (gamification is client-computed).
 - Migrations were applied to the hosted project on 2026-11-06 and a rolled-back isolation script confirmed the key guarantees on PostgreSQL 17. The Supabase security advisor then showed 0 errors; the WARN items are `is_admin()` and `delete_my_account()` being RPC-callable (intentional) and the platform helper below.
 - The hosted project already has a platform helper `public.rls_auto_enable()` (event trigger `ensure_rls`) that Supabase's advisor flags as callable through the API. It is not part of these migrations and has not been changed.
+
+- Phase 4 (applied 2026-11-07): user-data tables refer to questions by id only (migration 5); ids are limited to 1-100 characters.

@@ -3,6 +3,7 @@ import { useAuth } from '../auth/AuthContext'
 import { EmptyState, LinkButton, Stat } from '../components/ui'
 import { useAttempts } from '../practice/attempts'
 import { useGamification } from '../gamification/pref'
+import { useDailyGoal } from '../prefs/settings'
 import { buildSchedule, dueQuestions } from '../practice/srs'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 
@@ -10,7 +11,8 @@ export default function Dashboard() {
   const { user } = useAuth()
   const attempts = useAttempts(user?.id)
   const showXp = useGamification(user?.id)
-  const s = getDashboardStats(attempts)
+  const goal = useDailyGoal(user?.id)
+  const s = getDashboardStats(attempts, new Date(), goal)
   const due = dueQuestions(buildSchedule(attempts)).length
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
 

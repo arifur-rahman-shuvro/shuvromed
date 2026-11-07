@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 6 built; waiting on owner's phone check; Phase 7 NOT started)
+Last updated: 2026-11-07 (Phase 7 built; waiting on owner actions + phone check; Phase 8 NOT started)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -37,16 +37,19 @@ Bookmarks, collections, notes, flags, confidence, notebook, spaced repetition, c
 ## Done: Phase 5 (owner phone check passed 2026-11-07)
 Mock exams, XP/levels/streaks/12 badges, Progress page (docs/MOCK_AND_PROGRESS.md). No database change.
 
-## In progress: Phase 6 (authorized 2026-11-07) - analytics and weak topics
-- Built (docs/ANALYTICS.md): Analytics page: overview, weak topics with practice links, by subject/topic, 14-day trend with table, difficulty, confidence calibration, time per mode, mock scores. Client-side, no database change.
-- Verified by running: typecheck clean; `npm test` 266/266 (10 analytics logic, 6 page); lint 0 errors; real Chromium 360x740 with seeded answers, 5/5 (renders, no horizontal scroll, weak topic listed, practice link preselects the topic, no JS errors); content:validate OK; db tests 80/80; audit passes.
-- NOT verified: a real phone (desktop Chromium emulation only); usefulness with a real-size question bank (only 8 DEMO questions).
+## Done: Phase 6 (owner phone check passed 2026-11-07)
+Analytics page (docs/ANALYTICS.md). Client-side, no database change.
+
+## In progress: Phase 7 (authorized 2026-11-07) - export, backup, restore, security review, admin
+- Built: Settings page (daily goal, appearance, download backup JSON / answers CSV, restore with preview, delete account); Admin page (question reports, backup records); encrypted restore-verified database backup (`scripts/db-backup.sh`, `.github/workflows/backup.yml`) and guarded restore (`scripts/db-restore.sh`); security headers `public/_headers`. Docs: BACKUP.md, RESTORE.md, SECURITY_REVIEW.md, ADMIN.md. No production database change in Phase 7.
+- Verified by running: typecheck clean; `npm test` 293/293; `npm run test:db` 80/80; `npm run test:backup` 14/14 (local PostgreSQL); lint 0 errors; content:validate OK; build OK; audit (high) passes; real Chromium with the CSP applied, 11/11 flows and no violations; secret scan of full git history clean.
+- NOT verified: backup workflow on GitHub and a backup of the real database (needs the two secrets); delete-account, admin and restore against the real Supabase project; auth-users restore into a real project; a real phone.
 
 ## Blocked / waiting on owner
-- Owner to try Analytics on the phone (re-run the Preview workflow first) and authorize Phase 7.
+- Owner: set up the backup secrets and run Database backup (docs/BACKUP.md); try Settings export/restore on the phone; optionally make yourself admin (docs/ADMIN.md); then authorize Phase 8.
 
 ## Next
-- After the owner checks Phase 6: Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
+- After the owner checks Phase 7: Phase 8 (PWA/offline, accessibility, performance, deploy).
 
 ## Known limitations (honest)
 - The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
@@ -63,7 +66,7 @@ Mock exams, XP/levels/streaks/12 badges, Progress page (docs/MOCK_AND_PROGRESS.m
 1. Follow docs/AUTH_TEST.md (enable Pages source, add 2 variables, run the preview, sign up/confirm/sign in on your phone) and report pass/fail.
 2. (Optional) Site URL / Redirect URLs: postponed to Phase 8.
 3. After signing up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
-4. Re-run Preview (manual), open Analytics, report; then authorize Phase 7.
+4. Add the two secrets and run **Database backup** (docs/BACKUP.md); re-run Preview and try Settings; then authorize Phase 8.
 
 ## Security review notes (2026-11-06, read-only)
 - `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).

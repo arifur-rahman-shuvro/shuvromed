@@ -5,6 +5,7 @@
 | `npm run typecheck` | TypeScript | nothing |
 | `npm test` | UI, validation and auth-flow tests (jsdom) | nothing |
 | `npm run test:db` | Real PostgreSQL: applies every migration, then tries to break RLS | local Postgres on :54329 |
+| `npm run test:backup` | Backup, encryption and restore scripts end to end | local Postgres on :54329 + pg_dump/pg_restore/openssl |
 | `npm run build` | Production build | nothing |
 
 ## Database tests

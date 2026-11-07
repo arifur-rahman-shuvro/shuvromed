@@ -20,6 +20,8 @@ const PracticePlayer = lazy(() => import('./pages/PracticePlayer'))
 const Revision = lazy(() => import('./pages/Revision'))
 const Bookmarks = lazy(() => import('./pages/Bookmarks'))
 const Notebook = lazy(() => import('./pages/Notebook'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Admin = lazy(() => import('./pages/Admin'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Progress = lazy(() => import('./pages/Progress'))
 const MockSetup = lazy(() => import('./pages/MockSetup'))
@@ -66,7 +68,8 @@ export const routes = [
             ],
           },
           { path: 'progress', element: wrap(<Progress />) },
-          { path: 'settings', element: wrap(<ComingSoon title="Settings" phase="Phase 7" />) },
+          { path: 'settings', element: wrap(<Settings />) },
+          { path: 'admin', element: wrap(<Admin />) },
         ],
       },
     ],

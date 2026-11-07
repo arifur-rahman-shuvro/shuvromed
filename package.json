@@ -15,7 +15,8 @@
     "content:build": "tsx scripts/build-content.ts",
     "content:import": "tsx scripts/import-content.ts",
     "predev": "npm run content:build",
-    "prebuild": "npm run content:build"
+    "prebuild": "npm run content:build",
+    "test:backup": "bash scripts/test-backup.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import SyncStatus from './SyncStatus'
 import { SyncProvider } from '../sync/SyncContext'
-import { applyTheme, getThemePref, resolveDark } from '../lib/theme'
+import { THEME_EVENT, applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
 export const NAV = [
   { to: '/app', label: 'Dashboard', end: true },
@@ -29,6 +29,11 @@ const tabLink = ({ isActive }: { isActive: boolean }) =>
 
 function Shell() {
   const [dark, setDark] = useState(() => resolveDark(getThemePref()))
+  useEffect(() => {
+    const follow = () => setDark(resolveDark(getThemePref()))
+    window.addEventListener(THEME_EVENT, follow)
+    return () => window.removeEventListener(THEME_EVENT, follow)
+  }, [])
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
