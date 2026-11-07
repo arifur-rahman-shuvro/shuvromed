@@ -1,12 +1,15 @@
+import { dayCount } from '../lib/days'
 import { useAuth } from '../auth/AuthContext'
 import { EmptyState, LinkButton, Stat } from '../components/ui'
 import { useAttempts } from '../practice/attempts'
+import { useGamification } from '../gamification/pref'
 import { buildSchedule, dueQuestions } from '../practice/srs'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 
 export default function Dashboard() {
   const { user } = useAuth()
   const attempts = useAttempts(user?.id)
+  const showXp = useGamification(user?.id)
   const s = getDashboardStats(attempts)
   const due = dueQuestions(buildSchedule(attempts)).length
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
@@ -35,8 +38,8 @@ export default function Dashboard() {
       </section>
 
       <section aria-label="Statistics" className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Streak" value={`${s.streakDays} days`} />
-        <Stat label="XP / Level" value="—" hint="Arrives in Phase 5" />
+        <Stat label="Streak" value={dayCount(s.streakDays)} />
+        {showXp ? <Stat label="XP / Level" value={`${s.xp} XP · L${s.level}`} hint="Open Progress for badges" /> : null}
         <Stat label="Answers recorded" value={String(s.attempted)} hint="On this device" />
         <Stat label="Accuracy" value={formatAccuracy(s.accuracyPct)} />
         <Stat label="Study time today" value={`${s.studyMinutesToday} min`} />
@@ -56,6 +59,12 @@ export default function Dashboard() {
         </LinkButton>
         <LinkButton to="/app/notebook" variant="secondary">
           Notebook
+        </LinkButton>
+        <LinkButton to="/app/mock" variant="secondary">
+          Mock exam
+        </LinkButton>
+        <LinkButton to="/app/progress" variant="secondary">
+          Progress
         </LinkButton>
       </div>
 

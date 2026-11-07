@@ -1,3 +1,4 @@
+import { dayCount } from '../lib/days'
 import { ErrorBox, ListSkeleton } from '../components/bits'
 import QuestionList from '../components/QuestionList'
 import { EmptyState, LinkButton, Stat } from '../components/ui'
@@ -32,7 +33,7 @@ export default function Revision() {
           <LinkButton to={practiceUrl} className="self-start">Start revision ({Math.min(20, dueQs.length)} questions)</LinkButton>
           <QuestionList items={dueQs} topics={cat.catalog.taxonomy.topics} label="Questions due for revision" extra={(q) => {
             const s = schedule.get(q.id)
-            return s ? <p className="text-sm text-muted">Due since {s.dueAt.slice(0, 10)} · interval {s.intervalDays} days · lapses {s.lapses}</p> : null
+            return s ? <p className="text-sm text-muted">Due since {s.dueAt.slice(0, 10)} · interval {dayCount(s.intervalDays)} · lapses {s.lapses}</p> : null
           }} />
         </>
       )}

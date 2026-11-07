@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { ErrorBox, ListSkeleton } from '../components/bits'
+import { CountInput, ErrorBox, ListSkeleton } from '../components/bits'
 import { Button, EmptyState, LinkButton } from '../components/ui'
 import { buildTopicTree, flattenTree } from '../content/tree'
 import { DIFFICULTIES } from '../content/schema'
@@ -88,8 +88,7 @@ export default function PracticeSetup() {
         </div>
         <div>
           <label htmlFor="count" className={label}>Number of questions (max {MAX_SESSION_QUESTIONS})</label>
-          <input id="count" type="number" inputMode="numeric" min={1} max={MAX_SESSION_QUESTIONS} className={field} value={cfg.count}
-            onChange={(e) => set('count', clampCount(Number(e.target.value)))} />
+          <CountInput id="count" max={MAX_SESSION_QUESTIONS} className={field} value={cfg.count} onValue={(n) => set('count', clampCount(n))} />
         </div>
       </div>
 

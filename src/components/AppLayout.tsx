@@ -12,6 +12,7 @@ export const NAV = [
   { to: '/app/bookmarks', label: 'Bookmarks', end: false },
   { to: '/app/notebook', label: 'Notebook', end: false },
   { to: '/app/mock', label: 'Mock exam', end: false },
+  { to: '/app/progress', label: 'Progress', end: false },
   { to: '/app/analytics', label: 'Analytics', end: false },
   { to: '/app/settings', label: 'Settings', end: false },
 ]
@@ -57,24 +58,26 @@ function Shell() {
 
       <div className="flex min-w-0 flex-col pb-16 md:pb-0">
         <header className="flex items-center justify-between border-b border-line bg-surface px-4 py-2">
-          <p className="font-bold md:hidden">ShuvroMed</p>
-          <p className="hidden truncate text-sm text-muted md:block">
-            {user?.email ?? 'Educational use only'}
-          </p>
-          <div className="flex items-center gap-1">
+          <div className="flex min-w-0 flex-col">
+            <p className="font-bold md:hidden">ShuvroMed</p>
+            <p className="hidden truncate text-sm text-muted md:block">
+              {user?.email ?? 'Educational use only'}
+            </p>
             <SyncStatus />
+          </div>
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={toggleTheme}
               aria-pressed={dark}
-              className="min-h-12 rounded-xl px-4 font-medium hover:bg-surface2"
+              className="min-h-12 whitespace-nowrap rounded-xl px-3 font-medium hover:bg-surface2 md:px-4"
             >
               {dark ? 'Light mode' : 'Dark mode'}
             </button>
             <button
               type="button"
               onClick={handleSignOut}
-              className="min-h-12 rounded-xl px-4 font-medium hover:bg-surface2"
+              className="min-h-12 whitespace-nowrap rounded-xl px-3 font-medium hover:bg-surface2 md:px-4"
             >
               Sign out
             </button>
@@ -89,7 +92,7 @@ function Shell() {
         aria-label="Primary"
         className="fixed inset-x-0 bottom-0 z-10 flex border-t border-line bg-surface md:hidden"
       >
-        {NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook'].includes(n.label)).map((n) => (
+        {NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook', 'Progress'].includes(n.label)).map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end} className={tabLink}>
             {n.label}
           </NavLink>

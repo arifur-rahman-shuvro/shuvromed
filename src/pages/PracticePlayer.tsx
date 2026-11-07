@@ -183,7 +183,7 @@ function SessionView({
             </ul>
           </Card>
         ) : null}
-        <p className="text-sm text-muted">Your answers are saved on this device. Syncing across devices arrives in Phase 4.</p>
+        <p className="text-sm text-muted">Your answers are saved on this device and sync to your account when you are online.</p>
         {saveError ? <p role="alert" className="text-danger">{saveError}</p> : null}
         <div className="flex flex-wrap gap-3">
           <Button onClick={again}>Practise again</Button>

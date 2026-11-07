@@ -171,7 +171,7 @@ describe('question player', () => {
     const stats = await screen.findByRole('region', { name: 'Statistics' })
     expect(stats).toHaveTextContent('Answers recorded1')
     expect(stats).toHaveTextContent('Accuracy100%')
-    expect(stats).toHaveTextContent('Streak1 days')
+    expect(stats).toHaveTextContent('Streak1 day')
     expect(screen.getByRole('region', { name: 'Recent activity' })).toHaveTextContent('1 answered · 1 correct')
   })
 
@@ -288,12 +288,13 @@ describe('dashboard statistics', () => {
     expect(computeStreak(new Set(['2026-02-28', '2026-03-01']), '2026-03-01')).toBe(2) // month boundary
     expect(computeStreak(new Set(), '2026-11-06')).toBe(0)
   })
-  it('computes today-only figures and never invents XP', () => {
+  it('computes today-only figures; a repeated question earns XP once per day', () => {
     const now = new Date(2026, 10, 6, 15, 0, 0)
     const today = new Date(2026, 10, 6, 9, 0, 0).toISOString()
     const yesterday = new Date(2026, 10, 5, 9, 0, 0).toISOString()
-    const s = getDashboardStats([at(today), at(today, false, 120_000), at(yesterday)], now, 20)
-    expect(s).toMatchObject({ attempted: 3, correct: 2, answeredToday: 2, studyMinutesToday: 3, streakDays: 2, dueRevisions: 0, xp: null, level: null })
+    const todayLater = new Date(2026, 10, 6, 9, 5, 0).toISOString()
+    const s = getDashboardStats([at(today), at(todayLater, false, 120_000), at(yesterday)], now, 20)
+    expect(s).toMatchObject({ attempted: 3, correct: 2, answeredToday: 2, studyMinutesToday: 3, streakDays: 2, dueRevisions: 0, xp: 20, level: 1 }) // 10 (first answer today) + 0 (same question again today) + 10 (yesterday)
     expect(s.accuracyPct).toBeCloseTo(66.67, 1)
     expect(s.recentDays.map((d) => d.date)).toEqual([localDay(now), '2026-11-05'])
   })

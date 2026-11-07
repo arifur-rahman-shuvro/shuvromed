@@ -1,17 +1,17 @@
 import type { Attempt } from '../practice/attempts'
+import { levelInfo, xpFor } from '../gamification/progress'
 
 /**
  * Dashboard statistics, computed only from attempts recorded on this device.
- * XP and levels are not computed yet (Phase 5) and are reported as null rather than invented.
- * Due revisions are 0 until the spaced-repetition schedule exists (Phase 4).
+ * XP and level come from src/gamification/progress.ts. Due revisions are computed on the Dashboard page itself.
  */
 export interface DashboardStats {
   attempted: number
   correct: number
   accuracyPct: number | null
   streakDays: number
-  xp: number | null
-  level: number | null
+  xp: number
+  level: number
   studyMinutesToday: number
   dailyGoal: number
   answeredToday: number
@@ -20,30 +20,8 @@ export interface DashboardStats {
   recentDays: { date: string; answered: number; correct: number }[]
 }
 
-/** Local calendar date as YYYY-MM-DD (the student's own day, not UTC). */
-export function localDay(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
-}
-
-function shiftDay(day: string, delta: number): string {
-  const [y, m, d] = day.split('-').map(Number)
-  return localDay(new Date(y, m - 1, d + delta))
-}
-
-/**
- * Consecutive days with at least one answer. A streak is still alive if the last study day was
- * yesterday (today is not over yet); it is 0 once a full day has been missed.
- */
-export function computeStreak(days: ReadonlySet<string>, today: string): number {
-  let cursor = days.has(today) ? today : shiftDay(today, -1)
-  let n = 0
-  while (days.has(cursor)) {
-    n += 1
-    cursor = shiftDay(cursor, -1)
-  }
-  return n
-}
+export { computeStreak, localDay, shiftDay } from './days'
+import { localDay, computeStreak } from './days'
 
 export function getDashboardStats(attempts: readonly Attempt[] = [], now: Date = new Date(), dailyGoal = 20): DashboardStats {
   const today = localDay(now)
@@ -63,8 +41,8 @@ export function getDashboardStats(attempts: readonly Attempt[] = [], now: Date =
     correct,
     accuracyPct: attempts.length === 0 ? null : (correct / attempts.length) * 100,
     streakDays: computeStreak(new Set(perDay.keys()), today),
-    xp: null,
-    level: null,
+    xp: xpFor(attempts),
+    level: levelInfo(xpFor(attempts)).level,
     studyMinutesToday: t ? Math.round(t.ms / 60000) : 0,
     dailyGoal,
     answeredToday: t?.answered ?? 0,

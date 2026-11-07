@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Button, Skeleton } from './ui'
 
 export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'demo' | 'good' | 'bad' }) {
@@ -42,4 +42,29 @@ export function DemoBanner() {
 
 export function pctText(v: number | null): string {
   return v === null ? '—' : `${Math.round(v)}%`
+}
+
+/**
+ * A number box that can be emptied and retyped on a phone. The value is only tidied (clamped) once the
+ * student leaves the box; while typing, what they typed stays on screen and the clamped number is passed on.
+ */
+export function CountInput({ id, value, max, className, onValue }: { id: string; value: number; max: number; className?: string; onValue: (n: number) => void }) {
+  const [text, setText] = useState<string | null>(null)
+  return (
+    <input
+      id={id}
+      type="number"
+      inputMode="numeric"
+      min={1}
+      max={max}
+      className={className}
+      value={text ?? String(value)}
+      onChange={(e) => {
+        const raw = e.target.value
+        setText(raw)
+        if (raw !== '' && Number.isFinite(Number(raw))) onValue(Number(raw))
+      }}
+      onBlur={() => setText(null)}
+    />
+  )
 }

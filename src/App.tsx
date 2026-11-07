@@ -20,6 +20,10 @@ const PracticePlayer = lazy(() => import('./pages/PracticePlayer'))
 const Revision = lazy(() => import('./pages/Revision'))
 const Bookmarks = lazy(() => import('./pages/Bookmarks'))
 const Notebook = lazy(() => import('./pages/Notebook'))
+const Progress = lazy(() => import('./pages/Progress'))
+const MockSetup = lazy(() => import('./pages/MockSetup'))
+const MockRun = lazy(() => import('./pages/MockRun'))
+const MockResult = lazy(() => import('./pages/MockResult'))
 
 const fallback = (
   <div className="flex flex-col gap-3 p-4" role="status" aria-label="Loading">
@@ -54,9 +58,12 @@ export const routes = [
               { path: 'revision', element: wrap(<Revision />) },
               { path: 'bookmarks', element: wrap(<Bookmarks />) },
               { path: 'notebook', element: wrap(<Notebook />) },
+              { path: 'mock', element: wrap(<MockSetup />) },
+              { path: 'mock/run', element: wrap(<MockRun />) },
+              { path: 'mock/result/:resultId', element: wrap(<MockResult />) },
             ],
           },
-          { path: 'mock', element: wrap(<ComingSoon title="Mock exam" phase="Phase 5" />) },
+          { path: 'progress', element: wrap(<Progress />) },
           { path: 'analytics', element: wrap(<ComingSoon title="Analytics" phase="Phase 6" />) },
           { path: 'settings', element: wrap(<ComingSoon title="Settings" phase="Phase 7" />) },
         ],
