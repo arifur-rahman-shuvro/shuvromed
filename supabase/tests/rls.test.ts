@@ -225,7 +225,7 @@ describe('attempts integrity', () => {
     expect((await base('question_id, selected_option, is_correct, confidence', `'demo-anat-001','A',true,6`)).error?.code).toBe(PG_CHECK)
     expect((await base('question_id, selected_option, is_correct, time_ms', `'demo-anat-001','A',true,-5`)).error?.code).toBe(PG_CHECK)
     expect((await base('question_id, selected_option, is_correct, mode', `'demo-anat-001','A',true,'cheat'`)).error?.code).toBe(PG_CHECK)
-    expect((await base('question_id, selected_option, is_correct', `'no-such-question','A',true`)).error?.code).toBe(PG_FK)
+    expect((await base('question_id, selected_option, is_correct', `repeat('x',101),'A',true`)).error?.code).toBe(PG_CHECK) // id longer than 100 chars
   })
 
   it('cannot attach an attempt to another user study session', async () => {
@@ -371,11 +371,19 @@ describe('admin role and catalogue writes', () => {
     expect((await tx.q(`insert into public.subjects (id,name) values ('Bad Id!','x')`)).error?.code).toBe(PG_CHECK)
   })
 
-  it('protects content that users have already referenced from being deleted', async () => {
+  it('user data refers to question ids only: works with no matching question row, and survives question deletion', async () => {
     await tx.as('authenticated', A)
+    await tx.ok(`insert into public.attempts (question_id, selected_option, is_correct) values ('not-in-database','A',true)`)
     await tx.ok(`insert into public.attempts (question_id, selected_option, is_correct) values ('demo-anat-001','A',true)`)
     await tx.as('service_role')
-    expect((await tx.q(`delete from public.questions where id = 'demo-anat-001'`)).error?.code).toBe(PG_FK)
+    await tx.ok(`delete from public.questions where id = 'demo-anat-001'`)
+    await tx.as('authenticated', A)
+    const left = await tx.q(`select count(*)::int as n from public.attempts`)
+    expect((left.rows ?? left.data)?.[0]?.n).toBe(2)
+  })
+
+  it('still protects the taxonomy that questions use from being deleted', async () => {
+    await tx.as('service_role')
     expect((await tx.q(`delete from public.subjects where id = 'anatomy'`)).error?.code).toBe(PG_FK)
   })
 })

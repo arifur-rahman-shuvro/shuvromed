@@ -33,7 +33,7 @@ Last updated: 2026-11-07 (Phase 4 in progress: local-first parts done; cross-dev
 
 ## In progress (Phase 4, authorized 2026-11-07 after real Auth test passed)
 - Done locally (187/187 tests): bookmarks + collections, notes, confidence rating (optional, before answering), flags, incorrect-question notebook, spaced repetition (src/practice/srs.ts), Revision/Bookmarks/Notebook pages, bookmarked and due practice modes, dashboard due count. All stored on this device.
-- NOT done: cross-device sync. Blocker found by a read-only query: hosted `questions` table has 0 rows and user-data tables have foreign keys to it, so uploading any attempt/bookmark would be rejected. Fixing needs a production migration -> waiting for owner approval (options sent in chat).
+- NOT done: cross-device sync. Blocker found by a read-only query: hosted `questions` table has 0 rows and user-data tables have foreign keys to it, so uploading any attempt/bookmark would be rejected. Owner chose (2026-11-07) to drop the question foreign keys. Migration `supabase/migrations/20261107090500_user_data_by_question_id.sql` written and tested locally (npm run test:db 79/79) but NOT applied to production: waiting for the owner to approve the exact SQL. Sync code not started until then.
 
 ## Blocked / waiting on owner
 - Owner to run the preview and Auth test in docs/AUTH_TEST.md, then authorize Phase 4.
