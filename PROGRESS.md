@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 5 built; waiting on owner's phone check; Phase 6 NOT started)
+Last updated: 2026-11-07 (Phase 6 built; waiting on owner's phone check; Phase 7 NOT started)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -34,22 +34,24 @@ Last updated: 2026-11-07 (Phase 5 built; waiting on owner's phone check; Phase 6
 ## Done: Phase 4 (verified by owner on real devices 2026-11-07)
 Bookmarks, collections, notes, flags, confidence, notebook, spaced repetition, cross-device sync (docs/SYNC.md). Migration 5 applied to production with owner approval (hosted version 20261107061405).
 
-## In progress: Phase 5 (authorized 2026-11-07) - mock exams, XP, streaks, badges
-- Built (docs/MOCK_AND_PROGRESS.md): mock setup/run/result pages with timer, flags, navigator, resume after reload; XP/levels/streak/12 badges computed from answers; Progress page; dashboard XP and Mock exam link. No database change.
-- Verified by running: typecheck clean; `npm test` 250/250; lint 0 errors; real Chromium at 360x740 against a production-style build with a fabricated session, 14/14 checks (setup, retype count, exam, reload resume, flag, finish, result, progress, no horizontal scroll, no JS errors).
-- Real bugs found and fixed by that check: finishing an exam bounced back to the setup page instead of the result; the question-count box snapped to 1 when emptied (typing 3 gave 13) in both mock and practice setup; "1 days" grammar; cramped phone header.
-- NOT verified: real Supabase with mock answers (they use the same sync as practice, already owner-verified); a real phone (checked in desktop Chromium emulation at 360px only).
+## Done: Phase 5 (owner phone check passed 2026-11-07)
+Mock exams, XP/levels/streaks/12 badges, Progress page (docs/MOCK_AND_PROGRESS.md). No database change.
+
+## In progress: Phase 6 (authorized 2026-11-07) - analytics and weak topics
+- Built (docs/ANALYTICS.md): Analytics page: overview, weak topics with practice links, by subject/topic, 14-day trend with table, difficulty, confidence calibration, time per mode, mock scores. Client-side, no database change.
+- Verified by running: typecheck clean; `npm test` 266/266 (10 analytics logic, 6 page); lint 0 errors; real Chromium 360x740 with seeded answers, 5/5 (renders, no horizontal scroll, weak topic listed, practice link preselects the topic, no JS errors); content:validate OK; db tests 80/80; audit passes.
+- NOT verified: a real phone (desktop Chromium emulation only); usefulness with a real-size question bank (only 8 DEMO questions).
 
 ## Blocked / waiting on owner
-- Owner to try the mock exam on the phone (re-run the Preview workflow first) and authorize Phase 6.
+- Owner to try Analytics on the phone (re-run the Preview workflow first) and authorize Phase 7.
 
 ## Next
-- After the owner checks Phase 5: Phase 6 (analytics, weak topics), Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
+- After the owner checks Phase 6: Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
 
 ## Known limitations (honest)
 - The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
 - Sync passed the owner's real two-device test; not load-tested. Note conflicts: newest edit wins using device clock vs server time. There is no backup/export yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
-- No weak-topics panel or analytics yet (Phase 6). Mock result history is device-only; gamification is client-side.
+- Mock result history is device-only; gamification is client-side.
 - A session is rebuilt if the page is refreshed mid-session (answers already given stay saved, but the question list is re-selected).
 - Timed mode is a single countdown of 90 seconds per question; there is no per-question timer.
 - No owner-only admin web page yet; content import/review is by command line.
@@ -61,7 +63,7 @@ Bookmarks, collections, notes, flags, confidence, notebook, spaced repetition, c
 1. Follow docs/AUTH_TEST.md (enable Pages source, add 2 variables, run the preview, sign up/confirm/sign in on your phone) and report pass/fail.
 2. (Optional) Site URL / Redirect URLs: postponed to Phase 8.
 3. After signing up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
-4. Re-run Preview (manual), try Mock exam from the Dashboard and the Progress page, report; then authorize Phase 6.
+4. Re-run Preview (manual), open Analytics, report; then authorize Phase 7.
 
 ## Security review notes (2026-11-06, read-only)
 - `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).
