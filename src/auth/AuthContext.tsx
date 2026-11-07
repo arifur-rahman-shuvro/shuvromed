@@ -1,4 +1,5 @@
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js'
+import { appUrl } from '../lib/appUrl'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 /** The slice of supabase.auth we use. Lets tests inject a stand-in client. */
@@ -35,7 +36,11 @@ export function friendlyAuthError(err: { message?: string; code?: string; status
   if (code === 'email_not_confirmed' || msg.includes('not confirmed')) return 'Please confirm your email first. Check your inbox for the link.'
   if (code === 'weak_password' || msg.includes('password should')) return 'That password is too weak. Try a longer one.'
   if (code === 'same_password') return 'Choose a password different from your current one.'
-  if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' || err.status === 429)
+  if (code === 'email_address_not_authorized')
+    return 'We cannot send email to this address yet. While the project is in testing, only the project team\'s own email addresses can receive emails.'
+  if (code === 'over_email_send_rate_limit')
+    return 'The email sending limit has been reached. Please wait about an hour and try again.'
+  if (code === 'over_request_rate_limit' || err.status === 429)
     return 'Too many attempts right now. Please wait a few minutes and try again.'
   if (code === 'user_already_exists') return 'We could not create that account. Try signing in instead.'
   if (msg.includes('fetch') || msg.includes('network')) return 'Network problem. Check your connection and try again.'
@@ -83,7 +88,7 @@ export function AuthProvider({ client, children }: { client: AuthClient | null; 
         password,
         options: {
           data: { display_name: displayName.trim() },
-          emailRedirectTo: `${window.location.origin}/login`,
+          emailRedirectTo: appUrl('/login'),
         },
       })
       if (error) return { error: friendlyAuthError(error), needsConfirmation: false }
@@ -112,7 +117,7 @@ export function AuthProvider({ client, children }: { client: AuthClient | null; 
     async (email) => {
       if (!client) return { error: 'The app is not configured.' }
       const { error } = await client.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: appUrl('/reset-password'),
       })
       return { error: friendlyAuthError(error) }
     },

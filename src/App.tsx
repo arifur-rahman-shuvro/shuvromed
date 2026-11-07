@@ -5,6 +5,8 @@ import { Skeleton } from './components/ui'
 import { AuthProvider } from './auth/AuthContext'
 import RequireAuth from './auth/RequireAuth'
 import { ForgotPasswordPage, LoginPage, ResetPasswordPage, SignupPage } from './auth/pages'
+import PreviewBanner from './components/PreviewBanner'
+import { routerBasename } from './lib/appUrl'
 import { supabase } from './lib/supabase'
 import Landing from './pages/Landing'
 
@@ -60,9 +62,10 @@ export const routes = [
 ]
 
 export default function App() {
-  const router = useMemo(() => createBrowserRouter(routes), [])
+  const router = useMemo(() => createBrowserRouter(routes, { basename: routerBasename() }), [])
   return (
     <AuthProvider client={supabase?.auth ?? null}>
+      <PreviewBanner />
       <RouterProvider router={router} />
     </AuthProvider>
   )

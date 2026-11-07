@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { assetUrl } from '../lib/appUrl'
 import { ExamStyleSchema, QuestionFormatSchema, QuestionSchema, SubjectSchema, TopicSchema, type Question } from '../content/schema'
 import type { Manifest, Taxonomy } from '../content/bundle'
 
@@ -6,7 +7,7 @@ import type { Manifest, Taxonomy } from '../content/bundle'
 export type Fetcher = (path: string) => Promise<unknown>
 
 export const fetchFromSite: Fetcher = async (path) => {
-  const res = await fetch(`/content/${path}`)
+  const res = await fetch(assetUrl(`content/${path}`))
   if (!res.ok) throw new Error(`Could not load ${path} (HTTP ${res.status})`)
   return res.json()
 }

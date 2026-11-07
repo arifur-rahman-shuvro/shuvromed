@@ -1,0 +1,77 @@
+# TEMPORARY, MANUAL preview for testing real sign-up / email confirmation / login on a phone.
+# It never runs on its own: open the Actions tab, choose "Preview (manual)", tap "Run workflow".
+# It publishes the app to GitHub Pages, so the preview site is PUBLIC while it is up.
+# Phase 8 replaces this with the real Cloudflare Pages deployment.
+name: Preview (manual)
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # Stop early, with a plain message, if the two repository variables are missing or wrong.
+      # The publishable key is meant to be public, but a SECRET key must never be built into a website.
+      - name: Check the Supabase variables
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::Set the repository variables VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)."
+            exit 1
+          fi
+          case "$SUPABASE_URL" in
+            https://*.supabase.co) ;;
+            *) echo "::error::VITE_SUPABASE_URL must look like https://<project>.supabase.co"; exit 1 ;;
+          esac
+          case "$SUPABASE_KEY" in
+            sb_secret_*) echo "::error::That is a SECRET key. Use the PUBLISHABLE key (starts with sb_publishable_)."; exit 1 ;;
+            sb_publishable_*) ;;
+            eyJ*) echo "::error::That looks like a legacy JWT key. Use the PUBLISHABLE key (starts with sb_publishable_)."; exit 1 ;;
+            *) echo "::error::The key is not a publishable key (it should start with sb_publishable_)."; exit 1 ;;
+          esac
+          echo "Variables look correct."
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+          VITE_PREVIEW: "1"
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      # GitHub Pages has no "send every path to index.html" rule, but it serves 404.html for unknown
+      # paths, so a refresh on /app/subjects still loads the app.
+      - run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

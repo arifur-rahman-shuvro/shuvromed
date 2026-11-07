@@ -1,7 +1,8 @@
-# Proposed database hardening (NOT APPLIED)
+# Proposed database hardening — DECLINED by the owner (2026-11-07)
 
-Status: **proposal only. Nothing here has been run against the production Supabase project.**
-It needs the owner's separate approval first.
+Status: **DECLINED. The owner decided not to apply this. Neither REVOKE statement must be run.**
+Nothing here has ever been run against the production Supabase project. Kept for the record only;
+the advisor warning about `rls_auto_enable` is accepted as known.
 
 ## What was found (read-only checks, 2026-11-06)
 
