@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 4 built; waiting on owner's real two-device sync test)
+Last updated: 2026-11-07 (Phase 4 done; owner's two-device sync test passed; Phase 5 NOT started)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -36,17 +36,17 @@ Last updated: 2026-11-07 (Phase 4 built; waiting on owner's real two-device sync
 - Built: cross-device sync (src/sync/*; docs/SYNC.md): attempts, collections, bookmarks, notes, flags, with header status and retry.
 - Production change (owner-approved 2026-11-07): migration 5 applied (hosted version 20261107061405): question foreign keys dropped from user-data tables, length check added. Verified by read-back: no FK to questions remain, 5 checks present. Security advisor shows only items already known.
 - Verified by running: typecheck clean; `npm test` 216/216 (incl. sync merge rules 18, request shapes 8, status UI 3); `npm run test:db` 80/80 (incl. the exact upsert SQL); lint 0 errors; content:validate OK; build OK (main JS ~662 kB, was ~550 kB, since sync is in the main bundle); audit (high) passes.
-- NOT verified: real sync against Supabase (sandbox cannot reach it). Owner test: docs/SYNC_TEST.md (re-run the Preview workflow first).
+- Verified by the owner on real devices (2026-11-07, docs/SYNC_TEST.md): second device received the data (step 3), a removal flowed back (step 4), offline queue then sync after reconnect (step 5): all Passed. Owner reported results for steps 3-5 only; step 5 of the guide's server table check was optional.
 
 ## Blocked / waiting on owner
-- Owner to run docs/SYNC_TEST.md (two devices) and report; then Phase 5 can be authorized.
+- Owner to authorize Phase 5.
 
 ## Next
 - After owner verifies sync: - Then Phase 5 (mock exams, XP, streak rules, badges), Phase 6 (analytics, weak topics), Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
 
 ## Known limitations (honest)
 - The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
-- Sync is untested against real Supabase until the owner's two-device test. Note conflicts: newest edit wins using device clock vs server time. There is no backup/export yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
+- Sync passed the owner's real two-device test; not load-tested. Note conflicts: newest edit wins using device clock vs server time. There is no backup/export yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
 - Dashboard: XP/level shown as "—" (Phase 5), no weak-topics panel yet (Phase 6).
 - A session is rebuilt if the page is refreshed mid-session (answers already given stay saved, but the question list is re-selected).
 - Timed mode is a single countdown of 90 seconds per question; there is no per-question timer.
@@ -59,7 +59,7 @@ Last updated: 2026-11-07 (Phase 4 built; waiting on owner's real two-device sync
 1. Follow docs/AUTH_TEST.md (enable Pages source, add 2 variables, run the preview, sign up/confirm/sign in on your phone) and report pass/fail.
 2. (Optional) Site URL / Redirect URLs: postponed to Phase 8.
 3. After signing up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
-4. Run docs/SYNC_TEST.md and report; then authorize Phase 5.
+4. Authorize Phase 5.
 
 ## Security review notes (2026-11-06, read-only)
 - `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).
