@@ -73,6 +73,28 @@ export function addAttempt(userId: string, attempt: Attempt): SaveResult {
   return { ok: true }
 }
 
+/** Adds attempts that came from the server. Duplicates (same id) are skipped; invalid ones are dropped. */
+export function addAttempts(userId: string, incoming: readonly Attempt[]): SaveResult & { added: number } {
+  const current = loadAttempts(userId)
+  const have = new Set(current.map((a) => a.id))
+  const fresh = incoming.flatMap((a) => {
+    const r = AttemptSchema.safeParse(a)
+    if (!r.success || have.has(r.data.id)) return []
+    have.add(r.data.id)
+    return [r.data]
+  })
+  if (fresh.length === 0) return { ok: true, added: 0 }
+  const next = [...current, ...fresh]
+  try {
+    localStorage.setItem(KEY(userId), JSON.stringify(next))
+  } catch {
+    return { ok: false, added: 0, error: 'Your device would not let us save progress (storage is full or blocked).' }
+  }
+  cache.set(userId, next)
+  listeners.forEach((l) => l())
+  return { ok: true, added: fresh.length }
+}
+
 /** Test and sign-out helper: forget the in-memory copy so the next read goes back to storage. */
 export function resetAttemptCache(): void {
   cache.clear()

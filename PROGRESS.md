@@ -1,6 +1,6 @@
 # ShuvroMed — PROGRESS
 
-Last updated: 2026-11-07 (Phase 4 in progress: local-first parts done; cross-device sync WAITING on owner approval)
+Last updated: 2026-11-07 (Phase 4 built; waiting on owner's real two-device sync test)
 
 ## Done
 - Preflight + free-tier limits (docs/FREE_TIER.md).
@@ -31,22 +31,23 @@ Last updated: 2026-11-07 (Phase 4 in progress: local-first parts done; cross-dev
 - Import CLI exercised end to end in an isolated copy: dry run, duplicate id, unknown topic, real write, existing-file refusal, `--force`, path escape refusal, validator afterwards. Repo content untouched.
 - `npm run build`: succeeds; main JS chunk ~550 kB (content layer is lazy-loaded); `npm audit --audit-level=high` passes.
 
-## In progress (Phase 4, authorized 2026-11-07 after real Auth test passed)
-- Done locally (187/187 tests): bookmarks + collections, notes, confidence rating (optional, before answering), flags, incorrect-question notebook, spaced repetition (src/practice/srs.ts), Revision/Bookmarks/Notebook pages, bookmarked and due practice modes, dashboard due count. All stored on this device.
-- NOT done: cross-device sync. Blocker found by a read-only query: hosted `questions` table has 0 rows and user-data tables have foreign keys to it, so uploading any attempt/bookmark would be rejected. Owner chose (2026-11-07) to drop the question foreign keys. Migration `supabase/migrations/20261107090500_user_data_by_question_id.sql` written and tested locally (npm run test:db 79/79) but NOT applied to production: waiting for the owner to approve the exact SQL. Sync code not started until then.
+## In progress (Phase 4, authorized 2026-11-07)
+- Built: bookmarks + collections, notes, flags, optional confidence rating, incorrect-question notebook, spaced repetition (derived from answers, src/practice/srs.ts), Revision/Bookmarks/Notebook pages, bookmarked and due practice modes, dashboard due count.
+- Built: cross-device sync (src/sync/*; docs/SYNC.md): attempts, collections, bookmarks, notes, flags, with header status and retry.
+- Production change (owner-approved 2026-11-07): migration 5 applied (hosted version 20261107061405): question foreign keys dropped from user-data tables, length check added. Verified by read-back: no FK to questions remain, 5 checks present. Security advisor shows only items already known.
+- Verified by running: typecheck clean; `npm test` 216/216 (incl. sync merge rules 18, request shapes 8, status UI 3); `npm run test:db` 80/80 (incl. the exact upsert SQL); lint 0 errors; content:validate OK; build OK (main JS ~662 kB, was ~550 kB, since sync is in the main bundle); audit (high) passes.
+- NOT verified: real sync against Supabase (sandbox cannot reach it). Owner test: docs/SYNC_TEST.md (re-run the Preview workflow first).
 
 ## Blocked / waiting on owner
-- Owner to run the preview and Auth test in docs/AUTH_TEST.md, then authorize Phase 4.
+- Owner to run docs/SYNC_TEST.md (two devices) and report; then Phase 5 can be authorized.
 
 ## Next
-- After owner verifies Auth testing and authorizes: - Phase 4: bookmarks (collections), notes, flags, confidence rating, incorrect-question notebook, spaced repetition, cross-device sync of attempts; enables the bookmarked and revision-due practice modes.
-- Then Phase 5 (mock exams, XP, streak rules, badges), Phase 6 (analytics, weak topics), Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
+- After owner verifies sync: - Then Phase 5 (mock exams, XP, streak rules, badges), Phase 6 (analytics, weak topics), Phase 7 (export, backup, restore, security review, admin page), Phase 8 (PWA/offline, accessibility, performance, deploy).
 
 ## Known limitations (honest)
 - The question bank is 8 DEMO questions (Anatomy, Physiology, Pharmacology). Not a real bank. DEMO questions have no references and have NOT been clinically reviewed.
-- Attempts live only on the device that answered. Nothing is uploaded to Supabase yet; clearing browser data loses them. Sync is Phase 4. There is no backup yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
-- Player has no bookmark, flag, note or confidence controls yet (Phase 4). Practice modes "bookmarked" and "revision due" are shown disabled.
-- Dashboard: XP/level shown as "—" (Phase 5), due revisions 0 (Phase 4), no weak-topics panel yet (Phase 6).
+- Sync is untested against real Supabase until the owner's two-device test. Note conflicts: newest edit wins using device clock vs server time. There is no backup/export yet (Phase 7); docs/BACKUP.md and docs/RESTORE.md do not exist yet.
+- Dashboard: XP/level shown as "—" (Phase 5), no weak-topics panel yet (Phase 6).
 - A session is rebuilt if the page is refreshed mid-session (answers already given stay saved, but the question list is re-selected).
 - Timed mode is a single countdown of 90 seconds per question; there is no per-question timer.
 - No owner-only admin web page yet; content import/review is by command line.

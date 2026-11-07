@@ -382,6 +382,36 @@ describe('admin role and catalogue writes', () => {
     expect((left.rows ?? left.data)?.[0]?.n).toBe(2)
   })
 
+  it('sync upserts (the SQL the app sends) behave: duplicates ignored, updates allowed, other users untouched', async () => {
+    const ID = '00000000-0000-4000-8000-000000000001'
+    const att = `insert into public.attempts (id, user_id, question_id, selected_option, is_correct) values ('${ID}', '${A}', 'not-in-db', 'B', false) on conflict (id) do nothing`
+    await tx.as('authenticated', A)
+    await tx.ok(att); await tx.ok(att)
+    expect((await tx.ok(`select count(*)::int as n from public.attempts`)).rows[0].n).toBe(1)
+    // another user re-sending the same id cannot change or duplicate it
+    await tx.as('authenticated', B)
+    await tx.ok(`insert into public.attempts (id, user_id, question_id, selected_option, is_correct) values ('${ID}', '${B}', 'q', 'A', true) on conflict (id) do nothing`)
+    expect((await tx.ok(`select count(*)::int as n from public.attempts`)).rows[0].n).toBe(0)
+    await tx.as('postgres')
+    expect((await tx.ok(`select user_id::text as u, is_correct from public.attempts where id = '${ID}'`)).rows).toEqual([{ u: A, is_correct: false }])
+
+    await tx.as('authenticated', A)
+    const bm = (c: string) => `insert into public.bookmarks (user_id, question_id, collection_id) values ('${A}', 'not-in-db', ${c}) on conflict (user_id, question_id) do update set collection_id = excluded.collection_id`
+    await tx.ok(`insert into public.bookmark_collections (id, user_id, name) values ('11111111-1111-4111-8111-111111111111', '${A}', 'Cardio') on conflict (id) do update set name = excluded.name`)
+    await tx.ok(bm('null')); await tx.ok(bm(`'11111111-1111-4111-8111-111111111111'`))
+    expect((await tx.ok(`select collection_id::text as c from public.bookmarks`)).rows).toEqual([{ c: '11111111-1111-4111-8111-111111111111' }])
+    await tx.ok(`insert into public.question_notes (user_id, question_id, body) values ('${A}', 'not-in-db', 'one') on conflict (user_id, question_id) do update set body = excluded.body`)
+    await tx.ok(`insert into public.question_notes (user_id, question_id, body) values ('${A}', 'not-in-db', 'two') on conflict (user_id, question_id) do update set body = excluded.body`)
+    expect((await tx.ok(`select body from public.question_notes`)).rows).toEqual([{ body: 'two' }])
+    const fl = `insert into public.flags (user_id, question_id, reason) values ('${A}', 'not-in-db', 'typo') on conflict (user_id, question_id, reason) do nothing`
+    await tx.ok(fl); await tx.ok(fl)
+    expect((await tx.ok(`select count(*)::int as n from public.flags`)).rows[0].n).toBe(1)
+
+    // B cannot overwrite A's bookmark by naming A as the owner
+    await tx.as('authenticated', B)
+    expect((await tx.q(`insert into public.bookmarks (user_id, question_id) values ('${A}', 'not-in-db') on conflict (user_id, question_id) do update set collection_id = null`)).error?.code).toBe(PG_RLS_VIOLATION)
+  })
+
   it('still protects the taxonomy that questions use from being deleted', async () => {
     await tx.as('service_role')
     expect((await tx.q(`delete from public.subjects where id = 'anatomy'`)).error?.code).toBe(PG_FK)

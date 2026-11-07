@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import SyncStatus from './SyncStatus'
+import { SyncProvider } from '../sync/SyncContext'
 import { applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
 export const NAV = [
@@ -24,7 +26,7 @@ const tabLink = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'text-brand' : 'text-muted'
   }`
 
-export default function AppLayout() {
+function Shell() {
   const [dark, setDark] = useState(() => resolveDark(getThemePref()))
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -60,6 +62,7 @@ export default function AppLayout() {
             {user?.email ?? 'Educational use only'}
           </p>
           <div className="flex items-center gap-1">
+            <SyncStatus />
             <button
               type="button"
               onClick={toggleTheme}
@@ -93,5 +96,13 @@ export default function AppLayout() {
         ))}
       </nav>
     </div>
+  )
+}
+
+export default function AppLayout() {
+  return (
+    <SyncProvider>
+      <Shell />
+    </SyncProvider>
   )
 }
