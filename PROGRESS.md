@@ -59,7 +59,7 @@ Last updated: 2026-11-07 (Phase 4 built; waiting on owner's real two-device sync
 1. Follow docs/AUTH_TEST.md (enable Pages source, add 2 variables, run the preview, sign up/confirm/sign in on your phone) and report pass/fail.
 2. (Optional) Site URL / Redirect URLs: postponed to Phase 8.
 3. After signing up once, make yourself admin with the SQL in docs/AUTH_SETUP.md.
-4. Tell me when to start Phase 4.
+4. Run docs/SYNC_TEST.md and report; then authorize Phase 5.
 
 ## Security review notes (2026-11-06, read-only)
 - `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).
