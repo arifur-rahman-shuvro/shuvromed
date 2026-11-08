@@ -76,3 +76,9 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 ## Security review notes (2026-11-06, read-only)
 - `is_admin()`, `delete_my_account()`, `handle_new_user()`: SECURITY DEFINER, empty search_path, correct execute grants. `delete_my_account()` has no re-authentication (design gap, planned for Phase 7).
 - Platform helper `rls_auto_enable()` and our `set_updated_at()` are executable by anon (see docs/PROPOSED_HARDENING.md).
+
+## v3.0 Change Directive: Phase 1 (private data model) — built locally, NOT applied to production
+- New migration `supabase/migrations/20261108090600_private_workspace_core.sql` (M6, additive only): user_subjects, user_topics, user_tags, user_questions, user_question_versions, user_question_topics, user_question_tag_links, user_question_attempts, user_bookmark_collections, user_question_bookmarks, user_question_notes, user_question_reviews, user_question_review_log, user_question_reports. All have RLS (`owner_id = auth.uid()`), composite owner-scoped foreign keys, no anon access.
+- Rollback: `supabase/rollback/20261108090600_private_workspace_core.down.sql`. Post-apply checks: `supabase/verify/m6_verify.sql`.
+- Tests: `supabase/tests/workspace.test.ts` (32 tests: empty-by-default, two-user isolation, cross-owner links, topic tree, versioning, per-type content validation, append-only attempts). Local PG16 DB suite 112/112, unit 318/318, backup 14/14, typecheck clean, lint 0 errors.
+- Production: M6 is NOT applied. Waiting for owner approval of the exact SQL, a green Database backup run, and (optionally) a staging rehearsal.
