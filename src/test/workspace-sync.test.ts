@@ -281,8 +281,8 @@ describe('local repo applies the same rules as the database', () => {
     const s = mk(memoryBackend(), specs); const repo = localWorkspaceRepo(s)
     const a = (await repo.createSubject('Anatomy', null)).data!
     await s.create('user_questions', { subject_id: a.id, deleted_at: null })
-    await s.create('user_questions', { subject_id: a.id, deleted_at: '2026-11-08T00:00:00Z' }) // hidden ones do not block deleting
-    expect((await repo.subjectUse(a.id)).data?.questions).toBe(1)
+    await s.create('user_questions', { subject_id: a.id, deleted_at: '2026-11-08T00:00:00Z' }) // hidden rows still hold the subject (server foreign keys)
+    expect((await repo.subjectUse(a.id)).data?.questions).toBe(2)
     expect((await repo.deleteSubject(a.id)).error).toMatch(/still has items/)
   })
 })

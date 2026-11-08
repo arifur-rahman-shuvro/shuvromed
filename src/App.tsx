@@ -23,6 +23,8 @@ const Revision = lazy(() => import('./pages/Revision'))
 const Bookmarks = lazy(() => import('./pages/Bookmarks'))
 const Notebook = lazy(() => import('./pages/Notebook'))
 const WorkspaceSubjects = lazy(() => import('./pages/WorkspaceSubjects'))
+const WorkspaceQuestions = lazy(() => import('./pages/WorkspaceQuestions'))
+const WorkspaceQuestionEdit = lazy(() => import('./pages/WorkspaceQuestionEdit'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Analytics = lazy(() => import('./pages/Analytics'))
@@ -81,6 +83,8 @@ const pages = [
           },
           { path: 'progress', element: wrap(<Progress />) },
           { path: 'workspace/subjects', element: wrap(<WorkspaceSubjects />) },
+          { path: 'workspace/questions', element: wrap(<WorkspaceQuestions />) },
+          { path: 'workspace/questions/:id', element: wrap(<WorkspaceQuestionEdit />) },
           { path: 'settings', element: wrap(<Settings />) },
           { path: 'admin', element: wrap(<Admin />) },
         ],

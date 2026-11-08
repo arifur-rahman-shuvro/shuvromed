@@ -13,6 +13,12 @@ export interface TableSpec {
   columns: string[]
   /** Self-reference (nested tables): parents are pushed before children and deleted after them. */
   parentKey?: string
+  /** A link table with no `id`/`updated_at` columns (a pair of ids). A row's id is its key values joined by ":".
+   *  Links are only ever added or removed, never changed. */
+  key?: string[]
+  /** A link table read per parent: after the parent table is read, only the links of the parent rows that changed
+   *  are read (the server marks a question as changed whenever its links change). */
+  childOf?: { table: string; fk: string }
 }
 
 export interface StoredRow {

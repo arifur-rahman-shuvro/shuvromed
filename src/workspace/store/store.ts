@@ -1,6 +1,10 @@
 import type { Backend, Cols, StoredRow, TableSpec } from './types'
 
 export type Row = Cols & { id: string }
+export type Change =
+  | { table: string; id: string; create: Cols }
+  | { table: string; id: string; update: Cols }
+  | { table: string; id: string; remove: true }
 type Listener = () => void
 
 const uuid = (): string => crypto.randomUUID()
@@ -93,6 +97,43 @@ export class WorkspaceStore {
       if (!cur) return
       if (cur.base === null) await this.backend.deleteMany(table, [id])
       else await this.backend.putMany([{ ...cur, dirty: 'delete', rev: cur.rev + 1, editedAt: this.now(), rejected: null }])
+      this.emit()
+    })
+  }
+
+  /**
+   * Several changes saved as one: all of them or none (for example a question and its topic links), with a single
+   * refresh of the screens. `create` needs an `id`; `update` and `remove` act on an existing row (or one created earlier in the same call).
+   */
+  apply(changes: Change[]): Promise<void> {
+    return this.run(async () => {
+      const at = this.now()
+      const touched = new Map<string, StoredRow>()
+      const gone: { table: string; id: string }[] = []
+      const key = (t: string, id: string) => `${t}/${id}`
+      const current = async (t: string, id: string) => touched.get(key(t, id)) ?? (await this.backend.get(t, id))
+      for (const c of changes) {
+        const spec = this.spec(c.table)
+        if ('create' in c) {
+          if (await current(c.table, c.id)) throw new Error('That item already exists.')
+          const v: Cols = { created_at: at, updated_at: at, row_version: 0 }
+          for (const col of spec.columns) if (col in c.create) v[col] = c.create[col]
+          touched.set(key(c.table, c.id), { table: c.table, id: c.id, v, dirty: 'upsert', rev: 1, editedAt: at, base: null, rejected: null })
+        } else if ('update' in c) {
+          const cur = await current(c.table, c.id)
+          if (!cur || cur.dirty === 'delete') throw new Error('That item no longer exists.')
+          const v: Cols = { ...cur.v }
+          for (const col of spec.columns) if (col in c.update) v[col] = c.update[col]
+          touched.set(key(c.table, c.id), { ...cur, v, dirty: 'upsert', rev: cur.rev + 1, editedAt: at, rejected: null })
+        } else {
+          const cur = await current(c.table, c.id)
+          if (!cur) continue
+          if (cur.base === null) { touched.delete(key(c.table, c.id)); gone.push({ table: c.table, id: c.id }) }
+          else touched.set(key(c.table, c.id), { ...cur, dirty: 'delete', rev: cur.rev + 1, editedAt: at, rejected: null })
+        }
+      }
+      for (const g of gone) await this.backend.deleteMany(g.table, [g.id])
+      await this.backend.putMany([...touched.values()])
       this.emit()
     })
   }

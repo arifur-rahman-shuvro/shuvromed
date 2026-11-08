@@ -15,13 +15,19 @@ export type PageResult = { ok: true; rows: ServerRow[] } | { ok: false; message:
 export interface WorkspaceRemote {
   /** One page of rows. With `since`, only rows changed at or after that time (cursor tables). */
   fetchPage(table: string, opts: { since: string | null; offset: number; limit: number }): Promise<PageResult>
+  /** The links (rows with no id) of the given parent rows. Each returned row has a made-up `id` (its key values joined by ":")
+   *  and `updated_at` taken from `created_at`. */
+  fetchChildren(table: string, fk: string, parentIds: string[], key: string[]): Promise<PageResult>
   insert(table: string, row: Cols): Promise<WriteResult>
   /** `row: null` in the result means no such row exists on the server. */
   update(table: string, id: string, patch: Cols): Promise<WriteResult>
-  remove(table: string, id: string): Promise<{ ok: true } | { ok: false; message: string; code?: string; transient: boolean }>
+  /** `match` is given for link tables, which have no id column. */
+  remove(table: string, id: string, match?: Cols): Promise<{ ok: true } | { ok: false; message: string; code?: string; transient: boolean }>
 }
 
 export const PAGE_SIZE = 1000
+/** How many parents' links are read in one request (keeps the address short enough). */
+export const CHILD_CHUNK = 80
 /** A request that has not answered by then counts as a network failure (a weak connection can hang for minutes). */
 export const REQUEST_TIMEOUT_MS = 20_000
 const timeout = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS)
@@ -50,6 +56,16 @@ export function supabaseWorkspaceRemote(sb: SupabaseClient): WorkspaceRemote {
         return { ok: false, message: e instanceof Error ? e.message : 'Network problem', transient: true }
       }
     },
+    async fetchChildren(table, fk, parentIds, key) {
+      try {
+        const { data, error } = await sb.from(table).select('*').in(fk, parentIds).abortSignal(timeout())
+        if (error) return { ok: false, message: error.message, transient: isTransient(error) }
+        const rows = ((data ?? []) as Cols[]).map((r) => ({ ...r, id: key.map((k) => String(r[k])).join(':'), updated_at: String(r.created_at) }))
+        return { ok: true, rows: rows as ServerRow[] }
+      } catch (e) {
+        return { ok: false, message: e instanceof Error ? e.message : 'Network problem', transient: true }
+      }
+    },
     async insert(table, row) {
       try {
         const { data, error } = await sb.from(table).insert(row).select('*').abortSignal(timeout()).single()
@@ -62,9 +78,10 @@ export function supabaseWorkspaceRemote(sb: SupabaseClient): WorkspaceRemote {
         return error ? fail(error) : { ok: true, row: (data as ServerRow | null) ?? null }
       } catch (e) { return fail(e) }
     },
-    async remove(table, id) {
+    async remove(table, id, match) {
       try {
-        const { error } = await sb.from(table).delete().eq('id', id).abortSignal(timeout())
+        const q = sb.from(table).delete()
+        const { error } = await (match ? q.match(match) : q.eq('id', id)).abortSignal(timeout())
         return error ? fail(error) : { ok: true }
       } catch (e) { return fail(e) }
     },

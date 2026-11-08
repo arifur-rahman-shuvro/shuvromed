@@ -38,7 +38,7 @@ function Shell() {
   }, [])
   const { user, signOut } = useAuth()
   const workspaceOn = useWorkspaceEnabled(user?.id)
-  const sideNav = workspaceOn ? [...NAV.slice(0, 2), { to: '/app/workspace/subjects', label: 'My subjects', end: false }, ...NAV.slice(2)] : NAV
+  const sideNav = workspaceOn ? [...NAV.slice(0, 2), { to: '/app/workspace/subjects', label: 'My subjects', end: false }, { to: '/app/workspace/questions', label: 'My questions', end: false }, ...NAV.slice(2)] : NAV
   const navigate = useNavigate()
 
   async function handleSignOut() {

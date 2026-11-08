@@ -131,7 +131,7 @@ export default function Settings() {
           <input type="checkbox" className="size-5" checked={workspaceOn} onChange={(e) => setWorkspaceEnabled(userId, e.target.checked)} />
           <span className="font-medium">Show my private workspace</span>
         </label>
-        {workspaceOn ? <LinkButton className="mt-2" variant="secondary" to="/app/workspace/subjects">Open My subjects</LinkButton> : null}
+        {workspaceOn ? <div className="mt-2 flex flex-wrap gap-2"><LinkButton variant="secondary" to="/app/workspace/subjects">Open My subjects</LinkButton><LinkButton variant="secondary" to="/app/workspace/questions">Open My questions</LinkButton></div> : null}
       </Card>
       <OfflineCard />
 

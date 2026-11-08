@@ -1,0 +1,892 @@
+{
+ "_note": "Run through BOTH the TypeScript schema (src/questions/schema.ts) and the database function public.valid_question_payload. Any change must keep them in agreement.",
+ "cases": [
+  {
+   "name": "sba minimal",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "a"
+   },
+   "valid": true
+  },
+  {
+   "name": "sba with explanation and negative marking",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha",
+      "explanation": "because"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "a",
+    "scoring": {
+     "negative_marks": 0.25
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "sba twelve options",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "o0",
+      "text": "Opt 0"
+     },
+     {
+      "id": "o1",
+      "text": "Opt 1"
+     },
+     {
+      "id": "o2",
+      "text": "Opt 2"
+     },
+     {
+      "id": "o3",
+      "text": "Opt 3"
+     },
+     {
+      "id": "o4",
+      "text": "Opt 4"
+     },
+     {
+      "id": "o5",
+      "text": "Opt 5"
+     },
+     {
+      "id": "o6",
+      "text": "Opt 6"
+     },
+     {
+      "id": "o7",
+      "text": "Opt 7"
+     },
+     {
+      "id": "o8",
+      "text": "Opt 8"
+     },
+     {
+      "id": "o9",
+      "text": "Opt 9"
+     },
+     {
+      "id": "o10",
+      "text": "Opt 10"
+     },
+     {
+      "id": "o11",
+      "text": "Opt 11"
+     }
+    ],
+    "correct_option_id": "o3"
+   },
+   "valid": true
+  },
+  {
+   "name": "sba unknown correct id",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "z"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba one option",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "x"
+     }
+    ],
+    "correct_option_id": "a"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba thirteen options",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "o0",
+      "text": "Opt 0"
+     },
+     {
+      "id": "o1",
+      "text": "Opt 1"
+     },
+     {
+      "id": "o2",
+      "text": "Opt 2"
+     },
+     {
+      "id": "o3",
+      "text": "Opt 3"
+     },
+     {
+      "id": "o4",
+      "text": "Opt 4"
+     },
+     {
+      "id": "o5",
+      "text": "Opt 5"
+     },
+     {
+      "id": "o6",
+      "text": "Opt 6"
+     },
+     {
+      "id": "o7",
+      "text": "Opt 7"
+     },
+     {
+      "id": "o8",
+      "text": "Opt 8"
+     },
+     {
+      "id": "o9",
+      "text": "Opt 9"
+     },
+     {
+      "id": "o10",
+      "text": "Opt 10"
+     },
+     {
+      "id": "o11",
+      "text": "Opt 11"
+     },
+     {
+      "id": "o12",
+      "text": "Opt 12"
+     }
+    ],
+    "correct_option_id": "o1"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba duplicate ids",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "x"
+     },
+     {
+      "id": "a",
+      "text": "y"
+     }
+    ],
+    "correct_option_id": "a"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba duplicate text ignoring case and spacing",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Same"
+     },
+     {
+      "id": "b",
+      "text": "  same "
+     }
+    ],
+    "correct_option_id": "a"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba blank option text",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "x"
+     },
+     {
+      "id": "b",
+      "text": "   "
+     }
+    ],
+    "correct_option_id": "a"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba bad id characters",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a b",
+      "text": "x"
+     },
+     {
+      "id": "b",
+      "text": "y"
+     }
+    ],
+    "correct_option_id": "b"
+   },
+   "valid": false
+  },
+  {
+   "name": "sba extra key",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "a",
+    "junk": 1
+   },
+   "valid": false
+  },
+  {
+   "name": "sba negative marks too big",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "a",
+    "scoring": {
+     "negative_marks": 2
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "sba wrong scoring key",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": "a",
+    "scoring": {
+     "mode": "exact"
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "sba correct id is a list",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "Alpha"
+     },
+     {
+      "id": "b",
+      "text": "Beta"
+     }
+    ],
+    "correct_option_id": [
+     "a"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "multiple minimal",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "c"
+    ]
+   },
+   "valid": true
+  },
+  {
+   "name": "multiple partial with penalty",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "c"
+    ],
+    "scoring": {
+     "mode": "partial",
+     "penalty_weight": 1.5,
+     "negative_marks": 0.25
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "multiple single correct",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "multiple unknown id",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "q"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "multiple repeated correct id",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "a"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "multiple bad mode",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "c"
+    ],
+    "scoring": {
+     "mode": "sometimes"
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "multiple penalty too big",
+   "type": "MULTIPLE_MCQ",
+   "stem": "Q?",
+   "content": {
+    "options": [
+     {
+      "id": "a",
+      "text": "A"
+     },
+     {
+      "id": "b",
+      "text": "B"
+     },
+     {
+      "id": "c",
+      "text": "C"
+     }
+    ],
+    "correct_option_ids": [
+     "a",
+     "c"
+    ],
+    "scoring": {
+     "penalty_weight": 6
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "true false true",
+   "type": "TRUE_FALSE",
+   "stem": "The heart has four chambers.",
+   "content": {
+    "correct_answer": true
+   },
+   "valid": true
+  },
+  {
+   "name": "true false with negative marks",
+   "type": "TRUE_FALSE",
+   "stem": "Statement.",
+   "content": {
+    "correct_answer": false,
+    "scoring": {
+     "negative_marks": 0.5
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "true false not boolean",
+   "type": "TRUE_FALSE",
+   "stem": "Statement.",
+   "content": {
+    "correct_answer": "yes"
+   },
+   "valid": false
+  },
+  {
+   "name": "true false missing answer",
+   "type": "TRUE_FALSE",
+   "stem": "Statement.",
+   "content": {},
+   "valid": false
+  },
+  {
+   "name": "true false extra key",
+   "type": "TRUE_FALSE",
+   "stem": "Statement.",
+   "content": {
+    "correct_answer": true,
+    "options": []
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap single",
+   "type": "FILL_GAP",
+   "stem": "The {{b1}} pumps blood.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "heart"
+      ]
+     }
+    ]
+   },
+   "valid": true
+  },
+  {
+   "name": "fill gap two blanks with options",
+   "type": "FILL_GAP",
+   "stem": "{{b1}} and {{b2}}.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "a",
+       "b"
+      ],
+      "case_sensitive": true
+     },
+     {
+      "id": "b2",
+      "accepted_answers": [
+       "c"
+      ]
+     }
+    ],
+    "normalization": {
+     "case_sensitive": false,
+     "strip_punctuation": true
+    },
+    "scoring": {
+     "mode": "all_or_nothing"
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "fill gap blank not in stem",
+   "type": "FILL_GAP",
+   "stem": "No marker here.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "x"
+      ]
+     }
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap no answers",
+   "type": "FILL_GAP",
+   "stem": "Fill {{b1}}.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": []
+     }
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap empty answer text",
+   "type": "FILL_GAP",
+   "stem": "Fill {{b1}}.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "  "
+      ]
+     }
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap duplicate blank ids",
+   "type": "FILL_GAP",
+   "stem": "Fill {{b1}}.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "y"
+      ]
+     }
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap no blanks",
+   "type": "FILL_GAP",
+   "stem": "Fill.",
+   "content": {
+    "blanks": []
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap twenty-one blanks",
+   "type": "FILL_GAP",
+   "stem": "{{b0}} {{b1}} {{b2}} {{b3}} {{b4}} {{b5}} {{b6}} {{b7}} {{b8}} {{b9}} {{b10}} {{b11}} {{b12}} {{b13}} {{b14}} {{b15}} {{b16}} {{b17}} {{b18}} {{b19}} {{b20}}",
+   "content": {
+    "blanks": [
+     {
+      "id": "b0",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b2",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b3",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b4",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b5",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b6",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b7",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b8",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b9",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b10",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b11",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b12",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b13",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b14",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b15",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b16",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b17",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b18",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b19",
+      "accepted_answers": [
+       "x"
+      ]
+     },
+     {
+      "id": "b20",
+      "accepted_answers": [
+       "x"
+      ]
+     }
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "fill gap bad scoring mode",
+   "type": "FILL_GAP",
+   "stem": "Fill {{b1}}.",
+   "content": {
+    "blanks": [
+     {
+      "id": "b1",
+      "accepted_answers": [
+       "x"
+      ]
+     }
+    ],
+    "scoring": {
+     "mode": "exact"
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "content is not an object",
+   "type": "SBA",
+   "stem": "Q?",
+   "content": [
+    1,
+    2
+   ],
+   "valid": false
+  }
+ ]
+}

@@ -22,8 +22,8 @@ export function localWorkspaceRepo(store: WorkspaceStore): WorkspaceRepo {
   }
   const usedBy = async (table: string, where: (r: Row) => boolean): Promise<number> =>
     store.has(table) ? store.count(table, where) : 0
-  // Question tables arrive in Phase 4; until then there is nothing that could still use a subject or topic.
-  const questionsInSubject = (id: string) => usedBy('user_questions', (r) => r.subject_id === id && r.deleted_at == null)
+  // Hidden (deleted) questions still hold on to their subject and topics on the server, so they count here too.
+  const questionsInSubject = (id: string) => usedBy('user_questions', (r) => r.subject_id === id)
   const questionsInTopic = (id: string) => usedBy('user_question_topics', (r) => r.topic_id === id)
 
   return {

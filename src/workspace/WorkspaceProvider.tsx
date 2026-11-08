@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, useSyncExterna
 import { useAuth } from '../auth/AuthContext'
 import { Skeleton } from '../components/ui'
 import { supabase } from '../lib/supabase'
+import { localQuestionRepo, QuestionRepoContext, type QuestionRepo } from '../questions/repo'
 import { localWorkspaceRepo } from './localRepo'
 import { WorkspaceRepoContext, type WorkspaceRepo } from './repo'
 import { openIdbBackend } from './store/idb'
@@ -31,7 +32,7 @@ const SyncContext = createContext<WorkspaceSync | null>(null)
 /** Null when no real provider is above (for example in tests that supply a fake repo). */
 export const useWorkspaceSync = (): WorkspaceSync | null => useContext(SyncContext)
 
-interface Ready { repo: WorkspaceRepo; controller: SyncController; persistent: boolean }
+interface Ready { repo: WorkspaceRepo; questions: QuestionRepo; controller: SyncController; persistent: boolean }
 
 function Inner({ userId, children }: { userId: string; children: ReactNode }) {
   const env = useContext(WorkspaceEnvContext)
@@ -60,7 +61,7 @@ function Inner({ userId, children }: { userId: string; children: ReactNode }) {
       document.addEventListener('visibilitychange', onVisible)
       cleanups.push(() => { window.removeEventListener('online', go); document.removeEventListener('visibilitychange', onVisible) })
       go()
-      setReady({ repo: localWorkspaceRepo(store), controller, persistent })
+      setReady({ repo: localWorkspaceRepo(store), questions: localQuestionRepo(store), controller, persistent })
     })()
     return () => {
       cancelled = true
@@ -84,7 +85,9 @@ function Inner({ userId, children }: { userId: string; children: ReactNode }) {
   }
   return (
     <WorkspaceRepoContext.Provider value={ready.repo}>
-      <SyncContext.Provider value={value}>{children}</SyncContext.Provider>
+      <QuestionRepoContext.Provider value={ready.questions}>
+        <SyncContext.Provider value={value}>{children}</SyncContext.Provider>
+      </QuestionRepoContext.Provider>
     </WorkspaceRepoContext.Provider>
   )
 }

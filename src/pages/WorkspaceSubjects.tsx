@@ -3,9 +3,10 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Button, Card, EmptyState, Skeleton } from '../components/ui'
 import { useWorkspaceEnabled } from '../workspace/flag'
-import { useWorkspaceSync, type WorkspaceSync } from '../workspace/WorkspaceProvider'
+import SyncBar from '../workspace/SyncBar'
+import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 import {
-  MAX_DESCRIPTION, MAX_SUBJECT_NAME, MAX_TOPIC_NAME, buildTopicTree, cleanName, deleteRefusal, moveTargets, plural, topicPath, validateName,
+  MAX_DESCRIPTION, MAX_SUBJECT_NAME, MAX_TOPIC_NAME, buildTopicTree, cleanName, deleteRefusal, moveTargets, topicPath, validateName,
   type TopicNode, type WSubject, type WTopic,
 } from '../workspace/model'
 import { useWorkspaceRepo } from '../workspace/repo'
@@ -20,34 +21,6 @@ type Action =
 
 const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
 const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
-
-function SyncBar({ sync }: { sync: WorkspaceSync }) {
-  const { snapshot: sn, persistent } = sync
-  const text =
-    sn.state === 'off' ? 'Saved on this device only (no server connection).'
-    : sn.state === 'syncing' ? 'Syncing…'
-    : sn.state === 'offline' ? (sn.pending ? `Offline. ${plural(sn.pending, 'change')} saved on this device, will sync when you are back online.` : 'Offline. Everything shown is saved on this device.')
-    : sn.pending ? `${plural(sn.pending, 'change')} waiting to sync.`
-    : sn.state === 'error' ? 'Sync problem. Your changes are safe on this device.'
-    : 'All changes saved.'
-  return (
-    <div className="flex flex-col gap-2 rounded-xl border border-line p-3 text-sm" aria-label="Sync status">
-      <div className="flex flex-wrap items-center gap-2">
-        <p role="status" aria-live="polite" className="mr-auto">{text}</p>
-        <button type="button" className={small + ' border border-line'} onClick={sync.syncNow} disabled={sn.state === 'syncing'}>Sync now</button>
-      </div>
-      {!persistent ? <p role="alert" className="text-danger">This browser cannot keep data on the device, so changes are lost if you close the app before they sync.</p> : null}
-      {sn.state === 'error' && sn.errors.length ? <p className="text-muted">{sn.errors[0]}</p> : null}
-      {sn.rejected.length ? (
-        <div role="alert" className="flex flex-col gap-2">
-          <p className="text-danger">The server refused {plural(sn.rejected.length, 'change')}:</p>
-          <ul className="list-disc pl-5">{sn.rejected.map((r) => <li key={r.table + r.id}>{r.label}: {r.message}</li>)}</ul>
-          <div><Button variant="secondary" onClick={sync.discardRejected}>Discard {sn.rejected.length === 1 ? 'that change' : 'those changes'}</Button></div>
-        </div>
-      ) : null}
-    </div>
-  )
-}
 
 function ActionFormBase({ label, children, submit, onSubmit, error, busy, onCancel }: { label: string; children?: React.ReactNode; submit: string; onSubmit: (e: React.FormEvent) => void; error: string | null; busy: boolean; onCancel: () => void }) {
   return (

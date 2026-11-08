@@ -52,8 +52,34 @@ export function mergePull(
   return { put, del }
 }
 
+/**
+ * Links of the parents that were just read. The server's links replace the device's clean ones for those parents;
+ * a link the owner added or removed here and has not sent yet is kept as is. Only the given parents are touched.
+ */
+export function mergeChildren(
+  fk: string,
+  local: StoredRow[],
+  remote: ServerRow[],
+  parentIds: Set<string>,
+): { put: StoredRow[]; del: string[] } {
+  const byId = new Map(local.map((r) => [r.id, r]))
+  const seen = new Set<string>()
+  const put: StoredRow[] = []
+  const del: string[] = []
+  for (const r of remote) {
+    seen.add(r.id)
+    if (!byId.has(r.id)) put.push({ ...fromServer('', r), table: '' }) // table is filled in by the caller
+  }
+  for (const l of local) {
+    if (!parentIds.has(String(l.v[fk])) || seen.has(l.id)) continue
+    if (l.dirty === null && l.base !== null) del.push(l.id) // removed on the server
+    else if (l.dirty === 'delete') del.push(l.id) // removed on the server and here: nothing left to send
+  }
+  return { put, del }
+}
+
 /** Order rows for sending: parents first (and tables in order); removals run last, children first. */
-export function pushOrder(specs: Map<string, TableSpec>, dirty: StoredRow[], allByTable: Map<string, StoredRow[]>): { upserts: StoredRow[]; deletes: StoredRow[] } {
+export function pushOrder(specs: Map<string, TableSpec>, dirty: StoredRow[], allByTable: Map<string, StoredRow[]>): { linkDeletes: StoredRow[]; upserts: StoredRow[]; deletes: StoredRow[] } {
   const depth = (r: StoredRow): number => {
     const key = specs.get(r.table)?.parentKey
     if (!key) return 0
@@ -71,6 +97,9 @@ export function pushOrder(specs: Map<string, TableSpec>, dirty: StoredRow[], all
   const ord = (r: StoredRow) => specs.get(r.table)?.order ?? 0
   const withKey = dirty.map((r) => ({ r, o: ord(r), d: depth(r) }))
   const upserts = withKey.filter((x) => x.r.dirty === 'upsert').sort((a, b) => a.o - b.o || a.d - b.d).map((x) => x.r)
-  const deletes = withKey.filter((x) => x.r.dirty === 'delete').sort((a, b) => b.o - a.o || b.d - a.d).map((x) => x.r)
-  return { upserts, deletes }
+  const isLink = (r: StoredRow) => !!specs.get(r.table)?.key
+  // Removing a link must come before changing its question (moving a question to another subject needs its old topic links gone first).
+  const linkDeletes = withKey.filter((x) => x.r.dirty === 'delete' && isLink(x.r)).map((x) => x.r)
+  const deletes = withKey.filter((x) => x.r.dirty === 'delete' && !isLink(x.r)).sort((a, b) => b.o - a.o || b.d - a.d).map((x) => x.r)
+  return { linkDeletes, upserts, deletes }
 }
