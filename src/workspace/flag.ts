@@ -8,7 +8,12 @@ export function getWorkspaceEnabled(userId: string): boolean {
   try { return localStorage.getItem(KEY(userId)) === '1' } catch { return false }
 }
 export function setWorkspaceEnabled(userId: string, on: boolean): boolean {
-  try { on ? localStorage.setItem(KEY(userId), '1') : localStorage.removeItem(KEY(userId)) } catch { return false }
+  try {
+    if (on) localStorage.setItem(KEY(userId), '1')
+    else localStorage.removeItem(KEY(userId))
+  } catch {
+    return false
+  }
   listeners.forEach((l) => l())
   return true
 }

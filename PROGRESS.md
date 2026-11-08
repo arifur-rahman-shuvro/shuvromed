@@ -91,3 +91,6 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 - Not verified: the Supabase repo against a real server (needs M6 applied); screen on a real phone; screen reader.
 - 2026-11-08: Database backup workflow fixed to use pg_dump 17 (runner's default 16 refused the Postgres 17 server). Needs a green re-run before M6.
 - 2026-11-08 ~14:40 (Asia/Dhaka): **M6 APPLIED to production** (owner-approved, after green Database backup run 42463356071). Verified: legacy attempts 16, notes 1, users 1 unchanged; 14 new tables, all RLS on, 49 policies, 0 anon grants, 0 rows; security advisors show no findings on new objects (existing warnings are on older functions). Hosted migration name: private_workspace_core. Rollback: supabase/rollback/20261108090600_private_workspace_core.down.sql.
+
+## v3.0 plan revised (2026-11-08)
+- New plan: `docs/ROADMAP_V3.md` (11 phases). Local-first foundation moved to Phase 3; import goes through the local store and sync (no import SQL function); bank+search merged; practice+custom exams merged; staging project no longer required. Phase 3 = local-first foundation, Phase 4 = question engine.
