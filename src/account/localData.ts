@@ -1,4 +1,5 @@
 import { resetMockCache } from '../mock/store'
+import { deleteIdbDatabase } from '../workspace/store/idb'
 import { resetAttemptCache } from '../practice/attempts'
 import { resetUserDataCache } from '../userdata/store'
 
@@ -14,6 +15,7 @@ export function clearLocalData(userId: string): void {
   } catch {
     /* storage unavailable: nothing to clear */
   }
+  void deleteIdbDatabase(userId).catch(() => undefined) // the private workspace kept on this device
   resetAttemptCache()
   resetUserDataCache()
   resetMockCache()

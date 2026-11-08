@@ -8,7 +8,8 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 |---|---|
 | 0 Audit and architecture | Done |
 | 1 Private data model (M6) | Done, applied to production and verified (legacy 16 attempts / 1 note / 1 user unchanged) |
-| 2 Subject/Topic Manager | Done, hidden behind Settings → Experimental. Online only for now |
+| 2 Subject/Topic Manager | Done, hidden behind Settings → Experimental |
+| 3 Local-first foundation | Built and tested locally (2026-11-08); awaiting your phone check. See docs/WORKSPACE_SYNC.md |
 
 ## 2. What was wrong with the old order, and the fix
 

@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import SyncStatus from './SyncStatus'
 import { SyncProvider } from '../sync/SyncContext'
 import { useWorkspaceEnabled } from '../workspace/flag'
+import WorkspaceProvider from '../workspace/WorkspaceProvider'
 import { THEME_EVENT, applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
 export const NAV = [
@@ -104,7 +105,7 @@ function Shell() {
           </div>
         </header>
         <main id="main" className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
-          <Outlet />
+          {workspaceOn ? <WorkspaceProvider><Outlet /></WorkspaceProvider> : <Outlet />}
         </main>
       </div>
 

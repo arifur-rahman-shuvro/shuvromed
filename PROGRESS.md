@@ -94,3 +94,10 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 
 ## v3.0 plan revised (2026-11-08)
 - New plan: `docs/ROADMAP_V3.md` (11 phases). Local-first foundation moved to Phase 3; import goes through the local store and sync (no import SQL function); bank+search merged; practice+custom exams merged; staging project no longer required. Phase 3 = local-first foundation, Phase 4 = question engine.
+
+## v3.0 Phase 3 (local-first foundation) — built, not yet phone-tested
+- My subjects now reads and writes an on-device IndexedDB store; a sync engine sends changes to the M6 tables in the background (newest edit wins, queued changes never lost, refused changes shown with a Discard button). Works offline. Docs: `docs/WORKSPACE_SYNC.md`.
+- Changed in this phase: `src/workspace/{tables,localRepo,WorkspaceProvider}`, `store/`, `sync/`; `repo.ts` no longer has a direct-to-server repo (screens use the on-device repo only); `AppLayout` mounts the provider when the workspace is switched on; account deletion clears the on-device database; dev dependency `fake-indexeddb`.
+- Found and fixed by tests: a discarded change did not refresh the lists.
+- Results: unit 358/358, DB 112/112, typecheck clean, lint 0 errors, build OK; real Chromium check of IndexedDB persistence passed.
+- Not verified: real Supabase sync, two real devices, real phone.
