@@ -16,6 +16,7 @@ import { loadUserData } from '../userdata/store'
 import type { ExportFile } from '../backup/export'
 import { CountInput } from '../components/bits'
 import OfflineCard from '../pwa/OfflineCard'
+import { setWorkspaceEnabled, useWorkspaceEnabled } from '../workspace/flag'
 
 const DELETE_WORD = 'DELETE'
 const label: Record<keyof ImportReport, string> = { attempts: 'answers', collections: 'collections', bookmarks: 'bookmarks', notes: 'notes', flags: 'reports', mockResults: 'mock exams' }
@@ -43,6 +44,7 @@ export default function Settings() {
   const userId = user?.id
   const attempts = useAttempts(userId)
   const goal = useDailyGoal(userId)
+  const workspaceOn = useWorkspaceEnabled(userId)
   const [theme, setTheme] = useState<ThemePref>(() => getThemePref())
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [preview, setPreview] = useState<{ file: ExportFile; report: ImportReport; name: string } | null>(null)
@@ -122,6 +124,15 @@ export default function Settings() {
         </select>
       </Card>
 
+      <Card>
+        <h2 className="text-lg font-semibold">Experimental: private workspace</h2>
+        <p className="mt-1 text-sm text-muted">Your own subjects, topics and questions, kept private to your account. Still being built; it is off by default and changes nothing else in the app.</p>
+        <label className="mt-3 flex min-h-12 items-center gap-3">
+          <input type="checkbox" className="size-5" checked={workspaceOn} onChange={(e) => setWorkspaceEnabled(userId, e.target.checked)} />
+          <span className="font-medium">Show my private workspace</span>
+        </label>
+        {workspaceOn ? <LinkButton className="mt-2" variant="secondary" to="/app/workspace/subjects">Open My subjects</LinkButton> : null}
+      </Card>
       <OfflineCard />
 
       <Card className="flex flex-col gap-3">

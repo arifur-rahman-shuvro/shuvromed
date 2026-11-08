@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import SyncStatus from './SyncStatus'
 import { SyncProvider } from '../sync/SyncContext'
+import { useWorkspaceEnabled } from '../workspace/flag'
 import { THEME_EVENT, applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
 export const NAV = [
@@ -35,6 +36,8 @@ function Shell() {
     return () => window.removeEventListener(THEME_EVENT, follow)
   }, [])
   const { user, signOut } = useAuth()
+  const workspaceOn = useWorkspaceEnabled(user?.id)
+  const sideNav = workspaceOn ? [...NAV.slice(0, 2), { to: '/app/workspace/subjects', label: 'My subjects', end: false }, ...NAV.slice(2)] : NAV
   const navigate = useNavigate()
 
   async function handleSignOut() {
@@ -65,7 +68,7 @@ function Shell() {
       <aside className="hidden border-r border-line bg-surface p-4 md:block" aria-label="Sidebar">
         <p className="px-4 pb-4 text-xl font-bold">ShuvroMed</p>
         <nav aria-label="Main" className="flex flex-col gap-1">
-          {NAV.map((n) => (
+          {sideNav.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end} className={link}>
               {n.label}
             </NavLink>

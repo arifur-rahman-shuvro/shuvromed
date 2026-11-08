@@ -82,3 +82,10 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 - Rollback: `supabase/rollback/20261108090600_private_workspace_core.down.sql`. Post-apply checks: `supabase/verify/m6_verify.sql`.
 - Tests: `supabase/tests/workspace.test.ts` (32 tests: empty-by-default, two-user isolation, cross-owner links, topic tree, versioning, per-type content validation, append-only attempts). Local PG16 DB suite 112/112, unit 318/318, backup 14/14, typecheck clean, lint 0 errors.
 - Production: M6 is NOT applied. Waiting for owner approval of the exact SQL, a green Database backup run, and (optionally) a staging rehearsal.
+
+## v3.0 Phase 2 (Subject/Topic Manager) — built locally, behind a hidden setting
+- New screen **My subjects** (`/app/workspace/subjects`, `src/pages/WorkspaceSubjects.tsx`): add, rename, archive/restore, delete subjects; nested topics (add sub-topic, rename, move, archive, delete). Delete is refused with counts when anything is inside; archive hides without deleting.
+- Hidden until Settings → "Experimental: private workspace" is switched on (per user, per device). Off by default; nothing else in the app changes.
+- Code: `src/workspace/{model,repo,flag}.ts`. The repo talks to the M6 tables, so on the live server it shows "not set up on the server yet" until M6 is applied (owner approval pending).
+- Tests: 10 new UI/model tests (`src/test/workspace-ui.test.tsx`); unit 328/328, DB 112/112, lint 0 errors, build OK.
+- Not verified: the Supabase repo against a real server (needs M6 applied); screen on a real phone; screen reader.
