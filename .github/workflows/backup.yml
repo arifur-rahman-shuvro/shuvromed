@@ -39,7 +39,11 @@ jobs:
         run: |
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
           sudo apt-get install -y postgresql-client-17
+          # The runner ships an older pg_dump (16) that comes first on PATH and refuses a Postgres 17 server.
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+          export PATH=/usr/lib/postgresql/17/bin:$PATH
           pg_dump --version
+          pg_dump --version | grep -q ' 17\.' || { echo "::error::pg_dump 17 is not first on PATH"; exit 1; }
       - name: Back up, verify the restore, encrypt
         env:
           SOURCE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}

@@ -89,3 +89,4 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 - Code: `src/workspace/{model,repo,flag}.ts`. The repo talks to the M6 tables, so on the live server it shows "not set up on the server yet" until M6 is applied (owner approval pending).
 - Tests: 10 new UI/model tests (`src/test/workspace-ui.test.tsx`); unit 328/328, DB 112/112, lint 0 errors, build OK.
 - Not verified: the Supabase repo against a real server (needs M6 applied); screen on a real phone; screen reader.
+- 2026-11-08: Database backup workflow fixed to use pg_dump 17 (runner's default 16 refused the Postgres 17 server). Needs a green re-run before M6.
