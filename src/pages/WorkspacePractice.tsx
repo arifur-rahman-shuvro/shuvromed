@@ -110,6 +110,7 @@ export default function WorkspacePractice() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="mr-auto text-2xl font-bold">Practice and exams</h1>
+        <Link className="underline" to="/app/workspace/revision">Revision</Link>
         <Link className="underline" to="/app/workspace/sessions">Past sessions</Link>
         <Link className="underline" to="/app/workspace/questions">My questions</Link>
       </div>

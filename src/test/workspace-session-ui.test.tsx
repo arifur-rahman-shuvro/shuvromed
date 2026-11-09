@@ -129,3 +129,52 @@ describe('practice and exams', () => {
     expect(await screen.findByText('No questions yet')).toBeTruthy()
   })
 })
+
+describe('revision and insights', () => {
+  it('says so when there are no answers yet', async () => {
+    seed('First question')
+    mount('/app/workspace/revision')
+    expect(await screen.findByText('No answers yet')).toBeTruthy()
+  })
+
+  it('records confidence while practising and shows it in the insights', async () => {
+    seed('First question')
+    mount('/app/workspace/practice')
+    await screen.findByText('1 question available.')
+    await user.click(screen.getByRole('button', { name: 'Start practice' }))
+    await screen.findByText(/Question 1 of 1/)
+    await user.click(screen.getByLabelText(/Beta/))
+    await user.click(screen.getByRole('button', { name: 'Certain' }))
+    await user.click(screen.getByRole('button', { name: 'Check answer' }))
+    await screen.findByText('Incorrect')
+    await user.click(screen.getByRole('button', { name: 'Finish' }))
+    await screen.findByLabelText('Score')
+    await user.click(screen.getByRole('link', { name: 'New session' }))
+    const links = await screen.findAllByRole('link', { name: 'Revision' })
+    await user.click(links.find((l) => l.getAttribute('href') === '/app/workspace/revision') as HTMLElement)
+    expect(await screen.findByText(/1 answer wrong while you were sure/, {}, { timeout: 4000 })).toBeTruthy()
+    expect(screen.getByText('Nothing is due right now.')).toBeTruthy()
+  })
+
+  it('lists old wrong answers as due and often wrong, and starts a revision run', async () => {
+    const q = seed('Hard question')
+    const day = (d: number) => new Date(Date.now() - d * 86400000).toISOString()
+    for (const d of [5, 4]) server.externalInsert('user_question_attempts', { question_id: q.id, question_version: 1, response: {}, score: 0, max_score: 1, outcome: 'incorrect', confidence: null, time_ms: 5000, mode: 'practice', session_id: null, attempted_at: day(d) }, day(d))
+    mount('/app/workspace/revision')
+    expect(await screen.findByText('1 question due now.', {}, { timeout: 4000 })).toBeTruthy()
+    expect(screen.getByText(/Wrong 2 of 2 times/)).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Start revision' }))
+    await screen.findByText(/Question 1 of 1/)
+    await user.click(screen.getByLabelText(/Alpha/))
+    await user.click(screen.getByRole('button', { name: 'Check answer' }))
+    await screen.findByText('Correct')
+    await waitFor(() => expect([...(server.tables.get('user_question_attempts')?.values() ?? [])].some((r) => r.mode === 'revision')).toBe(true), { timeout: 4000 })
+  })
+
+  it('shows your answers per version on the history page', async () => {
+    const q = seed('Versioned question')
+    server.externalInsert('user_question_attempts', { question_id: q.id, question_version: 1, response: {}, score: 1, max_score: 1, outcome: 'correct', confidence: null, time_ms: 5000, mode: 'practice', session_id: null, attempted_at: new Date().toISOString() })
+    mount(`/app/workspace/questions/${q.id}/history`)
+    expect(await screen.findByText(/Your answers to this version: 1 \(1 correct, 0 partly, 0 wrong\)/)).toBeTruthy()
+  })
+})

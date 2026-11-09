@@ -28,6 +28,7 @@ const WorkspacePractice = lazy(() => import('./pages/WorkspacePractice'))
 const WorkspaceSession = lazy(() => import('./pages/WorkspaceSession'))
 const WorkspaceSessionResult = lazy(() => import('./pages/WorkspaceSessionResult'))
 const WorkspaceSessions = lazy(() => import('./pages/WorkspaceSessions'))
+const WorkspaceRevision = lazy(() => import('./pages/WorkspaceRevision'))
 const WorkspaceTags = lazy(() => import('./pages/WorkspaceTags'))
 const WorkspaceImport = lazy(() => import('./pages/WorkspaceImport'))
 const WorkspaceQuestionHistory = lazy(() => import('./pages/WorkspaceQuestionHistory'))
@@ -94,6 +95,7 @@ const pages = [
           { path: 'workspace/tags', element: wrap(<WorkspaceTags />) },
           { path: 'workspace/practice', element: wrap(<WorkspacePractice />) },
           { path: 'workspace/sessions', element: wrap(<WorkspaceSessions />) },
+          { path: 'workspace/revision', element: wrap(<WorkspaceRevision />) },
           { path: 'workspace/session/:id/result', element: wrap(<WorkspaceSessionResult />) },
           { path: 'workspace/session/:id', element: wrap(<WorkspaceSession />) },
           { path: 'workspace/import', element: wrap(<WorkspaceImport />) },

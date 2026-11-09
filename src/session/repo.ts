@@ -40,6 +40,7 @@ export interface WAttempt {
   outcome: Outcome
   timeMs: number
   mode: 'practice' | 'exam' | 'revision'
+  confidence: number | null
   sessionId: string | null
   attemptedAt: string
 }
@@ -49,6 +50,7 @@ export interface AttemptInput {
   score: number
   outcome: Outcome
   timeMs: number
+  confidence?: number | null
 }
 
 export interface SessionRepo {
@@ -66,6 +68,8 @@ export interface SessionRepo {
   rename(id: string, title: string): Promise<Result<WSession>>
   setHidden(id: string, hidden: boolean): Promise<Result<WSession>>
   attempts(sessionId: string): Promise<Result<WAttempt[]>>
+  /** Every answer ever recorded, oldest first. */
+  allAttempts(): Promise<Result<WAttempt[]>>
 
   listExams(): Promise<Result<WExam[]>>
   createExam(name: string, config: SessionConfig): Promise<Result<WExam>>
@@ -94,7 +98,7 @@ const toSession = (r: Row): WSession => {
 const toAttempt = (r: Row): WAttempt => ({
   id: r.id, questionId: String(r.question_id), questionVersion: Number(r.question_version),
   response: r.response && typeof r.response === 'object' ? (r.response as Response) : null, score: Number(r.score), outcome: r.outcome as Outcome,
-  timeMs: Number(r.time_ms ?? 0), mode: (r.mode as WAttempt['mode']) ?? 'practice', sessionId: (r.session_id as string | null) ?? null, attemptedAt: String(r.attempted_at),
+  timeMs: Number(r.time_ms ?? 0), confidence: typeof r.confidence === 'number' ? r.confidence : null, mode: (r.mode as WAttempt['mode']) ?? 'practice', sessionId: (r.session_id as string | null) ?? null, attemptedAt: String(r.attempted_at),
 })
 const toExam = (r: Row): WExam => ({ id: r.id, name: String(r.name), config: parseConfig(r.config), archived: r.archived_at != null })
 const clean = <T,>(x: T): T => JSON.parse(JSON.stringify(x)) as T
@@ -111,9 +115,9 @@ export function localSessionRepo(store: WorkspaceStore): SessionRepo {
     if (row.status !== 'in_progress') return { error: 'This session has already ended.' }
     return { row }
   }
-  const attemptRow = (sessionId: string, mode: 'practice' | 'exam', a: AttemptInput, at: string) => ({
+  const attemptRow = (sessionId: string, mode: 'practice' | 'exam' | 'revision', a: AttemptInput, at: string) => ({
     question_id: a.question.id, question_version: versionToStamp(a.question), response: clean(a.response ?? {}), score: a.score, max_score: 1,
-    outcome: a.outcome, time_ms: Math.min(86400000, Math.max(0, Math.round(a.timeMs))), mode, session_id: sessionId, attempted_at: at,
+    outcome: a.outcome, confidence: a.confidence && a.confidence >= 1 && a.confidence <= 5 ? Math.round(a.confidence) : null, time_ms: Math.min(86400000, Math.max(0, Math.round(a.timeMs))), mode, session_id: sessionId, attempted_at: at,
   })
   const checkExamName = async (name: string, selfId?: string): Promise<string | null> => {
     const n = name.trim()
@@ -156,14 +160,14 @@ export function localSessionRepo(store: WorkspaceStore): SessionRepo {
     recordAttempt: (sessionId, a) => guard(async () => {
       const r = await running(sessionId)
       if ('error' in r) return bad(r.error)
-      const mode = r.row.kind === 'exam' ? 'exam' : 'practice'
+      const mode = r.row.kind === 'exam' ? 'exam' : parseConfig(r.row.config).revision ? 'revision' : 'practice'
       return ok(toAttempt(await store.create(ATTEMPTS, attemptRow(sessionId, mode, a, store.now()))))
     }),
     finish: (id, state, elapsedMs, summary, attempts) => guard(async () => {
       const r = await running(id)
       if ('error' in r) return bad(r.error)
       const at = store.now()
-      const mode = r.row.kind === 'exam' ? 'exam' : 'practice'
+      const mode = r.row.kind === 'exam' ? 'exam' : parseConfig(r.row.config).revision ? 'revision' : 'practice'
       const changes: Change[] = attempts.map((a) => ({ table: ATTEMPTS, id: uuid(), create: attemptRow(id, mode, a, at) }))
       changes.push({
         table: SESSIONS, id,
@@ -193,6 +197,7 @@ export function localSessionRepo(store: WorkspaceStore): SessionRepo {
       await store.update(SESSIONS, id, { hidden_at: hidden ? store.now() : null })
       return ok(await load(id))
     }),
+    allAttempts: () => guard(async () => ok((await store.list(ATTEMPTS)).map(toAttempt).sort((a, b) => a.attemptedAt.localeCompare(b.attemptedAt)))),
     attempts: (sessionId) => guard(async () => ok((await store.list(ATTEMPTS)).filter((r) => r.session_id === sessionId).map(toAttempt).sort((a, b) => a.attemptedAt.localeCompare(b.attemptedAt)))),
 
     listExams: () => guard(async () => ok((await store.list(EXAMS)).map(toExam).sort((a, b) => a.name.localeCompare(b.name)))),
@@ -222,6 +227,6 @@ export const SessionRepoContext = createContext<SessionRepo | null>(null)
 const unavailable = <T,>(): Promise<Result<T>> => Promise.resolve(bad('Your workspace is not ready yet.'))
 const notReady: SessionRepo = {
   start: unavailable, get: unavailable, list: unavailable, saveProgress: unavailable, recordAttempt: unavailable, finish: unavailable, abandon: unavailable,
-  rename: unavailable, setHidden: unavailable, attempts: unavailable, listExams: unavailable, createExam: unavailable, renameExam: unavailable, setExamArchived: unavailable, removeExam: unavailable,
+  rename: unavailable, setHidden: unavailable, attempts: unavailable, allAttempts: unavailable, listExams: unavailable, createExam: unavailable, renameExam: unavailable, setExamArchived: unavailable, removeExam: unavailable,
 }
 export const useSessionRepo = (): SessionRepo => useContext(SessionRepoContext) ?? notReady

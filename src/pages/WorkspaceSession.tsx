@@ -8,6 +8,7 @@ import type { MultipleContent, SbaContent } from '../questions/schema'
 import AnswerArea, { type Option, type Response } from '../questions/ui/AnswerArea'
 import AnswerFeedback from '../questions/ui/AnswerFeedback'
 import { useSessionRepo, type AttemptInput, type WSession } from '../session/repo'
+import ConfidencePicker from '../session/ConfidencePicker'
 import { formatClock, gradeAnswer, summarize } from '../session/score'
 import type { AnswerRecord, SessionState } from '../session/types'
 import { useWorkspaceEnabled } from '../workspace/flag'
@@ -106,7 +107,7 @@ export default function WorkspaceSession() {
     questions.map((q) => {
       const a = s.answers[q.id]
       const g = gradeAnswer(q, a?.response ?? null, cfg?.negativeMarking ?? true)
-      return { question: q, response: hasAnswer(a?.response) ? a?.response ?? null : null, score: g.score, outcome: g.outcome, timeMs: a?.ms ?? 0 }
+      return { question: q, response: hasAnswer(a?.response) ? a?.response ?? null : null, score: g.score, outcome: g.outcome, timeMs: a?.ms ?? 0, confidence: hasAnswer(a?.response) ? a?.confidence ?? null : null }
     })
 
   const submit = useCallback(async (abandon = false) => {
@@ -161,7 +162,7 @@ export default function WorkspaceSession() {
     const t = withTime({ ...state, answers: { ...state.answers, [q.id]: { ...rec, score: g.score, outcome: g.outcome } } })
     const a = t.answers[q.id]
     setState(t); stateRef.current = t
-    const r = await sessions.recordAttempt(session!.id, { question: q, response: hasAnswer(rec.response) ? rec.response : null, score: g.score, outcome: g.outcome, timeMs: a.ms })
+    const r = await sessions.recordAttempt(session!.id, { question: q, response: hasAnswer(rec.response) ? rec.response : null, score: g.score, outcome: g.outcome, timeMs: a.ms, confidence: hasAnswer(rec.response) ? rec.confidence ?? null : null })
     if (r.error) setError(r.error)
     await sessions.saveProgress(session!.id, t, nowElapsed())
   }
@@ -179,6 +180,7 @@ export default function WorkspaceSession() {
 
       <AnswerArea question={q} options={options} response={rec.response ?? {}} onChange={setResp} done={!exam && checked} result={result} locked={!exam && checked} />
 
+      {!checked || exam ? <ConfidencePicker value={rec.confidence} onChange={(confidence) => setState((s) => ({ ...s, answers: { ...s.answers, [q.id]: { ...rec, confidence } } }))} /> : null}
       {!exam && !checked ? <div><Button onClick={() => void check()}>Check answer</Button></div> : null}
       {!exam && checked && result ? <AnswerFeedback question={q} result={result} negativeOff={!cfg.negativeMarking} /> : null}
       {error ? <p role="alert" className="text-danger">{error}</p> : null}

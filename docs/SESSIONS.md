@@ -14,5 +14,5 @@ Screens (behind the workspace switch): **Practice and exams** (`/app/workspace/p
 
 ## Data
 Answers are rows in `user_question_attempts` (insert-only). Migration M8 adds `user_exams`, `user_sessions` and a link from attempts to sessions.
-Until M8 is applied on the server, sessions work fully on the device and wait to sync (the app skips the missing tables quietly).
+M8 is applied on the server. If the tables were ever missing, sessions still work on the device and wait to sync (the app skips missing tables quietly).
 Rollback: `supabase/rollback/20261109100000_exams_and_sessions.down.sql`. Checks: `supabase/verify/m8_verify.sql`.

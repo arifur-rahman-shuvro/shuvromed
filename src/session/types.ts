@@ -24,11 +24,13 @@ export interface SessionConfig {
   sourceLabel: string
   /** Fixes the shuffle, so reviewing a session shows the same order. */
   seed: number
+  /** A run made from the due/often-wrong lists: its answers are saved as revision answers. */
+  revision: boolean
 }
 
 export const DEFAULT_CONFIG: SessionConfig = {
   mode: 'practice', count: 20, shuffleQuestions: true, shuffleOptions: false, feedback: 'immediate',
-  timeLimitMinutes: null, negativeMarking: true, filter: EMPTY_FILTER, sourceLabel: 'All my questions', seed: 1,
+  timeLimitMinutes: null, negativeMarking: true, filter: EMPTY_FILTER, sourceLabel: 'All my questions', seed: 1, revision: false,
 }
 
 const int = (x: unknown, lo: number, hi: number, d: number): number => (typeof x === 'number' && Number.isFinite(x) ? Math.min(hi, Math.max(lo, Math.round(x))) : d)
@@ -50,6 +52,7 @@ export function parseConfig(raw: unknown): SessionConfig {
     filter: parseFilter(o.filter),
     sourceLabel: typeof o.sourceLabel === 'string' ? o.sourceLabel.slice(0, 200) : DEFAULT_CONFIG.sourceLabel,
     seed: int(o.seed, 0, 2147483647, 1),
+    revision: mode === 'practice' && o.revision === true,
   }
 }
 
@@ -62,6 +65,8 @@ export interface AnswerRecord {
   /** Set once the answer has been checked (practice) or submitted (exam). */
   score?: number
   outcome?: Outcome
+  /** How sure the learner said they were, 1 (guess) to 5 (certain). Optional. */
+  confidence?: number
 }
 export interface SessionState { index: number; answers: Record<string, AnswerRecord> }
 
@@ -77,6 +82,7 @@ export function parseState(raw: unknown, questionCount: number): SessionState {
         flagged: r.flagged === true ? true : undefined,
         ms: int(r.ms, 0, 86400000, 0),
         score: typeof r.score === 'number' ? r.score : undefined,
+        confidence: typeof r.confidence === 'number' && r.confidence >= 1 && r.confidence <= 5 ? Math.round(r.confidence) : undefined,
         outcome: r.outcome === 'correct' || r.outcome === 'partial' || r.outcome === 'incorrect' || r.outcome === 'unanswered' ? r.outcome : undefined,
       }
     }

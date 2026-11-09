@@ -14,7 +14,8 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 | 5 Tags and quick classify | Done; phone-check pending. See docs/QUESTION_ENGINE.md |
 | 6 Import / export and paste kit | Done; phone-check pending. See docs/IMPORT_EXPORT.md |
 | 7 Question bank, search and filters | Done; M7 applied to production 2026-11-09. See docs/QUESTION_BANK.md |
-| 8 Sessions: practice and custom exams | Built and tested (2026-11-09); M8 (exam + session tables) written, NOT applied until the exact SQL is approved. See docs/SESSIONS.md |
+| 8 Sessions: practice and custom exams | Done; M8 applied to production 2026-11-10 (UTC 2026-11-09) and verified. See docs/SESSIONS.md |
+| 9 Revision and analytics | Built and tested (2026-11-10); no migration. See docs/REVISION.md |
 
 ## 2. What was wrong with the old order, and the fix
 

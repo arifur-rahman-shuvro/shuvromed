@@ -6,6 +6,8 @@ import { changedParts, restoreInput, useHistoryRepo, type ChangedPart } from '..
 import { Button, Card, Skeleton } from '../components/ui'
 import { TYPE_INFO } from '../questions/registry'
 import { useQuestionRepo, type WQuestion } from '../questions/repo'
+import { byVersion, type VersionRow as AnswerVersionRow } from '../revision/analytics'
+import { useSessionRepo } from '../session/repo'
 import { useWorkspaceEnabled } from '../workspace/flag'
 import type { VersionRow } from '../workspace/sync/remote'
 import SyncBar from '../workspace/SyncBar'
@@ -21,6 +23,7 @@ export default function WorkspaceQuestionHistory() {
   const enabled = useWorkspaceEnabled(user?.id)
   const qr = useQuestionRepo()
   const history = useHistoryRepo()
+  const sessions = useSessionRepo()
   const sync = useWorkspaceSync()
   const dataVersion = sync?.snapshot.dataVersion ?? 0
   const [question, setQuestion] = useState<WQuestion | null>(null)
@@ -29,6 +32,7 @@ export default function WorkspaceQuestionHistory() {
   const [missing, setMissing] = useState(false)
   const [confirm, setConfirm] = useState<number | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [results, setResults] = useState<AnswerVersionRow[]>([])
 
   const load = useCallback(async () => {
     setError(null)
@@ -38,7 +42,9 @@ export default function WorkspaceQuestionHistory() {
     const v = await history.versions(id)
     if (v.error || !v.data) { setError(v.error ?? 'Could not load the history.'); setVersions(null); return }
     setVersions(v.data)
-  }, [qr, history, id])
+    const a = await sessions.allAttempts()
+    setResults(a.data ? byVersion(a.data, id) : [])
+  }, [qr, history, sessions, id])
   useEffect(() => { if (enabled) void load() }, [enabled, load, dataVersion])
 
   if (!enabled) return <Navigate to="/app/settings" replace />
@@ -84,6 +90,7 @@ export default function WorkspaceQuestionHistory() {
                     <p className="mt-2 whitespace-pre-wrap">{v.stem}</p>
                     <ul className="mt-1 text-sm">{describeContent(v.question_type as never, v.content).map((l, k) => <li key={k}>{l}</li>)}</ul>
                     {v.explanation ? <p className="mt-1 text-sm text-muted">Explanation: {v.explanation}</p> : null}
+                    {(() => { const r = results.find((x) => x.version === v.version); return r ? <p className="mt-1 text-sm">Your answers to this version: {r.answers} ({r.correct} correct, {r.partial} partly, {r.incorrect} wrong)</p> : <p className="mt-1 text-sm text-muted">Not answered in this version.</p> })()}
                     {!isCurrent ? (
                       confirm === v.version ? (
                         <div className="mt-2 rounded-xl border border-line bg-surface2 p-3">
