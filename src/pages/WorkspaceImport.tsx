@@ -164,7 +164,7 @@ export default function WorkspaceImport() {
       <section aria-label="Prompt kit" className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">Prompt kit for a chatbot</h2>
         <p className="text-sm text-muted">Typing questions on a phone is slow. Copy this into any chatbot, add your notes at the end, then paste its reply above.</p>
-        <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-line bg-surface2 p-3 text-xs">{PROMPT_KIT}</pre>
+        <pre tabIndex={0} aria-label="Prompt kit text" className="max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-line bg-surface2 p-3 text-xs">{PROMPT_KIT}</pre>
         <div><Button variant="secondary" onClick={() => void copyKit()}>Copy prompt</Button></div>
         <p role="status" aria-live="polite" className="text-sm text-muted">{copyNote}</p>
       </section>

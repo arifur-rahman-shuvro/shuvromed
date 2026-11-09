@@ -169,8 +169,9 @@ describe('My questions', () => {
     expect(m.router.state.location.pathname).toBe('/app/workspace/questions')
   })
 
-  it('hides the screen until the workspace is switched on', async () => {
+  it('hides the screen when the workspace is switched off', async () => {
     localStorage.clear()
+    setWorkspaceEnabled(TEST_USER_ID, false)
     const fake = makeFakeAuth({ signedInAs: 'me@test.local' })
     const router = createMemoryRouter(routes, { initialEntries: ['/app/workspace/questions'] })
     render(

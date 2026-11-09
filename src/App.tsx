@@ -1,3 +1,5 @@
+import { useAuth } from './auth/AuthContext'
+import { useWorkspaceEnabled } from './workspace/flag'
 import { lazy, Suspense, useMemo } from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Skeleton } from './components/ui'
@@ -24,6 +26,8 @@ const Bookmarks = lazy(() => import('./pages/Bookmarks'))
 const Notebook = lazy(() => import('./pages/Notebook'))
 const WorkspaceSubjects = lazy(() => import('./pages/WorkspaceSubjects'))
 const WorkspaceQuestions = lazy(() => import('./pages/WorkspaceQuestions'))
+const WorkspaceHome = lazy(() => import('./pages/WorkspaceHome'))
+const WorkspaceHealth = lazy(() => import('./pages/WorkspaceHealth'))
 const WorkspacePractice = lazy(() => import('./pages/WorkspacePractice'))
 const WorkspaceSession = lazy(() => import('./pages/WorkspaceSession'))
 const WorkspaceSessionResult = lazy(() => import('./pages/WorkspaceSessionResult'))
@@ -59,6 +63,12 @@ function Root() {
   )
 }
 
+/** After the cutover the first screen is the private workspace home; the old dashboard stays at /app/legacy (and is the home again if the workspace is switched off). */
+function HomeGate() {
+  const { user } = useAuth()
+  return useWorkspaceEnabled(user?.id) ? <WorkspaceHome /> : <Dashboard />
+}
+
 const pages = [
   { path: '/', element: <Landing /> },
   { path: '/login', element: <LoginPage /> },
@@ -72,7 +82,9 @@ const pages = [
         path: '/app',
         element: wrap(<AppLayout />),
         children: [
-          { index: true, element: wrap(<Dashboard />) },
+          { index: true, element: wrap(<HomeGate />) },
+          { path: 'legacy', element: wrap(<Dashboard />) },
+          { path: 'workspace/health', element: wrap(<WorkspaceHealth />) },
           {
             element: wrap(<ContentRoute />),
             children: [

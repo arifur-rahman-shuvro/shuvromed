@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import SyncStatus from './SyncStatus'
 import { SyncProvider } from '../sync/SyncContext'
-import { useWorkspaceEnabled } from '../workspace/flag'
+import { useLegacyVisible, useWorkspaceEnabled } from '../workspace/flag'
 import WorkspaceProvider from '../workspace/WorkspaceProvider'
 import { THEME_EVENT, applyTheme, getThemePref, resolveDark } from '../lib/theme'
 
@@ -18,6 +18,34 @@ export const NAV = [
   { to: '/app/analytics', label: 'Analytics', end: false },
   { to: '/app/settings', label: 'Settings', end: false },
 ]
+
+const WORKSPACE_MENU = [
+  { to: '/app', label: 'Home', end: true },
+  { to: '/app/workspace/subjects', label: 'My subjects', end: false },
+  { to: '/app/workspace/questions', label: 'My questions', end: false },
+  { to: '/app/workspace/practice', label: 'Practice and exams', end: false },
+  { to: '/app/workspace/revision', label: 'Revision and insights', end: false },
+  { to: '/app/workspace/tags', label: 'My tags', end: false },
+  { to: '/app/workspace/import', label: 'Import / export', end: false },
+  { to: '/app/workspace/health', label: 'Data health', end: false },
+]
+const WORKSPACE_TABS = [
+  { to: '/app', label: 'Home', end: true },
+  { to: '/app/workspace/questions', label: 'Questions', end: false },
+  { to: '/app/workspace/practice', label: 'Practice', end: false },
+  { to: '/app/workspace/revision', label: 'Insights', end: false },
+  { to: '/app/settings', label: 'Settings', end: false },
+]
+const SETTINGS = { to: '/app/settings', label: 'Settings', end: false }
+const OLD_SCREENS = [
+  { to: '/app/legacy', label: 'Old dashboard', end: true },
+  ...NAV.filter((n) => ['Subjects', 'Revision', 'Bookmarks', 'Notebook', 'Mock exam', 'Progress', 'Analytics'].includes(n.label)).map((n) => ({ ...n, label: `Old ${n.label.toLowerCase()}` })),
+]
+/** The side menu: the private workspace by default; the old demo screens only when asked for (their data is kept either way). */
+export function menuFor(workspaceOn: boolean, legacyOn: boolean) {
+  if (!workspaceOn) return NAV
+  return [...WORKSPACE_MENU, ...(legacyOn ? OLD_SCREENS : []), SETTINGS]
+}
 
 const link = ({ isActive }: { isActive: boolean }) =>
   `flex min-h-12 items-center rounded-xl px-4 font-medium ${
@@ -38,7 +66,9 @@ function Shell() {
   }, [])
   const { user, signOut } = useAuth()
   const workspaceOn = useWorkspaceEnabled(user?.id)
-  const sideNav = workspaceOn ? [...NAV.slice(0, 2), { to: '/app/workspace/subjects', label: 'My subjects', end: false }, { to: '/app/workspace/questions', label: 'My questions', end: false }, { to: '/app/workspace/practice', label: 'Practice and exams', end: false }, { to: '/app/workspace/revision', label: 'Revision and insights', end: false }, { to: '/app/workspace/tags', label: 'My tags', end: false }, { to: '/app/workspace/import', label: 'Import / export', end: false }, ...NAV.slice(2)] : NAV
+  const legacyOn = useLegacyVisible(user?.id)
+  const sideNav = menuFor(workspaceOn, legacyOn)
+  const tabNav = workspaceOn ? WORKSPACE_TABS : NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook', 'Progress'].includes(n.label))
   const navigate = useNavigate()
 
   async function handleSignOut() {
@@ -113,7 +143,7 @@ function Shell() {
         aria-label="Primary"
         className="fixed inset-x-0 bottom-0 z-10 flex border-t border-line bg-surface md:hidden"
       >
-        {NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook', 'Progress'].includes(n.label)).map((n) => (
+        {tabNav.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end} className={tabLink}>
             {n.label}
           </NavLink>

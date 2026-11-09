@@ -45,7 +45,7 @@ async function audit(page, name) {
     const errs = []; page.on('pageerror', (e) => errs.push(String(e)))
     const routes = [
       ['landing', '/', /create free account/i], ['login', '/login', 'Sign in'], ['signup', '/signup', null], ['forgot password', '/forgot-password', null],
-      ['dashboard', '/app', 'Dashboard'], ['subjects', '/app/subjects', 'Subjects'], ['revision', '/app/revision', 'Revision'], ['bookmarks', '/app/bookmarks', 'Bookmarks'],
+      ['home', '/app', 'Home'], ['old dashboard', '/app/legacy', 'Dashboard'], ['my subjects', '/app/workspace/subjects', 'My subjects'], ['my questions', '/app/workspace/questions', 'My questions'], ['practice and exams', '/app/workspace/practice', 'Practice and exams'], ['past sessions', '/app/workspace/sessions', 'Past sessions'], ['revision and insights', '/app/workspace/revision', 'Revision and insights'], ['my tags', '/app/workspace/tags', 'My tags'], ['import and export', '/app/workspace/import', 'Import and export'], ['data health', '/app/workspace/health', 'Data health'], ['subjects', '/app/subjects', 'Subjects'], ['revision', '/app/revision', 'Revision'], ['bookmarks', '/app/bookmarks', 'Bookmarks'],
       ['notebook', '/app/notebook', 'Notebook'], ['practice setup', '/app/practice', 'Practice setup'], ['mock setup', '/app/mock', 'Mock exam'], ['progress', '/app/progress', 'Progress'],
       ['analytics', '/app/analytics', 'Analytics'], ['settings', '/app/settings', 'Settings'], ['not found', '/app/nope', null],
     ]

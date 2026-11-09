@@ -101,3 +101,9 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 - Found and fixed by tests: a discarded change did not refresh the lists.
 - Results: unit 358/358, DB 112/112, typecheck clean, lint 0 errors, build OK; real Chromium check of IndexedDB persistence passed.
 - Not verified: real Supabase sync, two real devices, real phone.
+
+## v3.0 Phases 8-10 (2026-11-10)
+- Phase 8 (practice + exam sessions, M8 applied to production 2026-11-09 after exact-SQL approval and a green backup) and Phase 9 (revision queue, insights, confidence) phone-checked by the owner.
+- Phase 10 (cutover): workspace is the default menu; Home with first-run guide; old demo screens hidden but kept (Settings switch); Data health page (storage meter, sync state, read-only data check). No migration. See `docs/CUTOVER.md`.
+- Found by the real-browser accessibility audit and fixed: the prompt-kit box on Import was scrollable but not keyboard-focusable. Audit now covers the workspace screens: 58 screens, 0 issues.
+- Not verified: real phone for Phase 10; session player and result screens under axe (they need data); real-server sync of Phase 10 screens.

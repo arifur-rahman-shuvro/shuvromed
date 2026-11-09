@@ -55,7 +55,7 @@ describe('settings page', () => {
     await userEvent.type(goal, '35')
     expect(goal).toHaveValue(35)
     expect(getDailyGoal(TEST_USER_ID)).toBe(35)
-    await router.navigate('/app')
+    await router.navigate('/app/legacy')
     expect(await screen.findByText(/\/ 35 questions/)).toBeInTheDocument()
   })
 

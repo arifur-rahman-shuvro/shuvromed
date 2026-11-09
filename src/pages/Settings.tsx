@@ -16,7 +16,7 @@ import { loadUserData } from '../userdata/store'
 import type { ExportFile } from '../backup/export'
 import { CountInput } from '../components/bits'
 import OfflineCard from '../pwa/OfflineCard'
-import { setWorkspaceEnabled, useWorkspaceEnabled } from '../workspace/flag'
+import { setLegacyVisible, setWorkspaceEnabled, useLegacyVisible, useWorkspaceEnabled } from '../workspace/flag'
 
 const DELETE_WORD = 'DELETE'
 const label: Record<keyof ImportReport, string> = { attempts: 'answers', collections: 'collections', bookmarks: 'bookmarks', notes: 'notes', flags: 'reports', mockResults: 'mock exams' }
@@ -45,6 +45,7 @@ export default function Settings() {
   const attempts = useAttempts(userId)
   const goal = useDailyGoal(userId)
   const workspaceOn = useWorkspaceEnabled(userId)
+  const legacyOn = useLegacyVisible(userId)
   const [theme, setTheme] = useState<ThemePref>(() => getThemePref())
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [preview, setPreview] = useState<{ file: ExportFile; report: ImportReport; name: string } | null>(null)
@@ -125,13 +126,22 @@ export default function Settings() {
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold">Experimental: private workspace</h2>
-        <p className="mt-1 text-sm text-muted">Your own subjects, topics and questions, kept private to your account. Still being built; it is off by default and changes nothing else in the app.</p>
+        <h2 className="text-lg font-semibold">Your workspace</h2>
+        <p className="mt-1 text-sm text-muted">Your own subjects, topics, questions, practice and exams, kept private to your account. This is now the main menu. The old demo data is kept, never deleted.</p>
         <label className="mt-3 flex min-h-12 items-center gap-3">
           <input type="checkbox" className="size-5" checked={workspaceOn} onChange={(e) => setWorkspaceEnabled(userId, e.target.checked)} />
-          <span className="font-medium">Show my private workspace</span>
+          <span className="font-medium">Use my private workspace as the main menu</span>
         </label>
-        {workspaceOn ? <div className="mt-2 flex flex-wrap gap-2"><LinkButton variant="secondary" to="/app/workspace/subjects">Open My subjects</LinkButton><LinkButton variant="secondary" to="/app/workspace/questions">Open My questions</LinkButton><LinkButton variant="secondary" to="/app/workspace/practice">Open Practice and exams</LinkButton><LinkButton variant="secondary" to="/app/workspace/revision">Open Revision and insights</LinkButton><LinkButton variant="secondary" to="/app/workspace/tags">Open My tags</LinkButton><LinkButton variant="secondary" to="/app/workspace/import">Open Import / export</LinkButton></div> : null}
+        <p className="text-xs text-muted">Turn this off to go back to the old demo menu on this device. Nothing is deleted either way.</p>
+        {workspaceOn ? (
+          <>
+            <label className="mt-3 flex min-h-12 items-center gap-3">
+              <input type="checkbox" className="size-5" checked={legacyOn} onChange={(e) => setLegacyVisible(userId, e.target.checked)} />
+              <span className="font-medium">Also list the old demo screens in the menu</span>
+            </label>
+            <div className="mt-2 flex flex-wrap gap-2"><LinkButton variant="secondary" to="/app/workspace/health">Data health and storage</LinkButton><LinkButton variant="secondary" to="/app/workspace/import">Import / export</LinkButton></div>
+          </>
+        ) : null}
       </Card>
       <OfflineCard />
 

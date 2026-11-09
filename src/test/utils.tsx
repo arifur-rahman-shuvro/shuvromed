@@ -20,6 +20,8 @@ export function renderApp(
   client: AuthClient | null = fake.client,
   content: ContentClient = realContentClient(),
 ) {
+  // Since the cutover the workspace is on by default. Tests of the old screens keep the old menu unless they chose otherwise.
+  if (localStorage.getItem(`shuvromed.workspace.enabled.v1.${TEST_USER_ID}`) === null) localStorage.setItem(`shuvromed.workspace.enabled.v1.${TEST_USER_ID}`, '0')
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const utils = render(
     <ContentClientContext.Provider value={content}>

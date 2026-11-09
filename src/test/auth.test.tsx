@@ -138,7 +138,8 @@ describe('sign up', () => {
     await userEvent.type(await screen.findByLabelText('Email'), 'fresh@test.local')
     await userEvent.type(screen.getByLabelText('Password'), 'a-good-password')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
-    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    // A brand-new account lands on the private workspace home with its first-run guide.
+    expect(await screen.findByRole('heading', { name: 'Home' })).toBeInTheDocument()
   })
 
   it('rejects a short password without calling the server', async () => {

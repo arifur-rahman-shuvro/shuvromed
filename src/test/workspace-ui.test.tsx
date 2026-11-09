@@ -45,7 +45,7 @@ describe('workspace model helpers', () => {
 
 function open(repo: WorkspaceRepo, path = '/app/workspace/subjects', enabled = true) {
   localStorage.clear()
-  if (enabled) setWorkspaceEnabled(TEST_USER_ID, true)
+  setWorkspaceEnabled(TEST_USER_ID, enabled)
   const fake = makeFakeAuth({ signedInAs: 'me@test.local' })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   render(
@@ -61,18 +61,23 @@ function open(repo: WorkspaceRepo, path = '/app/workspace/subjects', enabled = t
 describe('My subjects page', () => {
   beforeEach(() => localStorage.clear())
 
-  it('is hidden until switched on: redirects to Settings', async () => {
+  it('is hidden when switched off: redirects to Settings', async () => {
     const router = open(memoryWorkspace(), '/app/workspace/subjects', false)
     await screen.findByRole('heading', { name: 'Settings', level: 1 })
     expect(router.state.location.pathname).toBe('/app/settings')
   })
 
-  it('Settings toggle reveals the link; new account starts empty', async () => {
-    open(memoryWorkspace(), '/app/settings', false)
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Show my private workspace' }))
-    await userEvent.click(await screen.findByRole('link', { name: 'Open My subjects' }))
-    await screen.findByRole('heading', { name: 'My subjects', level: 1 })
-    expect(await screen.findByText('No subjects yet')).toBeTruthy()
+  it('Settings switch goes back to the old menu and forward again; new account starts empty', async () => {
+    open(memoryWorkspace(), '/app/settings')
+    const box = await screen.findByRole('checkbox', { name: 'Use my private workspace as the main menu' })
+    expect((box as HTMLInputElement).checked).toBe(true)
+    await userEvent.click(box)
+    expect(screen.queryByRole('link', { name: 'My subjects' })).toBeNull()
+    // Switching changes the menu, so the page is drawn again: find the switch again.
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Use my private workspace as the main menu' }))
+    const links = await screen.findAllByRole('link', { name: 'Import / export' })
+    await userEvent.click(links[links.length - 1])
+    await screen.findByRole('heading', { name: 'Import and export', level: 1 })
   })
 
   it('adds, renames, archives and deletes a subject; rejects duplicates', async () => {

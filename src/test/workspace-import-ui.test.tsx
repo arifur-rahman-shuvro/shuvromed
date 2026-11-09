@@ -128,8 +128,9 @@ describe('Import and export screen', () => {
     expect(written[0]).toMatch(/^Turn the study notes/)
   })
 
-  it('hides the screen until the workspace is switched on', async () => {
+  it('hides the screen when the workspace is switched off', async () => {
     localStorage.clear()
+    setWorkspaceEnabled(TEST_USER_ID, false)
     const fake = makeFakeAuth({ signedInAs: 'me@test.local' })
     const router = createMemoryRouter(routes, { initialEntries: ['/app/workspace/import'] })
     render(

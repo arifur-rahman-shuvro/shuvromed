@@ -87,8 +87,9 @@ describe('My tags', () => {
     await waitFor(() => expect(rows('user_tags')).toHaveLength(0))
   })
 
-  it('hides the screen until the workspace is switched on', async () => {
+  it('hides the screen when the workspace is switched off', async () => {
     localStorage.clear()
+    setWorkspaceEnabled(TEST_USER_ID, false)
     const fake = makeFakeAuth({ signedInAs: 'me@test.local' })
     const router = createMemoryRouter(routes, { initialEntries: ['/app/workspace/tags'] })
     render(
