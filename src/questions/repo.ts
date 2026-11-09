@@ -51,6 +51,8 @@ export interface QuestionRepo {
   list(): Promise<Result<WQuestion[]>>
   get(id: string): Promise<Result<WQuestion | null>>
   create(input: QuestionInput): Promise<Result<WQuestion>>
+  /** Many new questions in one go (for import). Each is checked like `create`; bad ones are reported by position and skipped, the rest are saved together in batches. */
+  createMany(inputs: QuestionInput[]): Promise<Result<{ created: number; failed: { index: number; error: string }[] }>>
   update(id: string, input: QuestionInput): Promise<Result<WQuestion>>
   /** Adds and/or removes tags on many questions at once; all of it is saved together or not at all. */
   bulkTags(ids: string[], change: BulkTagChange): Promise<Result<{ changed: number }>>
@@ -112,7 +114,7 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
     return toQuestion(r, (await linksByQuestion()).get(id) ?? [], (await tagsByQuestion()).get(id) ?? [])
   }
   /** Checks an input against the contract and the data on the device. Returns cleaned values. */
-  const check = async (input: QuestionInput): Promise<Result<{ stem: string; content: QuestionContent; topicIds: string[]; tagIds: string[] | null }>> => {
+  const check = async (input: QuestionInput, topicRows?: Row[]): Promise<Result<{ stem: string; content: QuestionContent; topicIds: string[]; tagIds: string[] | null }>> => {
     const v = validateQuestion(input.type, input.stem, input.content)
     if (!v.ok) return bad(v.problems[0].message)
     if (input.difficulty !== null && !DIFFICULTIES.includes(input.difficulty)) return bad('Choose easy, medium or hard, or leave difficulty empty.')
@@ -121,7 +123,7 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
     if (!(await store.get(SUBJECTS, input.subjectId))) return bad('Choose a subject for this question.')
     const topicIds = [...new Set(input.topicIds)]
     if (topicIds.length > 30) return bad('A question can have at most 30 topics.')
-    const topics = await store.list(TOPICS)
+    const topics = topicRows ?? (await store.list(TOPICS))
     for (const t of topicIds) {
       const row = topics.find((x) => x.id === t)
       if (!row) return bad('One of the topics no longer exists.')
@@ -160,6 +162,28 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
         ...(c.data.tagIds ?? []).map((t) => ({ table: TAG_LINKS, id: `${id}:${t}`, create: { question_id: id, tag_id: t } })),
       ])
       return ok((await load(id)) as WQuestion)
+    }),
+
+    createMany: (inputs) => guard(async () => {
+      const topicRows = await store.list(TOPICS)
+      const failed: { index: number; error: string }[] = []
+      let created = 0
+      const BATCH = 100
+      for (let start = 0; start < inputs.length; start += BATCH) {
+        const changes: Change[] = []
+        for (let i = start; i < Math.min(start + BATCH, inputs.length); i++) {
+          const input = inputs[i]
+          const c = await check(input, topicRows)
+          if (c.error || !c.data) { failed.push({ index: i, error: c.error ?? 'Could not save.' }); continue }
+          const id = crypto.randomUUID()
+          changes.push({ table: QUESTIONS, id, create: { ...columns(input, c.data), archived_at: null, deleted_at: null } })
+          for (const t of c.data.topicIds) changes.push({ table: LINKS, id: `${id}:${t}`, create: { question_id: id, topic_id: t } })
+          for (const t of c.data.tagIds ?? []) changes.push({ table: TAG_LINKS, id: `${id}:${t}`, create: { question_id: id, tag_id: t } })
+          created++
+        }
+        if (changes.length) await store.apply(changes)
+      }
+      return ok({ created, failed })
     }),
 
     update: (id, input) => guard(async () => {
@@ -232,7 +256,7 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
 export const QuestionRepoContext = createContext<QuestionRepo | null>(null)
 const unavailable = <T,>(): Promise<Result<T>> => Promise.resolve(bad('Your workspace is not ready yet.'))
 const notReady: QuestionRepo = {
-  list: () => unavailable(), get: () => unavailable(), create: () => unavailable(), update: () => unavailable(), bulkTags: () => unavailable(), setArchived: () => unavailable(),
+  list: () => unavailable(), get: () => unavailable(), create: () => unavailable(), createMany: () => unavailable(), update: () => unavailable(), bulkTags: () => unavailable(), setArchived: () => unavailable(),
   setDeleted: () => unavailable(), findDuplicates: () => unavailable(), saveDraft: async () => undefined, loadDraft: async () => null, clearDraft: async () => undefined,
 }
 export const useQuestionRepo = (): QuestionRepo => useContext(QuestionRepoContext) ?? notReady

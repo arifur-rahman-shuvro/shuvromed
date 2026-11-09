@@ -92,7 +92,7 @@ export default function WorkspaceQuestions() {
         <Button variant="secondary" onClick={() => { setSelecting((v) => !v); setPicked(new Set()) }}>{selecting ? 'Done selecting' : 'Select'}</Button>
         <LinkButton to="/app/workspace/questions/new">Add question</LinkButton>
       </div>
-      <p className="text-muted">Your own questions, private to you. <Link className="underline" to="/app/workspace/subjects">Manage subjects and topics</Link> · <Link className="underline" to="/app/workspace/tags">Manage tags</Link></p>
+      <p className="text-muted">Your own questions, private to you. <Link className="underline" to="/app/workspace/subjects">Manage subjects and topics</Link> · <Link className="underline" to="/app/workspace/tags">Manage tags</Link> · <Link className="underline" to="/app/workspace/import">Import / export</Link></p>
       {sync ? <SyncBar sync={sync} /> : null}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
