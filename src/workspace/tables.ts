@@ -11,4 +11,6 @@ export const WORKSPACE_TABLES: TableSpec[] = [
   { name: 'user_question_topics', order: 4, mode: 'full', key: ['question_id', 'topic_id'], childOf: { table: 'user_questions', fk: 'question_id' }, columns: ['question_id', 'topic_id'] },
   { name: 'user_tags', order: 3, mode: 'full', columns: ['category', 'name', 'archived_at'] },
   { name: 'user_question_tag_links', order: 5, mode: 'full', key: ['question_id', 'tag_id'], childOf: { table: 'user_questions', fk: 'question_id' }, columns: ['question_id', 'tag_id'] },
+  // Saved bank filters (migration M7). The server table may not exist yet; until it does, they stay on the device.
+  { name: 'user_saved_filters', order: 3, mode: 'full', optionalRemote: true, columns: ['name', 'filter', 'sort'] },
 ]

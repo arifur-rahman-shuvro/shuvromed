@@ -26,6 +26,7 @@ const WorkspaceSubjects = lazy(() => import('./pages/WorkspaceSubjects'))
 const WorkspaceQuestions = lazy(() => import('./pages/WorkspaceQuestions'))
 const WorkspaceTags = lazy(() => import('./pages/WorkspaceTags'))
 const WorkspaceImport = lazy(() => import('./pages/WorkspaceImport'))
+const WorkspaceQuestionHistory = lazy(() => import('./pages/WorkspaceQuestionHistory'))
 const WorkspaceQuestionEdit = lazy(() => import('./pages/WorkspaceQuestionEdit'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Admin = lazy(() => import('./pages/Admin'))
@@ -88,6 +89,7 @@ const pages = [
           { path: 'workspace/questions', element: wrap(<WorkspaceQuestions />) },
           { path: 'workspace/tags', element: wrap(<WorkspaceTags />) },
           { path: 'workspace/import', element: wrap(<WorkspaceImport />) },
+          { path: 'workspace/questions/:id/history', element: wrap(<WorkspaceQuestionHistory />) },
           { path: 'workspace/questions/:id', element: wrap(<WorkspaceQuestionEdit />) },
           { path: 'settings', element: wrap(<Settings />) },
           { path: 'admin', element: wrap(<Admin />) },

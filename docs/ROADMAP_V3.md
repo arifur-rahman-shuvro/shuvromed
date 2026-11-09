@@ -12,7 +12,8 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 | 3 Local-first foundation | Done, phone-verified. See docs/WORKSPACE_SYNC.md |
 | 4 Question engine and editor | Done; M6.1 applied to production 2026-11-09. See docs/QUESTION_ENGINE.md |
 | 5 Tags and quick classify | Done; phone-check pending. See docs/QUESTION_ENGINE.md |
-| 6 Import / export and paste kit | Built and tested (2026-11-09); awaiting your phone check. See docs/IMPORT_EXPORT.md |
+| 6 Import / export and paste kit | Done; phone-check pending. See docs/IMPORT_EXPORT.md |
+| 7 Question bank, search and filters | Built and tested (2026-11-09); M7 (saved filters) written, NOT applied, awaiting your approval. See docs/QUESTION_BANK.md |
 
 ## 2. What was wrong with the old order, and the fix
 
@@ -36,7 +37,7 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 | **4** | **Question engine and editor** | Create, edit, preview and answer the four types (SBA, multiple-answer, true/false, fill-in-the-gap). Every meaning change keeps a version. Drafts autosave | None (M6 already has the tables) |
 | **5** | **Tags and quick classify** | Exam tags and general tags, separate. Untagged = Universal. Assign tags to many questions at once | None |
 | **6** | **Import / export and paste kit** | Paste many questions from text, or import JSON. A dry-run report shows what will happen before anything is saved. Export everything as JSON | None |
-| **7** | **Question bank, search and filters** | One list of all your questions. Search, filter by subject / topic / type / tag / difficulty / state, saved filters, bulk actions, version history with restore | M7 (small): saved filters, file metadata |
+| **7** | **Question bank, search and filters** | One list of all your questions. Search, filter by subject / topic / type / tag / difficulty / state, saved filters, bulk actions, version history with restore | M7 (small): saved filters only (file metadata moved to the phase that uses it) |
 | **8** | **Sessions: practice and custom exams** | Practice any filtered set. Build timed exams (count, time, negative marking). Results and review | M8: exam config, sessions, answers |
 | **9** | **Revision and analytics** | Due-for-revision queue, weak topics, "often wrong", confidence trends, per-version history | None |
 | **10** | **Cutover** | The main menu uses your private workspace. Old demo data stays hidden but kept. First-run empty-state guide, storage meter, data health check | None |

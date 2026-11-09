@@ -1,7 +1,7 @@
 import type { StoredRow } from '../store/types'
 import type { WorkspaceStore } from '../store/store'
 import { fromServer, mergeChildren, mergePull, pushOrder } from './merge'
-import { CHILD_CHUNK, PAGE_SIZE, type ServerRow, type WorkspaceRemote } from './remote'
+import { CHILD_CHUNK, isMissingTable, PAGE_SIZE, type ServerRow, type WorkspaceRemote } from './remote'
 
 export interface WorkspaceSyncReport {
   at: string
@@ -25,6 +25,8 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
   // ---- 1. read ----
   /** Rows that were new or changed on the server in this run, per table (their links are read next). */
   const changedFromServer = new Map<string, Set<string>>()
+  /** Optional tables the server does not have yet: skipped, and their changes wait. */
+  const missing = new Set<string>()
   for (const spec of specs) {
     if (spec.childOf) {
       // Parents whose links could not be read last time are read again now.
@@ -58,10 +60,12 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
     let ok = true
     for (let offset = 0; ; offset += PAGE_SIZE) {
       const page = await remote.fetchPage(spec.name, { since, offset, limit: PAGE_SIZE })
+      if (!page.ok && spec.optionalRemote && isMissingTable(page.code)) { missing.add(spec.name); ok = false; break }
       if (!page.ok) { ok = false; report.errors.push(`Reading ${spec.name}: ${page.message}`); if (page.transient) report.offline = true; break }
       rows.push(...page.rows)
       if (page.rows.length < PAGE_SIZE) break
     }
+    if (missing.has(spec.name)) continue
     if (!ok && spec.mode === 'full') continue // a partial read of a full table is never applied
     await store.run(async () => {
       const local = await store.backend.getAll(spec.name)
@@ -83,7 +87,7 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
     const all = new Map<string, StoredRow[]>()
     for (const s of specs) all.set(s.name, await store.backend.getAll(s.name))
     // Changes the server already refused wait for the owner to edit or discard them; they are not retried forever.
-    const { linkDeletes, upserts, deletes } = pushOrder(store.specs, dirty.filter((r) => !r.rejected), all)
+    const { linkDeletes, upserts, deletes } = pushOrder(store.specs, dirty.filter((r) => !r.rejected && !missing.has(r.table)), all)
     const reject = (r: StoredRow, message: string) => store.run(async () => {
       const cur = await store.backend.get(r.table, r.id)
       if (cur) await store.backend.putMany([{ ...cur, rejected: message }])

@@ -35,6 +35,7 @@ const rows = (t: string) => [...(server.tables.get(t)?.values() ?? [])]
 
 beforeEach(() => {
   localStorage.clear()
+  sessionStorage.clear()
   server = fakeServer()
   factory = new IDBFactory()
   server.externalInsert('user_subjects', { name: 'Anatomy', description: null, sort_order: 0, archived_at: null })
@@ -131,7 +132,7 @@ describe('tagging questions', () => {
     mount('/app/workspace/questions')
     await screen.findByText('One?')
     await user.click(screen.getByRole('button', { name: 'Select' }))
-    await user.click(screen.getByRole('button', { name: 'Select all shown' }))
+    await user.click(screen.getByRole('button', { name: /^Select all \d+ matching$/ }))
     await user.selectOptions(screen.getByLabelText('Tag'), await screen.findByRole('option', { name: 'High yield (general)' }))
     await user.click(screen.getByRole('button', { name: 'Add tag' }))
     await screen.findByText(/Added "High yield" to 2 questions/)

@@ -1,5 +1,5 @@
 import type { Cols } from '../workspace/store/types'
-import type { PageResult, ServerRow, WorkspaceRemote, WriteResult } from '../workspace/sync/remote'
+import type { PageResult, ServerRow, VersionRow, WorkspaceRemote, WriteResult } from '../workspace/sync/remote'
 import { normName } from '../workspace/model'
 
 /** Link tables have no id column: their key columns identify a row (like the real tables). */
@@ -22,20 +22,39 @@ export interface FakeServer extends WorkspaceRemote {
   externalDelete(table: string, id: string): void
   /** Lose the answer of the next successful insert (the row is saved but the device never hears back). */
   loseNextAck: boolean
+  /** Tables the server does not have (as before a migration is applied). */
+  missingTables: Set<string>
+  /** Saved versions per question, newest last. */
+  versions: Map<string, VersionRow[]>
 }
 
 /** An in-memory stand-in for the Supabase tables: ids, server timestamps, row_version and the unique-name rule. */
 export function fakeServer(tick: () => string = (() => { let n = 0; return () => new Date(Date.UTC(2026, 10, 8, 12, 0, ++n)).toISOString() })()): FakeServer {
   const tables = new Map<string, Map<string, ServerRow>>()
   const t = (name: string) => { if (!tables.has(name)) tables.set(name, new Map()); return tables.get(name) as Map<string, ServerRow> }
+  const record = (q: ServerRow) => {
+    const subject = t('user_subjects').get(String(q.subject_id))
+    const row: VersionRow = {
+      version: Number(q.current_version), question_type: String(q.question_type), stem: String(q.stem), difficulty: (q.difficulty as string | null) ?? null,
+      content: q.content, explanation: (q.explanation as string | null) ?? null, reference: (q.reference as string | null) ?? null,
+      subject_id: String(q.subject_id), subject_name: String(subject?.name ?? ''), created_at: String(q.updated_at),
+    }
+    s.versions.set(q.id, [...(s.versions.get(q.id) ?? []), row])
+  }
   const downErr = { ok: false as const, message: 'Failed to fetch', transient: true }
   const s: FakeServer = {
-    tables, down: false, refuse: null, calls: [], loseNextAck: false,
+    tables, down: false, refuse: null, calls: [], loseNextAck: false, missingTables: new Set(), versions: new Map(),
     async fetchPage(table, { since, offset, limit }): Promise<PageResult> {
       s.calls.push(`fetch ${table}`)
       if (s.down) return { ok: false, message: 'Failed to fetch', transient: true }
+      if (s.missingTables.has(table)) return { ok: false, message: `Could not find the table 'public.${table}' in the schema cache`, transient: false, code: 'PGRST205' }
       const rows = [...t(table).values()].filter((r) => !since || r.updated_at >= since).sort((a, b) => a.updated_at.localeCompare(b.updated_at) || a.id.localeCompare(b.id))
       return { ok: true, rows: rows.slice(offset, offset + limit).map((r) => ({ ...r })) }
+    },
+    async fetchVersions(questionId) {
+      s.calls.push('versions')
+      if (s.down) return { ok: false, message: 'Failed to fetch', transient: true }
+      return { ok: true, rows: [...(s.versions.get(questionId) ?? [])].reverse() }
     },
     async fetchChildren(table, fk, parentIds): Promise<PageResult> {
       s.calls.push(`children ${table}`)
@@ -78,6 +97,7 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       const saved: ServerRow = { owner_id: 'me', created_at: at, row_version: 1, ...row, id, updated_at: at }
       if (table === 'user_questions') { saved.current_version = 1; saved.deleted_at = saved.deleted_at ?? null; saved.archived_at = saved.archived_at ?? null }
       t(table).set(id, saved)
+      if (table === 'user_questions') record(saved)
       if (s.loseNextAck) { s.loseNextAck = false; return downErr }
       return { ok: true, row: { ...saved } }
     },
@@ -96,6 +116,7 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
         }
       }
       t(table).set(id, saved)
+      if (table === 'user_questions' && saved.current_version !== cur.current_version) record(saved)
       return { ok: true, row: { ...saved } }
     },
     async remove(table, id) {

@@ -35,6 +35,7 @@ const rows = (t: string) => [...(server.tables.get(t)?.values() ?? [])]
 
 beforeEach(() => {
   localStorage.clear()
+  sessionStorage.clear()
   server = fakeServer()
   factory = new IDBFactory()
   server.externalInsert('user_subjects', { name: 'Anatomy', description: null, sort_order: 0, archived_at: null })
@@ -156,7 +157,8 @@ describe('My questions', () => {
 
     await user.click(screen.getByRole('button', { name: /^Archive: Edited/ }))
     await waitFor(() => expect(screen.queryByText('Edited?')).toBeNull())
-    await user.click(screen.getByRole('checkbox', { name: 'Show archived' }))
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
+    await user.selectOptions(screen.getByLabelText('Show'), 'Active and archived')
     await user.click(await screen.findByRole('button', { name: /^Restore: Edited/ }))
 
     await user.click(await screen.findByRole('button', { name: /^Delete: Edited/ }))

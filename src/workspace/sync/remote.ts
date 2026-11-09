@@ -9,7 +9,10 @@ export type WriteResult =
    *  Otherwise the server refused it because of a rule (duplicate name, not allowed...) and retrying would not help. */
   | { ok: false; message: string; code?: string; transient: boolean }
 
-export type PageResult = { ok: true; rows: ServerRow[] } | { ok: false; message: string; transient: boolean }
+export type PageResult = { ok: true; rows: ServerRow[] } | { ok: false; message: string; transient: boolean; code?: string }
+
+/** The server says the table does not exist (its migration has not been applied). */
+export const isMissingTable = (code?: string): boolean => code === 'PGRST205' || code === '42P01'
 
 /** What sync needs from the server. The real one talks to Supabase; tests use an in-memory one. */
 export interface WorkspaceRemote {
@@ -21,9 +24,26 @@ export interface WorkspaceRemote {
   insert(table: string, row: Cols): Promise<WriteResult>
   /** `row: null` in the result means no such row exists on the server. */
   update(table: string, id: string, patch: Cols): Promise<WriteResult>
+  /** Every saved version of one question, newest first. Needs the network: versions are not kept on the device. */
+  fetchVersions(questionId: string): Promise<VersionsResult>
   /** `match` is given for link tables, which have no id column. */
   remove(table: string, id: string, match?: Cols): Promise<{ ok: true } | { ok: false; message: string; code?: string; transient: boolean }>
 }
+
+/** One saved version of a question, as the server recorded it (versions are never edited or removed). */
+export interface VersionRow {
+  version: number
+  question_type: string
+  stem: string
+  difficulty: string | null
+  content: unknown
+  explanation: string | null
+  reference: string | null
+  subject_id: string
+  subject_name: string
+  created_at: string
+}
+export type VersionsResult = { ok: true; rows: VersionRow[] } | { ok: false; message: string; transient: boolean }
 
 export const PAGE_SIZE = 1000
 /** How many parents' links are read in one request (keeps the address short enough). */
@@ -50,8 +70,19 @@ export function supabaseWorkspaceRemote(sb: SupabaseClient): WorkspaceRemote {
         let q = sb.from(table).select('*')
         if (since) q = q.gte('updated_at', since)
         const { data, error } = await q.order('updated_at', { ascending: true }).order('id', { ascending: true }).range(offset, offset + limit - 1).abortSignal(timeout())
-        if (error) return { ok: false, message: error.message, transient: isTransient(error) }
+        if (error) return { ok: false, message: error.message, transient: isTransient(error), code: error.code }
         return { ok: true, rows: (data ?? []) as ServerRow[] }
+      } catch (e) {
+        return { ok: false, message: e instanceof Error ? e.message : 'Network problem', transient: true }
+      }
+    },
+    async fetchVersions(questionId) {
+      try {
+        const { data, error } = await sb.from('user_question_versions')
+          .select('version,question_type,stem,difficulty,content,explanation,reference,subject_id,subject_name,created_at')
+          .eq('question_id', questionId).order('version', { ascending: false }).abortSignal(timeout())
+        if (error) return { ok: false, message: error.message, transient: isTransient(error) }
+        return { ok: true, rows: (data ?? []) as VersionRow[] }
       } catch (e) {
         return { ok: false, message: e instanceof Error ? e.message : 'Network problem', transient: true }
       }

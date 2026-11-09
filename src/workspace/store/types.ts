@@ -19,6 +19,9 @@ export interface TableSpec {
   /** A link table read per parent: after the parent table is read, only the links of the parent rows that changed
    *  are read (the server marks a question as changed whenever its links change). */
   childOf?: { table: string; fk: string }
+  /** The server table may not exist yet (its migration is waiting for approval). While it is missing, sync skips it quietly
+   *  and the changes wait on the device; once the table exists they are sent with no change to the app. */
+  optionalRemote?: boolean
 }
 
 export interface StoredRow {

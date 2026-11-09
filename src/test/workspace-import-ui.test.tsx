@@ -35,6 +35,7 @@ const rows = (t: string) => [...(server.tables.get(t)?.values() ?? [])]
 
 beforeEach(() => {
   localStorage.clear()
+  sessionStorage.clear()
   server = fakeServer()
   factory = new IDBFactory()
   server.externalInsert('user_subjects', { name: 'Anatomy', description: null, sort_order: 0, archived_at: null })

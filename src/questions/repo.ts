@@ -56,6 +56,10 @@ export interface QuestionRepo {
   update(id: string, input: QuestionInput): Promise<Result<WQuestion>>
   /** Adds and/or removes tags on many questions at once; all of it is saved together or not at all. */
   bulkTags(ids: string[], change: BulkTagChange): Promise<Result<{ changed: number }>>
+  /** Archives/restores or deletes/undeletes many questions at once (all saved together). Questions already in that state are not counted. */
+  bulkState(ids: string[], change: { archived?: boolean; deleted?: boolean }): Promise<Result<{ changed: number }>>
+  /** Moves many questions to another subject. Their topics belong to the old subject, so they are cleared; tags are kept. */
+  bulkMove(ids: string[], subjectId: string): Promise<Result<{ changed: number; topicsCleared: number }>>
   setArchived(id: string, archived: boolean): Promise<Result<WQuestion>>
   /** Delete hides the question everywhere. Its versions and answers are kept. */
   setDeleted(id: string, deleted: boolean): Promise<Result<WQuestion>>
@@ -228,6 +232,36 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
       if (changes.length) await store.apply(changes)
       return ok({ changed })
     }),
+    bulkState: (ids, change) => guard(async () => {
+      const changes: Change[] = []
+      for (const id of new Set(ids)) {
+        const r = await store.get(QUESTIONS, id)
+        if (!r) continue
+        const update: Record<string, unknown> = {}
+        if (change.archived !== undefined && (r.archived_at != null) !== change.archived) update.archived_at = change.archived ? store.now() : null
+        if (change.deleted !== undefined && (r.deleted_at != null) !== change.deleted) update.deleted_at = change.deleted ? store.now() : null
+        if (Object.keys(update).length) changes.push({ table: QUESTIONS, id, update })
+      }
+      if (changes.length) await store.apply(changes)
+      return ok({ changed: changes.length })
+    }),
+    bulkMove: (ids, subjectId) => guard(async () => {
+      const target = await store.get(SUBJECTS, subjectId)
+      if (!target) return bad('That subject no longer exists.')
+      const links = await linksByQuestion()
+      const changes: Change[] = []
+      let changed = 0
+      let topicsCleared = 0
+      for (const id of new Set(ids)) {
+        const r = await store.get(QUESTIONS, id)
+        if (!r || r.subject_id === subjectId) continue
+        changed++
+        for (const t of links.get(id) ?? []) { topicsCleared++; changes.push({ table: LINKS, id: `${id}:${t}`, remove: true }) }
+        changes.push({ table: QUESTIONS, id, update: { subject_id: subjectId } })
+      }
+      if (changes.length) await store.apply(changes)
+      return ok({ changed, topicsCleared })
+    }),
     setArchived: (id, archived) => guard(async () => {
       if (!(await store.get(QUESTIONS, id))) return bad('That question no longer exists.')
       await store.apply([{ table: QUESTIONS, id, update: { archived_at: archived ? store.now() : null } }])
@@ -256,7 +290,7 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
 export const QuestionRepoContext = createContext<QuestionRepo | null>(null)
 const unavailable = <T,>(): Promise<Result<T>> => Promise.resolve(bad('Your workspace is not ready yet.'))
 const notReady: QuestionRepo = {
-  list: () => unavailable(), get: () => unavailable(), create: () => unavailable(), createMany: () => unavailable(), update: () => unavailable(), bulkTags: () => unavailable(), setArchived: () => unavailable(),
+  list: () => unavailable(), get: () => unavailable(), create: () => unavailable(), createMany: () => unavailable(), update: () => unavailable(), bulkTags: () => unavailable(), bulkState: () => unavailable(), bulkMove: () => unavailable(), setArchived: () => unavailable(),
   setDeleted: () => unavailable(), findDuplicates: () => unavailable(), saveDraft: async () => undefined, loadDraft: async () => null, clearDraft: async () => undefined,
 }
 export const useQuestionRepo = (): QuestionRepo => useContext(QuestionRepoContext) ?? notReady
