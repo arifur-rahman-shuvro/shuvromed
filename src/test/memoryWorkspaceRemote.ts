@@ -87,6 +87,18 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       }
       const id = String(row.id)
       if (t(table).has(id)) return { ok: false, message: 'duplicate key', code: '23505', transient: false }
+      if (table === 'user_exams' && [...t(table).values()].some((r) => normName(String(r.name)) === normName(String(row.name)))) {
+        return { ok: false, message: 'duplicate key value violates unique constraint', code: '23505', transient: false }
+      }
+      if (table === 'user_sessions') {
+        if (row.exam_id && !t('user_exams').get(String(row.exam_id))) return { ok: false, message: 'violates foreign key constraint', code: '23503', transient: false }
+        if (row.status === 'finished' && [row.finished_at, row.score, row.max_score, row.correct, row.incorrect, row.partial, row.unanswered].some((x) => x == null)) return { ok: false, message: 'finished session needs a result', code: '23514', transient: false }
+      }
+      if (table === 'user_question_attempts') {
+        const v = (s.versions.get(String(row.question_id)) ?? []).some((x) => x.version === Number(row.question_version))
+        if (!v) return { ok: false, message: 'violates foreign key constraint (question version)', code: '23503', transient: false }
+        if (row.session_id && !t('user_sessions').get(String(row.session_id))) return { ok: false, message: 'violates foreign key constraint (session)', code: '23503', transient: false }
+      }
       if (table === 'user_tags' && [...t(table).values()].some((r) => r.category === row.category && normName(String(r.name)) === normName(String(row.name)))) {
         return { ok: false, message: 'duplicate key value violates unique constraint', code: '23505', transient: false }
       }
@@ -108,6 +120,10 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       const cur = t(table).get(id)
       if (!cur) return { ok: true, row: null }
       const saved: ServerRow = { ...cur, ...patch, id, updated_at: tick(), row_version: Number(cur.row_version) + 1 }
+      if (table === 'user_question_attempts') return { ok: false, message: 'permission denied for table user_question_attempts', code: '42501', transient: false }
+      if (table === 'user_sessions' && cur.status === 'finished' && ['status', 'kind', 'config', 'question_ids', 'started_at', 'finished_at', 'score', 'max_score', 'correct', 'incorrect', 'partial', 'unanswered', 'elapsed_ms'].some((k) => JSON.stringify(cur[k] ?? null) !== JSON.stringify(saved[k] ?? null))) {
+        return { ok: false, message: 'A finished session cannot be changed', code: '23514', transient: false }
+      }
       if (table === 'user_questions') {
         const changed = MEANING.some((k) => JSON.stringify(cur[k] ?? null) !== JSON.stringify(saved[k] ?? null))
         saved.current_version = Number(cur.current_version) + (changed ? 1 : 0) // only a change of meaning makes a new version
@@ -125,7 +141,9 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       if (s.refuse) return { ok: false, ...s.refuse, transient: false }
       const link = LINK_KEYS[table]
       const gone = t(table).get(id)
+      if (table === 'user_sessions' || table === 'user_question_attempts') return { ok: false, message: 'permission denied (history is kept)', code: '42501', transient: false }
       t(table).delete(id)
+      if (table === 'user_exams') for (const [k, ses] of [...t('user_sessions')]) if (ses.exam_id === id) t('user_sessions').set(k, { ...ses, exam_id: null, updated_at: tick(), row_version: Number(ses.row_version) + 1 })
       if (table === 'user_tags') { // deleting a tag removes its links and marks their questions as changed, like the real database
         for (const [k, l] of [...t('user_question_tag_links')]) {
           if (l.tag_id !== id) continue

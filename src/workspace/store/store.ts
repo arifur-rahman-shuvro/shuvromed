@@ -53,6 +53,11 @@ export class WorkspaceStore {
     this.spec(table)
     return (await this.backend.getAll(table)).filter(this.visible).map((r) => ({ ...r.v, id: r.id }))
   }
+  /** Ids of rows that have changes not yet sent to the server (edits, not removals). */
+  async pendingIds(table: string): Promise<Set<string>> {
+    this.spec(table)
+    return new Set((await this.backend.getAll(table)).filter((r) => r.dirty === 'upsert').map((r) => r.id))
+  }
   async get(table: string, id: string): Promise<Row | undefined> {
     const r = await this.backend.get(table, id)
     return r && this.visible(r) ? { ...r.v, id: r.id } : undefined

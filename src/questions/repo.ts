@@ -23,6 +23,8 @@ export interface WQuestion {
   reference: string | null
   topicIds: string[]
   tagIds: string[]
+  /** True while an edit to this question is waiting to be sent. Practice waits until it is sent so an answer names the version the learner actually saw. */
+  pendingEdit: boolean
   /** The version the server last confirmed; null until the question has reached the server once. */
   version: number | null
   archived: boolean
@@ -77,7 +79,7 @@ const clean = (s: string | null): string | null => { const t = (s ?? '').trim();
 /** Wording key for duplicate detection: blank markers and case, spacing and accents-free comparison. */
 export const stemKey = (stem: string): string => normName(stem.replace(/\{\{[^}]*\}\}/g, ' ___ '))
 
-const toQuestion = (r: Row, topicIds: string[], tagIds: string[] = []): WQuestion => ({
+const toQuestion = (r: Row, topicIds: string[], tagIds: string[] = [], pendingEdit = false): WQuestion => ({
   id: r.id,
   subjectId: String(r.subject_id),
   type: r.question_type as QuestionType,
@@ -88,6 +90,7 @@ const toQuestion = (r: Row, topicIds: string[], tagIds: string[] = []): WQuestio
   reference: (r.reference as string | null) ?? null,
   topicIds,
   tagIds,
+  pendingEdit,
   version: typeof r.current_version === 'number' ? r.current_version : null,
   archived: r.archived_at != null,
   deleted: r.deleted_at != null,
@@ -115,7 +118,7 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
   const load = async (id: string): Promise<WQuestion | null> => {
     const r = await store.get(QUESTIONS, id)
     if (!r) return null
-    return toQuestion(r, (await linksByQuestion()).get(id) ?? [], (await tagsByQuestion()).get(id) ?? [])
+    return toQuestion(r, (await linksByQuestion()).get(id) ?? [], (await tagsByQuestion()).get(id) ?? [], (await store.backend.get(QUESTIONS, id))?.dirty === 'upsert')
   }
   /** Checks an input against the contract and the data on the device. Returns cleaned values. */
   const check = async (input: QuestionInput, topicRows?: Row[]): Promise<Result<{ stem: string; content: QuestionContent; topicIds: string[]; tagIds: string[] | null }>> => {
@@ -151,8 +154,9 @@ export function localQuestionRepo(store: WorkspaceStore): QuestionRepo {
     list: () => guard(async () => {
       const links = await linksByQuestion()
       const tagLinks = await tagsByQuestion()
+      const pending = await store.pendingIds(QUESTIONS)
       const rows = (await store.list(QUESTIONS)).filter((r) => r.deleted_at == null)
-      return ok(rows.map((r) => toQuestion(r, links.get(r.id) ?? [], tagLinks.get(r.id) ?? [])))
+      return ok(rows.map((r) => toQuestion(r, links.get(r.id) ?? [], tagLinks.get(r.id) ?? [], pending.has(r.id))))
     }),
     get: (id) => guard(async () => ok(await load(id))),
 

@@ -17,7 +17,7 @@ export const isMissingTable = (code?: string): boolean => code === 'PGRST205' ||
 /** What sync needs from the server. The real one talks to Supabase; tests use an in-memory one. */
 export interface WorkspaceRemote {
   /** One page of rows. With `since`, only rows changed at or after that time (cursor tables). */
-  fetchPage(table: string, opts: { since: string | null; offset: number; limit: number }): Promise<PageResult>
+  fetchPage(table: string, opts: { since: string | null; offset: number; limit: number; column?: string }): Promise<PageResult>
   /** The links (rows with no id) of the given parent rows. Each returned row has a made-up `id` (its key values joined by ":")
    *  and `updated_at` taken from `created_at`. */
   fetchChildren(table: string, fk: string, parentIds: string[], key: string[]): Promise<PageResult>
@@ -65,13 +65,15 @@ export function supabaseWorkspaceRemote(sb: SupabaseClient): WorkspaceRemote {
     return { ok: false, message: err.message || 'Network problem', code: err.code, transient: isTransient(err) }
   }
   return {
-    async fetchPage(table, { since, offset, limit }) {
+    async fetchPage(table, { since, offset, limit, column = 'updated_at' }) {
       try {
         let q = sb.from(table).select('*')
-        if (since) q = q.gte('updated_at', since)
-        const { data, error } = await q.order('updated_at', { ascending: true }).order('id', { ascending: true }).range(offset, offset + limit - 1).abortSignal(timeout())
+        if (since) q = q.gte(column, since)
+        const { data, error } = await q.order(column, { ascending: true }).order('id', { ascending: true }).range(offset, offset + limit - 1).abortSignal(timeout())
         if (error) return { ok: false, message: error.message, transient: isTransient(error), code: error.code }
-        return { ok: true, rows: (data ?? []) as ServerRow[] }
+        const rows = (data ?? []) as ServerRow[]
+        // A table ordered by another column (created_at) has no updated_at: the sync reads the same value from both.
+        return { ok: true, rows: column === 'updated_at' ? rows : rows.map((r) => ({ ...r, updated_at: String(r[column]) })) }
       } catch (e) {
         return { ok: false, message: e instanceof Error ? e.message : 'Network problem', transient: true }
       }

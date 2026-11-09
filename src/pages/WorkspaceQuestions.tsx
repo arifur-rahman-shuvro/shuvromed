@@ -167,6 +167,7 @@ export default function WorkspaceQuestions() {
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="mr-auto text-2xl font-bold">My questions</h1>
         <Button variant="secondary" onClick={() => { setSelecting((v) => !v); setPicked(new Set()); setConfirmMove(false) }}>{selecting ? 'Done selecting' : 'Select'}</Button>
+        <LinkButton variant="secondary" to="/app/workspace/practice">Practice</LinkButton>
         <LinkButton to="/app/workspace/questions/new">Add question</LinkButton>
       </div>
       <p className="text-muted">Your own questions, private to you. <Link className="underline" to="/app/workspace/subjects">Subjects and topics</Link> · <Link className="underline" to="/app/workspace/tags">Tags</Link> · <Link className="underline" to="/app/workspace/import">Import / export</Link></p>

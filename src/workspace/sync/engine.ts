@@ -55,11 +55,12 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
       })
       continue
     }
+    if (spec.requires && missing.has(spec.requires)) { missing.add(spec.name); continue } // waits for its parent table to exist
     const since = spec.mode === 'cursor' ? (await store.backend.getMeta<string | null>(`cursor/${spec.name}`)) ?? null : null
     const rows: ServerRow[] = []
     let ok = true
     for (let offset = 0; ; offset += PAGE_SIZE) {
-      const page = await remote.fetchPage(spec.name, { since, offset, limit: PAGE_SIZE })
+      const page = await remote.fetchPage(spec.name, { since, offset, limit: PAGE_SIZE, column: spec.cursorColumn })
       if (!page.ok && spec.optionalRemote && isMissingTable(page.code)) { missing.add(spec.name); ok = false; break }
       if (!page.ok) { ok = false; report.errors.push(`Reading ${spec.name}: ${page.message}`); if (page.transient) report.offline = true; break }
       rows.push(...page.rows)

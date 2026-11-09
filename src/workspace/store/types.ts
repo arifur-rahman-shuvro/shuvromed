@@ -22,6 +22,11 @@ export interface TableSpec {
   /** The server table may not exist yet (its migration is waiting for approval). While it is missing, sync skips it quietly
    *  and the changes wait on the device; once the table exists they are sent with no change to the app. */
   optionalRemote?: boolean
+  /** The column that orders and resumes reads for a `cursor` table. Default `updated_at`. Append-only tables that have
+   *  no `updated_at` (attempts) use `created_at`; the server rows are given `updated_at = created_at` when read. */
+  cursorColumn?: string
+  /** This table is only read and sent while the named table exists on the server (attempts need their sessions table). */
+  requires?: string
 }
 
 export interface StoredRow {

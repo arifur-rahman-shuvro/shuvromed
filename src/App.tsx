@@ -24,6 +24,10 @@ const Bookmarks = lazy(() => import('./pages/Bookmarks'))
 const Notebook = lazy(() => import('./pages/Notebook'))
 const WorkspaceSubjects = lazy(() => import('./pages/WorkspaceSubjects'))
 const WorkspaceQuestions = lazy(() => import('./pages/WorkspaceQuestions'))
+const WorkspacePractice = lazy(() => import('./pages/WorkspacePractice'))
+const WorkspaceSession = lazy(() => import('./pages/WorkspaceSession'))
+const WorkspaceSessionResult = lazy(() => import('./pages/WorkspaceSessionResult'))
+const WorkspaceSessions = lazy(() => import('./pages/WorkspaceSessions'))
 const WorkspaceTags = lazy(() => import('./pages/WorkspaceTags'))
 const WorkspaceImport = lazy(() => import('./pages/WorkspaceImport'))
 const WorkspaceQuestionHistory = lazy(() => import('./pages/WorkspaceQuestionHistory'))
@@ -88,6 +92,10 @@ const pages = [
           { path: 'workspace/subjects', element: wrap(<WorkspaceSubjects />) },
           { path: 'workspace/questions', element: wrap(<WorkspaceQuestions />) },
           { path: 'workspace/tags', element: wrap(<WorkspaceTags />) },
+          { path: 'workspace/practice', element: wrap(<WorkspacePractice />) },
+          { path: 'workspace/sessions', element: wrap(<WorkspaceSessions />) },
+          { path: 'workspace/session/:id/result', element: wrap(<WorkspaceSessionResult />) },
+          { path: 'workspace/session/:id', element: wrap(<WorkspaceSession />) },
           { path: 'workspace/import', element: wrap(<WorkspaceImport />) },
           { path: 'workspace/questions/:id/history', element: wrap(<WorkspaceQuestionHistory />) },
           { path: 'workspace/questions/:id', element: wrap(<WorkspaceQuestionEdit />) },

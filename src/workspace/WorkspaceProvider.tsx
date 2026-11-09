@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { localQuestionRepo, QuestionRepoContext, type QuestionRepo } from '../questions/repo'
 import { HistoryRepoContext, remoteHistoryRepo, type HistoryRepo } from '../bank/history'
 import { localSavedFilterRepo, SavedFilterRepoContext, type SavedFilterRepo } from '../bank/saved'
+import { localSessionRepo, SessionRepoContext, type SessionRepo } from '../session/repo'
 import { localTagRepo, TagRepoContext, type TagRepo } from '../tags/repo'
 import { localWorkspaceRepo } from './localRepo'
 import { WorkspaceRepoContext, type WorkspaceRepo } from './repo'
@@ -35,7 +36,7 @@ const SyncContext = createContext<WorkspaceSync | null>(null)
 /** Null when no real provider is above (for example in tests that supply a fake repo). */
 export const useWorkspaceSync = (): WorkspaceSync | null => useContext(SyncContext)
 
-interface Ready { repo: WorkspaceRepo; questions: QuestionRepo; tags: TagRepo; saved: SavedFilterRepo; history: HistoryRepo; controller: SyncController; persistent: boolean }
+interface Ready { repo: WorkspaceRepo; questions: QuestionRepo; tags: TagRepo; saved: SavedFilterRepo; sessions: SessionRepo; history: HistoryRepo; controller: SyncController; persistent: boolean }
 
 function Inner({ userId, children }: { userId: string; children: ReactNode }) {
   const env = useContext(WorkspaceEnvContext)
@@ -64,7 +65,7 @@ function Inner({ userId, children }: { userId: string; children: ReactNode }) {
       document.addEventListener('visibilitychange', onVisible)
       cleanups.push(() => { window.removeEventListener('online', go); document.removeEventListener('visibilitychange', onVisible) })
       go()
-      setReady({ repo: localWorkspaceRepo(store), questions: localQuestionRepo(store), tags: localTagRepo(store), saved: localSavedFilterRepo(store), history: remoteHistoryRepo(remote), controller, persistent })
+      setReady({ repo: localWorkspaceRepo(store), questions: localQuestionRepo(store), tags: localTagRepo(store), saved: localSavedFilterRepo(store), sessions: localSessionRepo(store), history: remoteHistoryRepo(remote), controller, persistent })
     })()
     return () => {
       cancelled = true
@@ -92,7 +93,9 @@ function Inner({ userId, children }: { userId: string; children: ReactNode }) {
         <TagRepoContext.Provider value={ready.tags}>
           <SavedFilterRepoContext.Provider value={ready.saved}>
             <HistoryRepoContext.Provider value={ready.history}>
-              <SyncContext.Provider value={value}>{children}</SyncContext.Provider>
+              <SessionRepoContext.Provider value={ready.sessions}>
+                <SyncContext.Provider value={value}>{children}</SyncContext.Provider>
+              </SessionRepoContext.Provider>
             </HistoryRepoContext.Provider>
           </SavedFilterRepoContext.Provider>
         </TagRepoContext.Provider>
