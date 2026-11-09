@@ -5,6 +5,7 @@ import { normName } from '../workspace/model'
 /** Link tables have no id column: their key columns identify a row (like the real tables). */
 export const LINK_KEYS: Record<string, { key: string[]; parent: string; fk: string }> = {
   user_question_topics: { key: ['question_id', 'topic_id'], parent: 'user_questions', fk: 'question_id' },
+  user_question_tag_links: { key: ['question_id', 'tag_id'], parent: 'user_questions', fk: 'question_id' },
 }
 const MEANING = ['question_type', 'stem', 'content', 'explanation', 'reference', 'difficulty']
 
@@ -56,6 +57,10 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
           const topic = t('user_topics').get(String(row.topic_id))
           if (!topic || topic.subject_id !== q.subject_id) return { ok: false, message: 'A topic can only be added to a question in the same subject', code: '23514', transient: false }
         }
+        if (table === 'user_question_tag_links') {
+          if (!t('user_tags').get(String(row.tag_id))) return { ok: false, message: 'violates foreign key constraint', code: '23503', transient: false }
+          if ([...t(table).values()].filter((l) => l.question_id === row.question_id).length >= 60) return { ok: false, message: 'A question can have at most 60 tags', code: '23514', transient: false }
+        }
         const at = tick()
         t(table).set(id, { owner_id: 'me', created_at: at, ...row, id, updated_at: at })
         t(link.parent).set(q.id, { ...q, updated_at: at, row_version: Number(q.row_version) + 1 }) // the real database marks the question as changed
@@ -63,6 +68,9 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       }
       const id = String(row.id)
       if (t(table).has(id)) return { ok: false, message: 'duplicate key', code: '23505', transient: false }
+      if (table === 'user_tags' && [...t(table).values()].some((r) => r.category === row.category && normName(String(r.name)) === normName(String(row.name)))) {
+        return { ok: false, message: 'duplicate key value violates unique constraint', code: '23505', transient: false }
+      }
       if ((table === 'user_subjects' || table === 'user_topics') && [...t(table).values()].some((r) => normName(String(r.name)) === normName(String(row.name)) && (table === 'user_subjects' || (r.subject_id === row.subject_id && (r.parent_id ?? null) === (row.parent_id ?? null))))) {
         return { ok: false, message: 'duplicate key value violates unique constraint', code: '23505', transient: false }
       }
@@ -97,6 +105,14 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       const link = LINK_KEYS[table]
       const gone = t(table).get(id)
       t(table).delete(id)
+      if (table === 'user_tags') { // deleting a tag removes its links and marks their questions as changed, like the real database
+        for (const [k, l] of [...t('user_question_tag_links')]) {
+          if (l.tag_id !== id) continue
+          t('user_question_tag_links').delete(k)
+          const q = t('user_questions').get(String(l.question_id))
+          if (q) t('user_questions').set(q.id, { ...q, updated_at: tick(), row_version: Number(q.row_version) + 1 })
+        }
+      }
       if (link && gone) { const q = t(link.parent).get(String(gone[link.fk])); if (q) t(link.parent).set(q.id, { ...q, updated_at: tick(), row_version: Number(q.row_version) + 1 }) }
       return { ok: true }
     },

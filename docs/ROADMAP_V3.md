@@ -10,7 +10,8 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 | 1 Private data model (M6) | Done, applied to production and verified (legacy 16 attempts / 1 note / 1 user unchanged) |
 | 2 Subject/Topic Manager | Done, hidden behind Settings → Experimental |
 | 3 Local-first foundation | Done, phone-verified. See docs/WORKSPACE_SYNC.md |
-| 4 Question engine and editor | Built and tested (2026-11-09); awaiting your phone check and M6.1 approval. See docs/QUESTION_ENGINE.md |
+| 4 Question engine and editor | Done; M6.1 applied to production 2026-11-09. See docs/QUESTION_ENGINE.md |
+| 5 Tags and quick classify | Built and tested (2026-11-09); awaiting your phone check |
 
 ## 2. What was wrong with the old order, and the fix
 

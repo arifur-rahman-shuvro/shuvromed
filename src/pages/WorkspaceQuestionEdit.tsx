@@ -7,6 +7,8 @@ import { TYPE_INFO } from '../questions/registry'
 import { DIFFICULTIES, QUESTION_TYPES, validateQuestion, type Difficulty, type QuestionContent, type QuestionType } from '../questions/schema'
 import ContentEditor from '../questions/ui/ContentEditor'
 import QuestionView from '../questions/ui/QuestionView'
+import { useTagRepo, type WTag } from '../tags/repo'
+import TagPicker from '../tags/ui/TagPicker'
 import { useWorkspaceEnabled } from '../workspace/flag'
 import { buildTopicTree, flatten, type WSubject, type WTopic } from '../workspace/model'
 import SyncBar from '../workspace/SyncBar'
@@ -21,12 +23,13 @@ interface Draft {
   explanation: string
   reference: string
   topicIds: string[]
+  tagIds: string[]
   content: QuestionContent
 }
 
 const field = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
-const emptyDraft = (type: QuestionType = 'SBA'): Draft => ({ subjectId: '', type, stem: '', difficulty: '', explanation: '', reference: '', topicIds: [], content: TYPE_INFO[type].blank() })
-const fromQuestion = (q: WQuestion): Draft => ({ subjectId: q.subjectId, type: q.type, stem: q.stem, difficulty: q.difficulty ?? '', explanation: q.explanation ?? '', reference: q.reference ?? '', topicIds: q.topicIds, content: structuredClone(q.content) })
+const emptyDraft = (type: QuestionType = 'SBA'): Draft => ({ subjectId: '', type, stem: '', difficulty: '', explanation: '', reference: '', topicIds: [], tagIds: [], content: TYPE_INFO[type].blank() })
+const fromQuestion = (q: WQuestion): Draft => ({ subjectId: q.subjectId, type: q.type, stem: q.stem, difficulty: q.difficulty ?? '', explanation: q.explanation ?? '', reference: q.reference ?? '', topicIds: q.topicIds, tagIds: q.tagIds, content: structuredClone(q.content) })
 const same = (a: Draft, b: Draft) => JSON.stringify(a) === JSON.stringify(b)
 
 export default function WorkspaceQuestionEdit() {
@@ -37,12 +40,14 @@ export default function WorkspaceQuestionEdit() {
   const navigate = useNavigate()
   const ws = useWorkspaceRepo()
   const qr = useQuestionRepo()
+  const tagRepo = useTagRepo()
   const sync = useWorkspaceSync()
   const draftKey = editing ? `edit-${id}` : 'new'
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'missing' | 'error'>('loading')
   const [subjects, setSubjects] = useState<WSubject[]>([])
   const [topics, setTopics] = useState<WTopic[]>([])
+  const [tags, setTags] = useState<WTag[]>([])
   const [saved, setSaved] = useState<Draft>(emptyDraft())
   const [d, setD] = useState<Draft>(emptyDraft())
   const [restorable, setRestorable] = useState<Draft | null>(null)
@@ -59,6 +64,8 @@ export default function WorkspaceQuestionEdit() {
     if (w.error || !w.data) { setStatus('error'); return }
     setSubjects(w.data.subjects)
     setTopics(w.data.topics)
+    const tg = await tagRepo.list()
+    if (tg.data) setTags(tg.data)
     let base = emptyDraft()
     if (editing) {
       const q = await qr.get(id as string)
@@ -103,7 +110,7 @@ export default function WorkspaceQuestionEdit() {
   const set = (patch: Partial<Draft>) => setD((cur) => ({ ...cur, ...patch }))
   const toInput = (): QuestionInput => ({
     subjectId: d.subjectId, type: d.type, stem: d.stem, difficulty: d.difficulty || null, content: d.content,
-    explanation: d.explanation, reference: d.reference, topicIds: d.topicIds,
+    explanation: d.explanation, reference: d.reference, topicIds: d.topicIds, tagIds: d.tagIds,
   })
 
   async function save() {
@@ -132,7 +139,7 @@ export default function WorkspaceQuestionEdit() {
         <div role="alert" className="flex flex-col gap-2 rounded-xl border border-line bg-surface2 p-3">
           <p>You have an unsaved draft of this question from earlier.</p>
           <div className="flex gap-2">
-            <Button onClick={() => { setD(restorable); setRestorable(null) }}>Restore draft</Button>
+            <Button onClick={() => { setD({ ...emptyDraft(restorable.type), ...restorable }); setRestorable(null) }}>Restore draft</Button>
             <Button variant="secondary" onClick={() => void discardDraft()}>Discard draft</Button>
           </div>
         </div>
@@ -191,6 +198,8 @@ export default function WorkspaceQuestionEdit() {
               </div>
             </fieldset>
           ) : null}
+
+          <TagPicker tags={tags} selected={d.tagIds} onChange={(ids) => set({ tagIds: ids })} repo={tagRepo} onTagCreated={() => { void tagRepo.list().then((r) => { if (r.data) setTags(r.data) }) }} />
 
           <label className="flex flex-col gap-1 text-sm font-medium">
             {d.type === 'FILL_GAP' ? 'Question (use {{b1}} where the missing word goes)' : d.type === 'TRUE_FALSE' ? 'Statement' : 'Question'}

@@ -115,7 +115,13 @@ export class WorkspaceStore {
       for (const c of changes) {
         const spec = this.spec(c.table)
         if ('create' in c) {
-          if (await current(c.table, c.id)) throw new Error('That item already exists.')
+          const prior = await current(c.table, c.id)
+          if (prior && prior.dirty === 'delete' && spec.key) {
+            // A link removed and put back before it was sent: the server still has it, so just cancel the removal.
+            touched.set(key(c.table, c.id), { ...prior, dirty: null, rev: prior.rev + 1, editedAt: at, rejected: null })
+            continue
+          }
+          if (prior) throw new Error('That item already exists.')
           const v: Cols = { created_at: at, updated_at: at, row_version: 0 }
           for (const col of spec.columns) if (col in c.create) v[col] = c.create[col]
           touched.set(key(c.table, c.id), { table: c.table, id: c.id, v, dirty: 'upsert', rev: 1, editedAt: at, base: null, rejected: null })
