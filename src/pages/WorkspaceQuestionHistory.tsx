@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { describeContent } from '../bank/describe'
@@ -34,17 +34,23 @@ export default function WorkspaceQuestionHistory() {
   const [notice, setNotice] = useState<string | null>(null)
   const [results, setResults] = useState<AnswerVersionRow[]>([])
 
+  const latest = useRef(0)
   const load = useCallback(async () => {
+    const mine = ++latest.current // an older load that finishes late must not overwrite a newer one
     setError(null)
     const q = await qr.get(id)
+    if (mine !== latest.current) return
+    // On a device that has not finished its first sync, a question that is not here yet may simply not have arrived: keep waiting.
+    const firstSyncPending = !!sync && sync.snapshot.lastSyncAt === null && sync.snapshot.state !== 'offline' && sync.snapshot.state !== 'error'
+    if (!q.data && !q.error && firstSyncPending) return
     if (q.error || !q.data) { setMissing(true); return }
     setQuestion(q.data)
-    const v = await history.versions(id)
+    const [v, a] = await Promise.all([history.versions(id), sessions.allAttempts()])
+    if (mine !== latest.current) return
     if (v.error || !v.data) { setError(v.error ?? 'Could not load the history.'); setVersions(null); return }
     setVersions(v.data)
-    const a = await sessions.allAttempts()
     setResults(a.data ? byVersion(a.data, id) : [])
-  }, [qr, history, sessions, id])
+  }, [qr, history, sessions, id, sync])
   useEffect(() => { if (enabled) void load() }, [enabled, load, dataVersion])
 
   if (!enabled) return <Navigate to="/app/settings" replace />
