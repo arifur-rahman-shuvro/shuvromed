@@ -6,7 +6,7 @@
 - No database change.
 
 ## The 20,000-question test
-- `npm run test:scale` (not part of `npm test`; slow) writes 20,000 questions and 20,000 answers through the real storage code and times each step. `scripts/check-scale.cjs` does the same in real Chromium with a 4x slower CPU.
+- `npm run test:scale` (not part of `npm test`; slow). The matching database-side timing test is `npm run test:db:scale` (20,000 rows in real PostgreSQL; not run by CI) writes 20,000 questions and 20,000 answers through the real storage code and times each step. `scripts/check-scale.cjs` does the same in real Chromium with a 4x slower CPU.
 - **Status: not completed.** The owner asked to skip it on 2026-11-10 after the first attempt exceeded 9 minutes inside the first step. What was measured before it was stopped:
   - 20,000 questions, IndexedDB test double: saving took 457 s; opening the whole bank 1.7 s; building the search index 92 ms; a filtered search 7 ms; choosing 500 for a session 82 ms; starting it 58 ms; finishing a 500-answer exam 4.4 s. Later steps did not run.
   - Smaller sizes passed end to end: 1,000, 2,000 and 4,000 questions with in-memory storage (saving 4,000 took 0.33 s), and 2,000 with the IndexedDB test double (saving took 2.9 s).
@@ -17,3 +17,6 @@
 - Offline in real Chromium: `scripts/check-offline.cjs` 36 of 36, including import, practice, a cold reload while offline with the data and the unfinished session still present, and the update prompt.
 - Accessibility in real Chromium (axe, 360 px, light and dark): `scripts/check-a11y.cjs` 94 screens and states, 0 issues, with real data in the player, exam, result, history, insights and Data health screens.
 - Unit and screen tests 584; database tests 186; lint 0 errors.
+
+## Database-side 20,000-row test
+`supabase/tests/scale.test.ts` (20,000 questions and answers in real PostgreSQL with RLS on) passed once on the build machine as part of the full database run (186 tests), but its timings were not recorded, and on the CI machine it ran for over 10 minutes. It was moved out of the normal run (`npm run test:db` is now 181 tests) and is run on purpose with `npm run test:db:scale`. Treat the database side at 20,000 rows as passing once, with unknown timings.

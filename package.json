@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:db": "vitest run --config vitest.db.config.ts",
+    "test:db:scale": "DB_SCALE=1 vitest run --config vitest.db.config.ts supabase/tests/scale.test.ts",
     "test:scale": "vitest run --config vitest.scale.config.ts",
     "typecheck": "tsc -b",
     "content:validate": "tsx scripts/validate-content.ts",
