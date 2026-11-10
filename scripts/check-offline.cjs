@@ -39,7 +39,7 @@ const uid = '11111111-1111-4111-8111-111111111111'
 
   // 2. First load installs the service worker
   await page.goto(`${BASE}/app`)
-  await page.getByRole('heading', { name: 'Dashboard', exact: true }).first().waitFor({ timeout: 10000 })
+  await page.getByRole('heading', { name: 'Home', exact: true }).first().waitFor({ timeout: 10000 })
   await page.evaluate(() => navigator.serviceWorker.ready)
   rec('service worker registers and activates', await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.active))
   await page.getByText('ShuvroMed can now open without internet').waitFor({ timeout: 8000 }).then(() => rec('"ready for offline" notice appears once', true), () => rec('"ready for offline" notice appears once', false))
@@ -61,10 +61,34 @@ const uid = '11111111-1111-4111-8111-111111111111'
   // The connection drops while the app is open: the header must say so at once.
   await ctx.setOffline(true)
   await page.locator('header').getByText(/Offline/).first().waitFor({ timeout: 8000 }).then(() => rec('connection drops while open: header shows Offline at once', true), async () => rec('connection drops while open: header shows Offline at once', false, (await page.locator('header').innerText()).replace(/\n+/g, ' | ')))
-  for (const [p, h] of [['/app', 'Dashboard'], ['/app/subjects', 'Subjects'], ['/app/settings', 'Settings'], ['/app/analytics', 'Analytics']]) {
+  for (const [p, h] of [['/app', 'Home'], ['/app/workspace/questions', 'My questions'], ['/app/workspace/practice', 'Practice and exams'], ['/app/workspace/revision', 'Revision and insights'], ['/app/workspace/health', 'Data health'], ['/app/settings', 'Settings'], ['/app/legacy', 'Dashboard'], ['/app/subjects', 'Subjects'], ['/app/analytics', 'Analytics']]) {
     await page.goto(`${BASE}${p}`)
     await page.getByRole('heading', { name: h, exact: true }).first().waitFor({ timeout: 10000 }).then(() => rec(`offline: ${p} opens`, true), () => rec(`offline: ${p} opens`, false))
   }
+  // The private workspace, fully offline: write, practise, reload cold, and see that everything stayed on the device.
+  await page.goto(`${BASE}/app/workspace/import`)
+  await page.getByLabel('Paste questions here').fill('Subject: Anatomy\nTopic: Thorax\n\nQ: Which valve lies between the left atrium and ventricle?\nA) Tricuspid\nB) Mitral *\nC) Aortic\n---\nQ: The sinoatrial node is the natural pacemaker.\nAnswer: True\n')
+  await page.getByRole('button', { name: 'Check' }).click()
+  await page.getByRole('button', { name: /^Import 2 questions/ }).click()
+  await page.getByText(/Imported|imported/).first().waitFor({ timeout: 8000 }).then(() => rec('offline: import 2 questions into the workspace', true), () => rec('offline: import 2 questions into the workspace', false))
+  await page.goto(`${BASE}/app/workspace/practice`)
+  await page.getByText('2 questions available.').waitFor({ timeout: 8000 }).then(() => rec('offline: practice setup sees the new questions', true), () => rec('offline: practice setup sees the new questions', false))
+  await page.getByRole('button', { name: 'Start practice' }).click()
+  await page.getByText(/Question 1 of 2/).waitFor({ timeout: 8000 })
+  await page.locator('input[type=radio]').first().check()
+  await page.getByRole('button', { name: 'Check answer' }).click()
+  await page.getByText(/Correct|Incorrect/).first().waitFor({ timeout: 8000 }).then(() => rec('offline: answer is checked with feedback', true), () => rec('offline: answer is checked with feedback', false))
+  await page.getByRole('button', { name: 'Pause and leave' }).click()
+  await page.getByText('Not finished').waitFor({ timeout: 8000 })
+  await page.reload() // a cold reload while still offline
+  await page.getByText('Not finished').waitFor({ timeout: 10000 }).then(() => rec('offline: after a cold reload the unfinished session is still there', true), () => rec('offline: after a cold reload the unfinished session is still there', false))
+  await page.goto(`${BASE}/app/workspace/questions`)
+  await page.getByText(/Which valve/).first().waitFor({ timeout: 10000 }).then(() => rec('offline: after a cold reload the imported questions are still there', true), () => rec('offline: after a cold reload the imported questions are still there', false))
+  await page.goto(`${BASE}/app/workspace/health`)
+  await page.getByText(/waiting to be sent/).waitFor({ timeout: 10000 }).then(() => rec('offline: Data health shows the changes waiting to be sent', true), () => rec('offline: Data health shows the changes waiting to be sent', false))
+  const idb = await page.evaluate(async (u) => { const dbs = await indexedDB.databases(); return dbs.some((d) => d.name === 'shuvromed-workspace-v1-' + u) }, uid)
+  rec('offline: the data is stored in IndexedDB on the device', idb)
+
   await page.goto(`${BASE}/app/subjects`)
   await page.getByRole('link', { name: /Pharmacology/ }).click()
   await page.getByRole('heading', { level: 1 }).first().waitFor()
@@ -81,7 +105,7 @@ const uid = '11111111-1111-4111-8111-111111111111'
   // 5. Back online: the app still works
   await ctx.setOffline(false)
   await page.goto(`${BASE}/app`)
-  await page.getByRole('heading', { name: 'Dashboard', exact: true }).first().waitFor({ timeout: 10000 }).then(() => rec('back online: app opens', true), () => rec('back online: app opens', false))
+  await page.getByRole('heading', { name: 'Home', exact: true }).first().waitFor({ timeout: 10000 }).then(() => rec('back online: app opens', true), () => rec('back online: app opens', false))
 
   // 6. Update flow: change the worker file, reload, expect the prompt, accept it
   fs.appendFileSync(path.join(DIST, 'sw.js'), '\n// test-update\n')
@@ -92,7 +116,7 @@ const uid = '11111111-1111-4111-8111-111111111111'
   await page.reload()
   await page.getByText('A new version of ShuvroMed is ready.').waitFor({ timeout: 15000 })
   await Promise.all([page.waitForEvent('load', { timeout: 15000 }).catch(() => {}), page.getByRole('button', { name: 'Reload now' }).click()])
-  await page.getByRole('heading', { name: 'Dashboard', exact: true }).first().waitFor({ timeout: 10000 })
+  await page.getByRole('heading', { name: 'Home', exact: true }).first().waitFor({ timeout: 10000 })
   rec('update: "Reload now" installs it and the app opens', true)
   await page.waitForTimeout(500)
   rec('update: prompt is gone afterwards', (await page.getByText('A new version of ShuvroMed is ready.').count()) === 0)

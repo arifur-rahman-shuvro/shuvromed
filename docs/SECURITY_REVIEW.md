@@ -27,3 +27,25 @@ Scope: the web app, the Supabase schema/RLS, the build and backup tooling. Metho
 
 ## Not verified
 Real Supabase behaviour of the new screens (delete account, admin, restore sync); the backup workflow on GitHub; the auth-users restore into a real project; anything on an iOS device.
+
+---
+
+# Update for v3.0 (Phase 11, 2026-11-10)
+
+Scope: the private workspace tables M6-M8 and the screens built on them.
+
+## Checked by running
+| Check | Result |
+|---|---|
+| Database tests on PostgreSQL (`npm run test:db`) | 186 of 186: private-table isolation (`workspace.test.ts`), saved filters (own rows, no impersonation, size limits), exams and sessions (own rows only, no delete, finished session immutable, foreign exam or session refused), batch inserts (other user's subject, topic or question refused) |
+| Production, read-only checks (today, after M8) | No public table without RLS; no anonymous grant on any of the 19 private tables; every private table is restricted to signed-in users; every private table is removed with its owner (the question-versions table through its question) |
+| Supabase security advisor (hosted, today) | No new finding after M8. Same notes as before: `is_admin()` and `delete_my_account()` callable (intended), `rls_auto_enable()` (owner declined hardening), `admins` has RLS and no policy (intended), leaked-password protection off |
+| Supabase performance advisor (hosted, today) | Information only: 8 foreign keys without a covering index (including the new sessions-to-exam and answers-to-version links), 20 unused indexes (no traffic yet), 3 double-policy warnings on the old public catalogue tables. Nothing urgent at this size; an index migration would be needed only if a table grows large, and would need your approval |
+| Browser | No new risky APIs; CSP, offline and accessibility checks re-run on the production build (see docs/SCALE.md) |
+
+## New findings
+1. **Answers and sessions have no per-user row limit (low, same as finding 1 above).** A session holds at most 500 questions and 200 KB of state, but a user can start unlimited sessions. Not fixed; a cap would be a production migration and needs your approval.
+2. **Sessions cannot be deleted through the API (by design).** "Delete my account" removes them. There is no way to erase only your answers short of deleting the account.
+
+## Not verified
+Real two-user behaviour on the hosted project (the tests use a local PostgreSQL with Supabase-style roles); the 20,000-question run (see docs/SCALE.md); anything on a real phone.

@@ -113,6 +113,24 @@ export function fakeServer(tick: () => string = (() => { let n = 0; return () =>
       if (s.loseNextAck) { s.loseNextAck = false; return downErr }
       return { ok: true, row: { ...saved } }
     },
+    async insertMany(table, rows) {
+      // All or nothing, like one INSERT statement: a refused row undoes the whole batch. A network failure keeps what was saved (the answer was lost).
+      const before = [...tables].map(([k, v]) => [k, new Map(v)] as const)
+      const versionsBefore = new Map(s.versions)
+      const mark = s.calls.length
+      const saved: ServerRow[] = []
+      for (const row of rows) {
+        const r = await s.insert(table, row)
+        if (!r.ok) {
+          s.calls.length = mark; s.calls.push(`insertMany ${table}`)
+          if (!r.transient) { tables.clear(); for (const [k, v] of before) tables.set(k, v); s.versions.clear(); for (const [k, v] of versionsBefore) s.versions.set(k, v) }
+          return { ok: false as const, message: r.message, code: r.code, transient: r.transient }
+        }
+        if (r.row) saved.push(r.row)
+      }
+      s.calls.length = mark; s.calls.push(`insertMany ${table}`)
+      return { ok: true as const, rows: saved }
+    },
     async update(table, id, patch): Promise<WriteResult> {
       s.calls.push(`update ${table}`)
       if (s.down) return downErr

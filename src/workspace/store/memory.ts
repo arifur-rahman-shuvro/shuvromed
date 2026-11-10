@@ -10,6 +10,7 @@ export function memoryBackend(persistent = false): Backend {
     persistent,
     async getAll(table) { return [...rows.values()].filter((r) => r.table === table).map(clone) },
     async get(table, id) { const r = rows.get(key(table, id)); return r ? clone(r) : undefined },
+    async getMany(table, ids) { return ids.map((id) => rows.get(key(table, id))).filter((r): r is StoredRow => !!r).map(clone) },
     async putMany(list) { for (const r of list) rows.set(key(r.table, r.id), clone(r)) },
     async deleteMany(table, ids) { for (const id of ids) rows.delete(key(table, id)) },
     async dirty() { return [...rows.values()].filter((r) => r.dirty !== null).map(clone) },

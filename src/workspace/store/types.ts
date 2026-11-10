@@ -27,6 +27,8 @@ export interface TableSpec {
   cursorColumn?: string
   /** This table is only read and sent while the named table exists on the server (attempts need their sessions table). */
   requires?: string
+  /** New rows of this table may be sent many at a time (one request for up to 100 rows). If the server refuses a batch, its rows are sent one by one. */
+  bulk?: boolean
 }
 
 export interface StoredRow {
@@ -49,6 +51,8 @@ export interface Backend {
   readonly persistent: boolean
   getAll(table: string): Promise<StoredRow[]>
   get(table: string, id: string): Promise<StoredRow | undefined>
+  /** Several rows by id in one go (missing ones are left out). */
+  getMany(table: string, ids: string[]): Promise<StoredRow[]>
   putMany(rows: StoredRow[]): Promise<void>
   deleteMany(table: string, ids: string[]): Promise<void>
   dirty(): Promise<StoredRow[]>

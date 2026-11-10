@@ -16,7 +16,8 @@ Written 2026-11-08 after Phases 0-2 and the M6 production migration. It replaces
 | 7 Question bank, search and filters | Done; M7 applied to production 2026-11-09. See docs/QUESTION_BANK.md |
 | 8 Sessions: practice and custom exams | Done; M8 applied to production 2026-11-10 (UTC 2026-11-09) and verified. See docs/SESSIONS.md |
 | 9 Revision and analytics | Done; phone-checked 2026-11-10. See docs/REVISION.md |
-| 10 Cutover | Built and tested (2026-11-10); no migration. See docs/CUTOVER.md |
+| 10 Cutover | Done; built 2026-11-10, no migration. See docs/CUTOVER.md |
+| 11 Hardening and production QA | Built and checked (2026-11-10) except the 20,000-question run, skipped at the owner's request; no migration. See docs/SCALE.md, docs/SECURITY_REVIEW.md, docs/FINAL_CHECKLIST.md |
 
 ## 2. What was wrong with the old order, and the fix
 

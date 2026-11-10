@@ -1,4 +1,4 @@
-import type { StoredRow } from '../store/types'
+import type { StoredRow, TableSpec } from '../store/types'
 import type { WorkspaceStore } from '../store/store'
 import { fromServer, mergeChildren, mergePull, pushOrder } from './merge'
 import { CHILD_CHUNK, isMissingTable, PAGE_SIZE, type ServerRow, type WorkspaceRemote } from './remote'
@@ -71,7 +71,8 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
     await store.run(async () => {
       const local = await store.backend.getAll(spec.name)
       const { put, del } = mergePull(spec.name, spec, local, rows, ok)
-      const changed = put.filter((p) => { const l = local.find((x) => x.id === p.id); return !l || l.dirty === null || JSON.stringify(l.v) !== JSON.stringify(p.v) }).length
+      const localById = new Map(local.map((x) => [x.id, x]))
+      const changed = put.filter((p) => { const l = localById.get(p.id); return !l || l.dirty === null || JSON.stringify(l.v) !== JSON.stringify(p.v) }).length
       await store.backend.putMany(put)
       await store.backend.deleteMany(spec.name, del)
       report.pulled += changed
@@ -106,6 +107,20 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
       report.pushed++
     })
 
+    /** Confirms a whole batch in one pass: one read and one write instead of two per row. Same rules as `ack`. */
+    const ackMany = (list: { r: StoredRow; server: ServerRow }[]) => store.run(async () => {
+      const cur = new Map((await store.backend.getMany(list[0].r.table, list.map((x) => x.r.id))).map((c) => [c.id, c]))
+      const put: StoredRow[] = []
+      for (const { r, server } of list) {
+        const c = cur.get(r.id)
+        if (!c) continue
+        if (c.rev === r.rev) put.push({ ...fromServer(r.table, server), rev: c.rev })
+        else put.push({ ...c, base: server.updated_at }) // edited again while sending: keep that edit queued
+        report.pushed++
+      }
+      await store.backend.putMany(put)
+    })
+
     const keyOf = (r: StoredRow): Record<string, unknown> | undefined => {
       const key = store.specs.get(r.table)?.key
       return key ? Object.fromEntries(key.map((k) => [k, r.v[k]])) : undefined
@@ -121,10 +136,32 @@ export async function runWorkspaceSync(store: WorkspaceStore, remote: WorkspaceR
 
     outer: {
       for (const r of linkDeletes) if (await sendDelete(r)) break outer
-      for (const r of upserts) {
+      const BATCH = 100
+      const singles = new Set<string>() // rows of a batch the server refused: sent one by one so the exact bad row is found
+      const colsOf = (r: StoredRow, spec: TableSpec) => Object.fromEntries(spec.columns.filter((c) => c in r.v).map((c) => [c, r.v[c]]))
+      const batchable = (r: StoredRow): boolean => { const sp = store.specs.get(r.table); return !!sp?.bulk && !singles.has(`${r.table}/${r.id}`) && (!!sp.key || r.base === null) }
+      for (let i = 0; i < upserts.length; i++) {
+        const r = upserts[i]
         const spec = store.specs.get(r.table)
         if (!spec) continue
-        const cols = Object.fromEntries(spec.columns.filter((c) => c in r.v).map((c) => [c, r.v[c]]))
+        const cols = colsOf(r, spec)
+        if (batchable(r)) {
+          const group: StoredRow[] = []
+          for (let j = i; j < upserts.length && group.length < BATCH && upserts[j].table === r.table && batchable(upserts[j]); j++) group.push(upserts[j])
+          if (group.length > 1) {
+            const res = await remote.insertMany(r.table, group.map((g) => (spec.key ? colsOf(g, spec) : { id: g.id, ...colsOf(g, spec) })))
+            if (res.ok) {
+              const back = new Map(res.rows.map((x) => [String(x.id), x]))
+              if (spec.key || group.every((g) => back.has(g.id))) {
+                const at = res.rows.find((x) => x.created_at)?.created_at
+                await ackMany(group.map((g) => ({ r: g, server: spec.key ? ({ ...colsOf(g, spec), id: g.id, created_at: report.at, updated_at: String(at || report.at) } as ServerRow) : (back.get(g.id) as ServerRow) })))
+                i += group.length - 1
+                continue
+              }
+            } else if (res.transient) { report.offline = true; report.errors.push(`Sending ${r.table}: ${res.message}`); break outer }
+            for (const g of group) singles.add(`${g.table}/${g.id}`) // refused (or answered oddly): fall back to one at a time for these rows
+          }
+        }
         if (spec.key) {
           // A link: only ever added. "Already there" counts as done.
           const res = await remote.insert(r.table, cols)

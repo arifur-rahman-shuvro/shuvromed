@@ -107,3 +107,9 @@ Analytics page (docs/ANALYTICS.md). Client-side, no database change.
 - Phase 10 (cutover): workspace is the default menu; Home with first-run guide; old demo screens hidden but kept (Settings switch); Data health page (storage meter, sync state, read-only data check). No migration. See `docs/CUTOVER.md`.
 - Found by the real-browser accessibility audit and fixed: the prompt-kit box on Import was scrollable but not keyboard-focusable. Audit now covers the workspace screens: 58 screens, 0 issues.
 - Not verified: real phone for Phase 10; session player and result screens under axe (they need data); real-server sync of Phase 10 screens.
+
+## v3.0 Phase 11 (2026-11-10)
+- Batched sync (100 rows per request, fall back to one by one), getMany; scale and batch tests; no migration.
+- Real Chromium: offline 36/36; accessibility 94 screens/states, 0 issues (with data).
+- Security review updated for M6-M8 (production read-only checks, advisors). See `docs/SECURITY_REVIEW.md`.
+- NOT done: the 20,000-question run (skipped at the owner's request). See `docs/SCALE.md`. Final owner steps: `docs/FINAL_CHECKLIST.md`.

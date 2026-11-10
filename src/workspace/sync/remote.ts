@@ -9,6 +9,8 @@ export type WriteResult =
    *  Otherwise the server refused it because of a rule (duplicate name, not allowed...) and retrying would not help. */
   | { ok: false; message: string; code?: string; transient: boolean }
 
+export type ManyResult = { ok: true; rows: ServerRow[] } | { ok: false; message: string; code?: string; transient: boolean }
+
 export type PageResult = { ok: true; rows: ServerRow[] } | { ok: false; message: string; transient: boolean; code?: string }
 
 /** The server says the table does not exist (its migration has not been applied). */
@@ -22,6 +24,8 @@ export interface WorkspaceRemote {
    *  and `updated_at` taken from `created_at`. */
   fetchChildren(table: string, fk: string, parentIds: string[], key: string[]): Promise<PageResult>
   insert(table: string, row: Cols): Promise<WriteResult>
+  /** Many new rows in one request. All or nothing: if the server refuses any row it saves none, and the caller sends them one by one. */
+  insertMany(table: string, rows: Cols[]): Promise<ManyResult>
   /** `row: null` in the result means no such row exists on the server. */
   update(table: string, id: string, patch: Cols): Promise<WriteResult>
   /** Every saved version of one question, newest first. Needs the network: versions are not kept on the device. */
@@ -103,6 +107,12 @@ export function supabaseWorkspaceRemote(sb: SupabaseClient): WorkspaceRemote {
       try {
         const { data, error } = await sb.from(table).insert(row).select('*').abortSignal(timeout()).single()
         return error ? fail(error) : { ok: true, row: data as ServerRow }
+      } catch (e) { return fail(e) }
+    },
+    async insertMany(table, rows) {
+      try {
+        const { data, error } = await sb.from(table).insert(rows).select('*').abortSignal(timeout())
+        return error ? fail(error) : { ok: true, rows: (data ?? []) as ServerRow[] }
       } catch (e) { return fail(e) }
     },
     async update(table, id, patch) {

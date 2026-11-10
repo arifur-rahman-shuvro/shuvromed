@@ -42,6 +42,12 @@ export async function openIdbBackend(userId: string, factory: IDBFactory = index
       const rec = await done(store('rows').get(`${table}/${id}`) as IDBRequest<Rec | undefined>)
       return rec ? toRow(rec) : undefined
     },
+    async getMany(table, ids) {
+      if (!ids.length) return []
+      const os = db.transaction('rows', 'readonly').objectStore('rows')
+      const recs = await Promise.all(ids.map((id) => done(os.get(`${table}/${id}`) as IDBRequest<Rec | undefined>)))
+      return recs.filter((r): r is Rec => !!r).map(toRow)
+    },
     async putMany(list) {
       if (!list.length) return
       const tx = db.transaction('rows', 'readwrite')

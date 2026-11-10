@@ -75,6 +75,84 @@ async function audit(page, name) {
     await page.goto(BASE + '/app/subjects'); await page.getByRole('link', { name: /Anatomy/ }).first().click()
     await page.waitForTimeout(500)
     await audit(page, `${scheme}: subject topics`)
+    // The private workspace WITH data: import real questions through the screen, then audit every state a learner meets.
+    const PASTE = `Subject: Anatomy
+Topic: Thorax > Heart
+Tags: high yield
+Difficulty: medium
+
+Q: Which valve lies between the left atrium and the left ventricle?
+A) Tricuspid
+B) Mitral *
+C) Aortic
+D) Pulmonary
+Explanation: The mitral valve is also called the bicuspid valve.
+---
+Q: The sinoatrial node is the natural pacemaker of the heart.
+Answer: True
+---
+Subject: Physiology
+Topic: Renal
+Q: The [nephron|functional unit of the kidney] filters blood.
+---
+Q: Which hormone raises blood calcium?
+A) Calcitonin
+B) Parathyroid hormone *
+C) Insulin
+`
+    await page.goto(BASE + '/app/workspace/import')
+    await page.getByLabel('Paste questions here').fill(PASTE)
+    await page.getByRole('button', { name: 'Check' }).click()
+    await page.getByRole('region', { name: 'Import report' }).waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: import report`)
+    await page.getByRole('button', { name: /^Import \d+ question/ }).click()
+    await page.getByText(/Imported|imported/).first().waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: import done`)
+    await page.goto(BASE + '/app'); await page.getByText('due for revision').waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: home with data`)
+    await page.goto(BASE + '/app/workspace/questions'); await page.getByText(/valve/).first().waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: my questions list`)
+    await page.getByRole('link', { name: /Which valve/ }).first().click().catch(() => {})
+    await page.waitForTimeout(500)
+    await audit(page, `${scheme}: question after click`)
+    await page.goto(BASE + '/app/workspace/questions/new'); await page.getByRole('heading', { level: 1 }).first().waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: question editor`)
+    await page.goto(BASE + '/app/workspace/practice'); await page.getByText(/\d+ questions? available/).waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: practice setup with data`)
+    await page.getByRole('button', { name: 'Start practice' }).click()
+    await page.getByText(/Question 1 of/).waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: practice player`)
+    await page.locator('input[type=radio], input[type=checkbox]').first().check().catch(() => {})
+    await page.getByRole('button', { name: 'Certain' }).click().catch(() => {})
+    await page.getByRole('button', { name: 'Check answer' }).click().catch(() => {})
+    await page.waitForTimeout(400)
+    await audit(page, `${scheme}: practice answered, feedback and confidence`)
+    await page.getByRole('button', { name: 'Finish' }).click()
+    await page.getByLabel('Score').waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: session result`)
+    await page.getByRole('button', { name: /Question 1/ }).first().click().catch(() => {})
+    await page.waitForTimeout(300)
+    await audit(page, `${scheme}: result review open`)
+    await page.goto(BASE + '/app/workspace/practice'); await page.getByText(/\d+ questions? available/).waitFor({ timeout: 8000 })
+    await page.getByRole('radio', { name: /^Exam/ }).check()
+    await page.getByRole('button', { name: 'Start exam' }).click()
+    await page.getByText(/Question 1 of/).waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: exam player with palette`)
+    await page.getByRole('button', { name: 'Submit exam' }).click()
+    await page.getByRole('group', { name: 'Confirm submit' }).waitFor({ timeout: 5000 })
+    await audit(page, `${scheme}: exam submit confirmation`)
+    await page.getByRole('button', { name: 'Yes, submit' }).click()
+    await page.getByLabel('Score').waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: exam result`)
+    await page.goto(BASE + '/app/workspace/sessions'); await page.getByText(/Review/).first().waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: past sessions with data`)
+    await page.goto(BASE + '/app/workspace/revision'); await page.getByRole('heading', { name: 'Revision and insights', level: 1 }).waitFor({ timeout: 8000 })
+    await page.waitForTimeout(500)
+    await audit(page, `${scheme}: revision and insights with data`)
+    await page.goto(BASE + '/app/workspace/tags'); await page.getByRole('heading', { name: 'My tags', level: 1 }).waitFor({ timeout: 8000 }); await page.waitForTimeout(500)
+    await audit(page, `${scheme}: tags with data`)
+    await page.goto(BASE + '/app/workspace/health'); await page.getByText(/No problems found|problem/).first().waitFor({ timeout: 8000 })
+    await audit(page, `${scheme}: data health with data`)
     if (errs.length) failures.push({ name: `${scheme}: page errors`, id: 'js-error', impact: 'n/a', help: errs.join(' | ').slice(0, 200), nodes: [] })
     await ctx.close()
   }
