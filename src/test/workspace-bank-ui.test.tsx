@@ -235,8 +235,10 @@ describe('version history', () => {
     server.down = true
     await user.click(screen.getByRole('link', { name: /^History: Only wording/ }))
     expect((await screen.findAllByRole('alert')).map((a) => a.textContent).join(' ')).toMatch(/offline/i)
+    // The sync bar can show its own offline alert first; wait for the page's own Try again button.
+    const retry = await screen.findByRole('button', { name: 'Try again' })
     server.down = false
-    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await user.click(retry)
     expect((await screen.findByRole('group', { name: 'Version 1' })).textContent).toMatch(/First version/)
   })
 

@@ -26,6 +26,7 @@ export default function WorkspaceQuestionHistory() {
   const sessions = useSessionRepo()
   const sync = useWorkspaceSync()
   const dataVersion = sync?.snapshot.dataVersion ?? 0
+  const firstSyncDone = sync?.snapshot.lastSyncAt != null // flips once; lets a question that was not on this device yet be looked for again
   const [question, setQuestion] = useState<WQuestion | null>(null)
   const [versions, setVersions] = useState<VersionRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -35,13 +36,16 @@ export default function WorkspaceQuestionHistory() {
   const [results, setResults] = useState<AnswerVersionRow[]>([])
 
   const latest = useRef(0)
+  const syncRef = useRef(sync) // read inside load without making every sync status change reload the page
+  syncRef.current = sync
   const load = useCallback(async () => {
     const mine = ++latest.current // an older load that finishes late must not overwrite a newer one
     setError(null)
     const q = await qr.get(id)
     if (mine !== latest.current) return
     // On a device that has not finished its first sync, a question that is not here yet may simply not have arrived: keep waiting.
-    const firstSyncPending = !!sync && sync.snapshot.lastSyncAt === null && sync.snapshot.state !== 'offline' && sync.snapshot.state !== 'error'
+    const snap = syncRef.current?.snapshot
+    const firstSyncPending = !!snap && snap.lastSyncAt === null && snap.state !== 'offline' && snap.state !== 'error'
     if (!q.data && !q.error && firstSyncPending) return
     if (q.error || !q.data) { setMissing(true); return }
     setQuestion(q.data)
@@ -50,8 +54,8 @@ export default function WorkspaceQuestionHistory() {
     if (v.error || !v.data) { setError(v.error ?? 'Could not load the history.'); setVersions(null); return }
     setVersions(v.data)
     setResults(a.data ? byVersion(a.data, id) : [])
-  }, [qr, history, sessions, id, sync])
-  useEffect(() => { if (enabled) void load() }, [enabled, load, dataVersion])
+  }, [qr, history, sessions, id])
+  useEffect(() => { if (enabled) void load() }, [enabled, load, dataVersion, firstSyncDone])
 
   if (!enabled) return <Navigate to="/app/settings" replace />
   if (missing) return <Navigate to="/app/workspace/questions" replace state={{ notice: 'That question no longer exists.' }} />
