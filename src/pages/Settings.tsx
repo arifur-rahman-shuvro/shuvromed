@@ -106,14 +106,14 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Settings</h1>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Personal workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1></div>
       <p className="text-sm text-muted">{user?.email}</p>
 
       {message ? <p role={message.kind === 'error' ? 'alert' : 'status'} className={`rounded-xl border p-3 ${message.kind === 'error' ? 'border-danger text-danger' : 'border-success'}`}>{message.text}</p> : null}
 
-      <Card className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Study</h2>
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
+        <h2 className="text-base font-semibold tracking-tight">Study preferences</h2>
         <label htmlFor="goal" className="font-medium">Daily goal (questions per day)</label>
         <CountInput id="goal" value={goal} max={MAX_DAILY_GOAL} className="min-h-12 w-32 rounded-xl border border-line bg-surface px-3" onValue={(n) => setDailyGoal(userId, n)} />
         <p className="text-xs text-muted">Between {MIN_DAILY_GOAL} and {MAX_DAILY_GOAL}. Saved on this device.</p>
@@ -145,7 +145,7 @@ export default function Settings() {
       </Card>
       <OfflineCard />
 
-      <Card className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
         <h2 className="text-lg font-semibold">Your data</h2>
         <p className="text-sm text-muted">{attempts.length} {attempts.length === 1 ? 'answer' : 'answers'} on this device. A backup file holds your answers, bookmarks, collections, notes, reports and finished mock exams. It does not contain your email or password.</p>
         <div className="flex flex-wrap gap-3">
@@ -166,7 +166,7 @@ export default function Settings() {
         {restored ? <div aria-label="Restore result" className="rounded-xl border border-line p-3"><ReportList report={restored} /></div> : null}
       </Card>
 
-      <Card className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
         <h2 className="text-lg font-semibold">Account</h2>
         {isAdmin ? <div><LinkButton to="/app/admin" variant="secondary">Admin area</LinkButton></div> : null}
         {!deleting ? (

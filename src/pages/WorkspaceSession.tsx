@@ -26,7 +26,7 @@ const optionsFor = (q: WQuestion, shuffle: boolean, seed: number): Option[] => {
   const list = (q.content as SbaContent | MultipleContent).options
   return shuffle ? shuffled(list, seed) : list
 }
-const btn = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2 disabled:opacity-50'
+const btn = 'min-h-11 rounded-xl border border-line bg-surface px-3.5 text-sm font-medium text-muted transition-colors hover:border-brand/40 hover:bg-surface2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40'
 
 /** Runs one practice or exam session. Progress is saved on the device as you go, so closing the app loses nothing. */
 export default function WorkspaceSession() {
@@ -171,21 +171,24 @@ export default function WorkspaceSession() {
   const unanswered = total - answered
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-xl font-bold">{exam ? 'Exam' : 'Practice'}</h1>
-        {limitMs !== null ? <p role="timer" aria-label="Time left" className="font-mono text-lg">{formatClock(limitMs - elapsed)}</p> : <p className="font-mono text-muted" aria-label="Time spent">{formatClock(elapsed)}</p>}
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">{exam ? 'Assessment mode' : 'Learning mode'}</p><h1 className="text-xl font-semibold tracking-tight">{exam ? 'Exam' : 'Practice'}</h1></div>
+        {limitMs !== null ? <p role="timer" aria-label="Time left" className="rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 font-mono text-sm font-semibold tabular-nums text-accent">{formatClock(limitMs - elapsed)}</p> : <p className="rounded-xl border border-line bg-surface2 px-3 py-2 font-mono text-sm tabular-nums text-muted" aria-label="Time spent">{formatClock(elapsed)}</p>}
       </div>
-      <p className="text-sm text-muted">Question {state.index + 1} of {total} · {plural(answered, 'answered question')}{exam && rec.flagged ? ' · flagged' : ''}</p>
+      <div className="flex flex-col gap-2.5">
+        <p className="text-xs font-medium text-muted">Question {state.index + 1} of {total} · {plural(answered, 'answered question')}{exam && rec.flagged ? ' · flagged for review' : ''}</p>
+        <div role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={total} aria-valuenow={state.index + 1} className="h-1.5 overflow-hidden rounded-full bg-surface2"><div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${((state.index + 1) / total) * 100}%` }} /></div>
+      </div>
 
-      <AnswerArea question={q} options={options} response={rec.response ?? {}} onChange={setResp} done={!exam && checked} result={result} locked={!exam && checked} />
+      <Card className="border-line/90 p-4 shadow-sm sm:p-6"><AnswerArea question={q} options={options} response={rec.response ?? {}} onChange={setResp} done={!exam && checked} result={result} locked={!exam && checked} /></Card>
 
       {!checked || exam ? <ConfidencePicker value={rec.confidence} onChange={(confidence) => setState((s) => ({ ...s, answers: { ...s.answers, [q.id]: { ...rec, confidence } } }))} /> : null}
       {!exam && !checked ? <div><Button onClick={() => void check()}>Check answer</Button></div> : null}
       {!exam && checked && result ? <AnswerFeedback question={q} result={result} negativeOff={!cfg.negativeMarking} /> : null}
       {error ? <p role="alert" className="text-danger">{error}</p> : null}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 border-t border-line pt-4">
         <button type="button" className={btn} disabled={state.index === 0} onClick={() => go(state.index - 1)}>Previous</button>
         <button type="button" className={btn} disabled={last} onClick={() => go(state.index + 1)}>Next</button>
         {exam ? <button type="button" className={btn} aria-pressed={!!rec.flagged} onClick={flag}>{rec.flagged ? 'Remove flag' : 'Flag for review'}</button> : null}

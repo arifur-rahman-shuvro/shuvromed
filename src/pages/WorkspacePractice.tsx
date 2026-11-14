@@ -15,7 +15,7 @@ import { useWorkspaceRepo } from '../workspace/repo'
 import SyncBar from '../workspace/SyncBar'
 import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 
-const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
+const input = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
 const KEEP = 'shuvromed-bank-view'
 const newSeed = () => Math.floor(Math.random() * 2147483647)
@@ -107,9 +107,9 @@ export default function WorkspacePractice() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">Practice and exams</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Question sessions</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Practice and exams</h1></div>
         <Link className="underline" to="/app/workspace/revision">Revision</Link>
         <Link className="underline" to="/app/workspace/sessions">Past sessions</Link>
         <Link className="underline" to="/app/workspace/questions">My questions</Link>
@@ -124,8 +124,8 @@ export default function WorkspacePractice() {
       ) : null}
 
       {status === 'ready' && questions.length > 0 ? (
-        <section aria-label="New session" className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Start a session</h2>
+        <section aria-label="New session" className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+          <div><h2 className="text-base font-semibold tracking-tight">Start a session</h2><p className="mt-1 text-sm text-muted">Choose your source, set the conditions, then begin.</p></div>
           <label className="flex flex-col gap-1 text-sm font-medium">Questions from
             <select className={input} value={source} onChange={(e) => setSource(e.target.value)}>
               <option value="all">All my questions</option>
@@ -135,9 +135,9 @@ export default function WorkspacePractice() {
           </label>
           <p className="text-sm text-muted" aria-live="polite">{plural(eligible.length, 'question')} available{waiting ? `; ${plural(waiting, 'question')} left out until an edit finishes syncing` : ''}.</p>
 
-          <fieldset className="flex flex-col gap-1">
+          <fieldset className="flex flex-col gap-2 rounded-xl bg-bg p-3">
             <legend className="text-sm font-medium">Type of session</legend>
-            <label className="flex min-h-11 items-center gap-3"><input type="radio" name="mode" className="size-5" checked={mode === 'practice'} onChange={() => setMode('practice')} /> Practice (see the answer after each question)</label>
+            <label className="flex min-h-12 items-center gap-3 rounded-lg px-2 text-sm transition-colors hover:bg-surface"><input type="radio" name="mode" className="size-5" checked={mode === 'practice'} onChange={() => setMode('practice')} /> Practice (see the answer after each question)</label>
             <label className="flex min-h-11 items-center gap-3"><input type="radio" name="mode" className="size-5" checked={mode === 'exam'} onChange={() => setMode('exam')} /> Exam (results only at the end, optional timer)</label>
           </fieldset>
 
@@ -149,7 +149,7 @@ export default function WorkspacePractice() {
               <input className={input} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value.replace(/[^\d]/g, ''))} />
             </label>
           ) : (
-            <label className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" className="size-5" checked={feedback === 'immediate'} onChange={(e) => setFeedback(e.target.checked ? 'immediate' : 'end')} /> Show the answer after each question</label>
+            <label className="flex min-h-11 items-center gap-3 rounded-lg px-2 text-sm transition-colors hover:bg-surface"><input type="checkbox" className="size-5" checked={feedback === 'immediate'} onChange={(e) => setFeedback(e.target.checked ? 'immediate' : 'end')} /> Show the answer after each question</label>
           )}
           <label className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" className="size-5" checked={shuffleQ} onChange={(e) => setShuffleQ(e.target.checked)} /> Shuffle the questions</label>
           <label className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" className="size-5" checked={shuffleO} onChange={(e) => setShuffleO(e.target.checked)} /> Shuffle the options</label>
@@ -173,14 +173,14 @@ export default function WorkspacePractice() {
       ) : null}
 
       {status === 'ready' ? (
-        <section aria-label="Saved exams" className="flex flex-col gap-2">
-          <h2 className="text-lg font-semibold">Saved exams</h2>
+        <section aria-label="Saved exams" className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold tracking-tight">Saved exams</h2>
           {exams.length === 0 ? <p className="text-sm text-muted">None yet. Set up an exam above and press Save as a repeatable exam.</p> : (
             <ul className="flex flex-col gap-2">
               {exams.map((e) => (
                 <li key={e.id}>
-                  <Card>
-                    <p className={e.archived ? 'text-muted' : 'font-medium'}>{e.name}{e.archived ? ' (archived)' : ''}</p>
+                  <Card className="border-line/90 transition-colors hover:border-brand/30">
+                    <p className={e.archived ? 'text-muted' : 'font-semibold tracking-tight'}>{e.name}{e.archived ? ' (archived)' : ''}</p>
                     <p className="text-sm text-muted">{describeConfig(e.config)}</p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {!e.archived ? <Button aria-label={`Start exam: ${e.name}`} onClick={() => void begin({ ...e.config, seed: newSeed() }, e.id, e.name)}>Start</Button> : null}

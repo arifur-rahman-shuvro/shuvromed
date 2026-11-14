@@ -22,11 +22,11 @@ export default function Notebook() {
   const practiceUrl = `/app/practice/play?${configToParams({ ...DEFAULT_CONFIG, mode: 'incorrect', count: 20 }, newSeed()).toString()}`
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Notebook</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-7">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Personal knowledge</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Notebook</h1></div>
 
       <section aria-label="Incorrect questions" className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Questions I got wrong</h2>
+        <h2 className="text-base font-semibold tracking-tight">Questions I got wrong</h2>
         {wrong.length === 0 ? (
           <EmptyState title="Nothing here" body="Questions whose latest answer was wrong collect here until you get them right." action={<LinkButton to="/app/practice">Start practice</LinkButton>} />
         ) : (
@@ -43,7 +43,7 @@ export default function Notebook() {
       </section>
 
       <section aria-label="My notes" className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">My notes</h2>
+        <h2 className="text-base font-semibold tracking-tight">My notes</h2>
         {noted.length === 0 ? (
           <Card><p className="text-muted">Notes you write under a question appear here.</p></Card>
         ) : (

@@ -17,8 +17,8 @@ export default function Progress() {
   const earned = p.badges.filter((b) => b.earnedAt)
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Progress</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Learning overview</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Progress</h1></div>
 
       <Card className="flex flex-col gap-2">
         <label className="flex min-h-12 items-center gap-3">

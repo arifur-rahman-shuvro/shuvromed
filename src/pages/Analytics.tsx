@@ -36,8 +36,8 @@ export default function Analytics() {
   const topicsWithAnswers = a.topics.filter((t) => t.answers > 0).sort((x, y) => (x.accuracyPct ?? 101) - (y.accuracyPct ?? 101) || x.name.localeCompare(y.name))
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Analytics</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Performance intelligence</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Analytics</h1></div>
       <p className="text-sm text-muted">Worked out only from your own answers. These describe what you have done so far. They are not a prediction of any exam result.</p>
 
       {a.answers === 0 ? (
@@ -52,7 +52,7 @@ export default function Analytics() {
           </section>
 
           <section aria-label="Weak topics" className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">Weak topics</h2>
+            <h2 className="text-base font-semibold tracking-tight">Weak topics</h2>
             {a.weakTopics.length === 0 ? (
               <Card>
                 <p>
@@ -77,7 +77,7 @@ export default function Analytics() {
           </section>
 
           <section aria-label="By subject" className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">By subject</h2>
+            <h2 className="text-base font-semibold tracking-tight">By subject</h2>
             <Card className="flex flex-col gap-4">
               {a.subjects.map((s) => (
                 <BarRow key={s.id} label={s.name} valuePct={s.accuracyPct} valueText={pctText(s.accuracyPct)} detail={s.answers === 0 ? 'No answers yet' : `${plural(s.answers, 'answer', 'answers')} · ${s.attemptedQuestions} of ${s.questionCount} questions tried · mastery ${pctText(s.masteryPct)}`} />
@@ -88,7 +88,7 @@ export default function Analytics() {
 
           {topicsWithAnswers.length > 0 ? (
             <section aria-label="By topic" className="flex flex-col gap-3">
-              <h2 className="text-lg font-semibold">By topic</h2>
+              <h2 className="text-base font-semibold tracking-tight">By topic</h2>
               <Card className="flex flex-col gap-4">
                 {topicsWithAnswers.map((t) => (
                   <BarRow key={t.id} label={t.name} valuePct={t.accuracyPct} valueText={pctText(t.accuracyPct)} detail={`${subjectName(t.subjectId)} · ${plural(t.answers, 'answer', 'answers')} · mastery ${pctText(t.masteryPct)}`} />
