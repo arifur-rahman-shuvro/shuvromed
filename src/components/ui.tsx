@@ -10,42 +10,30 @@ const variants = {
 }
 type Variant = keyof typeof variants
 
-export function Button({
-  variant = 'primary',
-  className = '',
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
+export function Button({ variant = 'primary', className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
   return <button className={`${base} ${variants[variant]} ${className}`} {...props} />
 }
 
-export function LinkButton({
-  variant = 'primary',
-  className = '',
-  ...props
-}: LinkProps & { variant?: Variant }) {
+export function LinkButton({ variant = 'primary', className = '', ...props }: LinkProps & { variant?: Variant }) {
   return <Link className={`${base} ${variants[variant]} ${className}`} {...props} />
 }
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-[var(--radius-card)] border border-line/90 bg-surface p-4 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-200 sm:p-5 ${className}`}>{children}</div>
+  return (
+    <div className={`group relative rounded-[var(--radius-card)] border border-line/90 bg-surface p-4 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,transform] duration-200 hover:border-brand/25 hover:shadow-[var(--shadow-hover)] sm:p-5 motion-reduce:transition-none ${className}`}>
+      {children}
+    </div>
+  )
 }
 
 export function Skeleton({ className = '' }: { className?: string }) {
   return <div aria-hidden="true" className={`animate-pulse rounded-lg bg-surface2 motion-reduce:animate-none ${className}`} />
 }
 
-export function EmptyState({
-  title,
-  body,
-  action,
-}: {
-  title: string
-  body: string
-  action?: ReactNode
-}) {
+export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line bg-surface px-5 py-10 text-center">
-      <span aria-hidden="true" className="grid size-11 place-items-center rounded-2xl bg-surface2 text-lg text-brand">✳</span>
+    <div className="relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-dashed border-line bg-surface px-5 py-10 text-center">
+      <span aria-hidden="true" className="grid size-12 place-items-center rounded-2xl border border-brand/15 bg-brand/10 text-xl text-brand shadow-sm">✳</span>
       <h2 className="text-base font-semibold tracking-tight">{title}</h2>
       <p className="max-w-md text-sm leading-6 text-muted">{body}</p>
       {action}
@@ -55,10 +43,12 @@ export function EmptyState({
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card>
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+    <Card className="overflow-hidden">
+      <div aria-hidden="true" className="absolute inset-y-5 left-0 w-[3px] rounded-r-full bg-brand/65" />
+      <p className="text-xs font-semibold tracking-wide text-muted">{label}</p>
+      <p className="mt-2 text-[1.75rem] font-bold leading-none tracking-tight tabular-nums sm:text-3xl">{value}</p>
+      {hint ? <p className="mt-2 text-xs leading-5 text-muted">{hint}</p> : <div className="mt-2 h-5" />}
+      <div aria-hidden="true" className="pointer-events-none absolute -right-5 -top-7 size-20 rounded-full border-[10px] border-brand/[0.045]" />
     </Card>
   )
 }
