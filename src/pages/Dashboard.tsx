@@ -32,6 +32,7 @@ export default function Dashboard() {
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={pct}
+          aria-valuetext={`${s.answeredToday} of ${s.dailyGoal} questions completed`}
           aria-label="Daily goal progress"
           className="mt-4 h-2.5 overflow-hidden rounded-full bg-surface2"
         >
