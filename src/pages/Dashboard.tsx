@@ -17,12 +17,12 @@ export default function Dashboard() {
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Your learning workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Good to see you</h1></div>
 
-      <section aria-label="Daily goal" className="rounded-2xl border border-line bg-surface p-4">
+      <section aria-label="Daily goal" className="rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-6">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-semibold">Daily goal</h2>
+          <h2 className="text-base font-semibold tracking-tight">Daily goal</h2>
           <p className="text-sm text-muted">
             {s.answeredToday} / {s.dailyGoal} questions
           </p>
@@ -33,9 +33,9 @@ export default function Dashboard() {
           aria-valuemax={100}
           aria-valuenow={pct}
           aria-label="Daily goal progress"
-          className="mt-3 h-3 overflow-hidden rounded-full bg-surface2"
+          className="mt-4 h-2.5 overflow-hidden rounded-full bg-surface2"
         >
-          <div className="h-full bg-brand" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${pct}%` }} />
         </div>
       </section>
 
@@ -77,7 +77,7 @@ export default function Dashboard() {
         />
       ) : (
         <section aria-label="Recent activity" className="rounded-2xl border border-line bg-surface p-4">
-          <h2 className="mb-2 font-semibold">Recent activity</h2>
+          <h2 className="mb-3 text-base font-semibold tracking-tight">Recent activity</h2>
           <ul className="flex flex-col gap-1">
             {s.recentDays.map((d) => (
               <li key={d.date} className="flex justify-between gap-3">
