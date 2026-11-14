@@ -19,8 +19,8 @@ type Action =
   | { kind: 'delete-subject'; id: string }
   | { kind: 'delete-topic'; id: string }
 
-const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
-const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
+const small = 'min-h-10 rounded-lg px-3 text-xs font-semibold text-muted transition-colors hover:bg-surface2 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand'
+const input = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 
 function ActionFormBase({ label, children, submit, onSubmit, error, busy, onCancel }: { label: string; children?: React.ReactNode; submit: string; onSubmit: (e: React.FormEvent) => void; error: string | null; busy: boolean; onCancel: () => void }) {
   return (
@@ -212,8 +212,8 @@ export default function WorkspaceSubjects() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">My subjects</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Curriculum workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My subjects</h1></div>
       <p className="text-muted">Your private workspace starts empty. Add your own subjects, then topics inside them. Only you can see them.</p>
 
       {sync ? <SyncBar sync={sync} /> : null}
