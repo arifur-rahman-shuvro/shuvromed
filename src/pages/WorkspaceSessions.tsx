@@ -9,7 +9,7 @@ import { useWorkspaceEnabled } from '../workspace/flag'
 import SyncBar from '../workspace/SyncBar'
 import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 
-const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
+const small = 'min-h-10 rounded-lg px-3 text-xs font-semibold text-muted transition-colors hover:bg-surface2 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand'
 const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })
 
 /** Past and unfinished sessions: carry on, review, or hide from the list (hiding never deletes the answers). */
@@ -32,9 +32,9 @@ export default function WorkspaceSessions() {
   if (!enabled) return <Navigate to="/app/settings" replace />
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">Past sessions</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Practice history</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Past sessions</h1></div>
         <Link className="underline" to="/app/workspace/practice">New session</Link>
       </div>
       {sync ? <SyncBar sync={sync} /> : null}
