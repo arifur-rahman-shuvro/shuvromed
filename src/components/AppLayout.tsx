@@ -97,10 +97,16 @@ function Shell() {
   const sideNav = menuFor(workspaceOn, legacyOn) as MenuItem[]
   const tabNav = workspaceOn ? WORKSPACE_TABS : NAV.filter((n) => !['Mock exam', 'Bookmarks', 'Notebook', 'Progress'].includes(n.label))
   const navigate = useNavigate()
+  const commandItems = workspaceOn ? COMMANDS : NAV.map((item) => ({
+    label: `Open ${item.label}`,
+    description: `Go to ${item.label}`,
+    to: item.to,
+    keywords: item.label,
+  }))
   const filteredCommands = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return COMMANDS.filter((item) => !needle || `${item.label} ${item.description} ${item.keywords}`.toLowerCase().includes(needle))
-  }, [query])
+    return commandItems.filter((item) => !needle || `${item.label} ${item.description} ${item.keywords}`.toLowerCase().includes(needle))
+  }, [commandItems, query])
 
   async function handleSignOut() {
     await signOut()
