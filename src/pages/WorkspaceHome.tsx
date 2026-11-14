@@ -16,6 +16,8 @@ const shortDay = (date: Date) => new Intl.DateTimeFormat(undefined, { weekday: '
 
 /** The first screen after sign-in: a visual, data-backed overview of the learner's private workspace. */
 export default function WorkspaceHome() {
+  const { user } = useAuth()
+  const goal = useDailyGoal(user?.id)
   const ws = useWorkspaceRepo()
   const qr = useQuestionRepo()
   const sessions = useSessionRepo()
@@ -71,7 +73,6 @@ export default function WorkspaceHome() {
   }, [questions, subjects, attempts, list, now])
 
   const firstRun = status === 'ready' && (subjects.length === 0 || info.live === 0)
-  const goal = 20
   const todayKey = dayKey(now)
   const answeredToday = info.days.find((d) => d.key === todayKey)?.count ?? 0
   const goalPct = Math.min(100, Math.round((answeredToday / goal) * 100))
