@@ -37,19 +37,19 @@ export default function MockResultPage() {
   const shown = rows.filter((r) => (view === 'missed' ? !r.right : view === 'flagged' ? r.flagged : true))
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Exam result</h1>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Assessment summary</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Exam result</h1></div>
       {result.timedOut ? <p role="status" className="text-muted">Time ran out. Unanswered questions count as wrong.</p> : null}
-      <Card>
+      <Card className="border-brand/20 bg-brand/5 p-5 shadow-sm sm:p-7">
         <p className="text-sm text-muted">Score (unanswered questions count as wrong)</p>
-        <p className="text-4xl font-extrabold" data-testid="mock-score">{result.correct} / {result.total}</p>
+        <p className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-brand" data-testid="mock-score">{result.correct} / {result.total}</p>
         <p className="mt-1 text-muted">
           {Math.round(scorePct(result))}% · {result.answered} answered · {s.incorrect} wrong · {s.skipped} unanswered · Accuracy on answered {pctText(s.accuracyPct)} · Time used {formatClock(took)} of {formatClock(result.total * result.config.secondsPerQuestion * 1000)}
         </p>
       </Card>
       {Object.keys(s.byTopic).length > 0 ? (
         <Card>
-          <h2 className="mb-2 font-semibold">By topic</h2>
+          <h2 className="mb-3 text-base font-semibold tracking-tight">By topic</h2>
           <ul className="flex flex-col gap-1">
             {Object.entries(s.byTopic).map(([id, g]) => (
               <li key={id} className="flex justify-between gap-3"><span>{topicName(id)}</span><span className="text-muted">{g.correct}/{g.answered} ({pctText(g.accuracyPct)})</span></li>
@@ -59,7 +59,7 @@ export default function MockResultPage() {
       ) : null}
 
       <section aria-label="Question review" className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Review your answers</h2>
+        <h2 className="text-base font-semibold tracking-tight">Review your answers</h2>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Show">
           {([['all', 'All'], ['missed', 'Wrong or unanswered'], ['flagged', 'Flagged']] as const).map(([v, text]) => (
             <Button key={v} variant={view === v ? 'primary' : 'secondary'} aria-pressed={view === v} onClick={() => setView(v)}>{text}</Button>
