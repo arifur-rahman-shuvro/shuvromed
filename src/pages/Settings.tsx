@@ -166,7 +166,7 @@ export default function Settings() {
         {restored ? <div aria-label="Restore result" className="rounded-xl border border-line p-3"><ReportList report={restored} /></div> : null}
       </Card>
 
-      <Card className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
         <h2 className="text-lg font-semibold">Account</h2>
         {isAdmin ? <div><LinkButton to="/app/admin" variant="secondary">Admin area</LinkButton></div> : null}
         {!deleting ? (
