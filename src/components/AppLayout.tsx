@@ -163,7 +163,7 @@ function Shell() {
             >
               <span className="grid size-7 shrink-0 place-items-center text-lg leading-none" aria-hidden="true">{item.glyph}</span>
               {!collapsed ? <span className="truncate">{item.label}</span> : null}
-              {item.to === '/app/workspace/questions' && !collapsed ? <span className="ml-auto rounded-md bg-surface2 px-1.5 py-0.5 text-[10px] text-muted">Bank</span> : null}
+              {item.to === '/app/workspace/questions' && !collapsed ? <span aria-hidden="true" className="ml-auto rounded-md bg-surface2 px-1.5 py-0.5 text-[10px] text-muted">Bank</span> : null}
             </NavLink>
           ))}
         </nav>
