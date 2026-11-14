@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Card, LinkButton, Skeleton } from '../components/ui'
+import { useAuth } from '../auth/AuthContext'
+import { useDailyGoal } from '../prefs/settings'
 import { buildStats, dueList } from '../revision/engine'
 import { useQuestionRepo, type WQuestion } from '../questions/repo'
 import { useSessionRepo, type WAttempt, type WSession } from '../session/repo'
