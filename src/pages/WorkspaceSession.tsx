@@ -177,7 +177,7 @@ export default function WorkspaceSession() {
         {limitMs !== null ? <p role="timer" aria-label="Time left" className="rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 font-mono text-sm font-semibold tabular-nums text-accent">{formatClock(limitMs - elapsed)}</p> : <p className="rounded-xl border border-line bg-surface2 px-3 py-2 font-mono text-sm tabular-nums text-muted" aria-label="Time spent">{formatClock(elapsed)}</p>}
       </div>
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center justify-between gap-3 text-xs font-medium text-muted"><p>Question <span className="font-semibold text-ink">{state.index + 1}</span> of {total}</p><p>{plural(answered, 'answered question')}{exam && rec.flagged ? ' · flagged for review' : ''}</p></div>
+        <p className="text-xs font-medium text-muted">Question {state.index + 1} of {total} · {plural(answered, 'answered question')}{exam && rec.flagged ? ' · flagged for review' : ''}</p>
         <div role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={total} aria-valuenow={state.index + 1} className="h-1.5 overflow-hidden rounded-full bg-surface2"><div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${((state.index + 1) / total) * 100}%` }} /></div>
       </div>
 
