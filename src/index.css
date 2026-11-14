@@ -1,32 +1,42 @@
 @import 'tailwindcss';
 
-/* Design tokens. Light is default; dark applies via .dark on <html>. */
+/* Clinical Aurora: one source of truth for colour, surfaces, rhythm and focus. */
 :root {
-  --bg: #f7f8fa;
+  color-scheme: light;
+  --bg: #f5f8f8;
   --surface: #ffffff;
-  --surface-2: #eef1f5;
-  --text: #121826;
-  --muted: #566074;
-  --border: #d9dfe8;
-  --brand: #0f766e;
+  --surface-2: #edf3f2;
+  --surface-raised: #ffffff;
+  --text: #142322;
+  --muted: #536563;
+  --border: #d9e4e1;
+  --brand: #087f73;
   --brand-contrast: #ffffff;
-  --accent: #b45309;
-  --danger: #b91c1c;
-  --success: #15803d;
+  --accent: #a85b13;
+  --danger: #b42332;
+  --success: #18794e;
+  --focus: #087f73;
+  --shadow-soft: 0 10px 30px rgb(16 44 41 / 6%);
+  --radius-card: 1.125rem;
+  --content-reading: 72ch;
 }
 
 .dark {
-  --bg: #0b1220;
-  --surface: #121a2b;
-  --surface-2: #1a2438;
-  --text: #e8edf6;
-  --muted: #9aa6bd;
-  --border: #26324a;
-  --brand: #2dd4bf;
-  --brand-contrast: #052e2b;
-  --accent: #f59e0b;
-  --danger: #f87171;
-  --success: #4ade80;
+  color-scheme: dark;
+  --bg: #0b1718;
+  --surface: #112223;
+  --surface-2: #1a3030;
+  --surface-raised: #17302f;
+  --text: #e8f1ee;
+  --muted: #a1b6b0;
+  --border: #29413e;
+  --brand: #55c8b5;
+  --brand-contrast: #062d29;
+  --accent: #e5a34d;
+  --danger: #ff8585;
+  --success: #69d6a1;
+  --focus: #70ddca;
+  --shadow-soft: 0 12px 32px rgb(0 0 0 / 22%);
 }
 
 @theme inline {
@@ -41,32 +51,75 @@
   --color-accent: var(--accent);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 html {
+  min-height: 100%;
   background: var(--bg);
   color: var(--text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
+  min-width: 320px;
+  min-height: 100dvh;
   margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The main area takes focus after a page change so screen readers read the new page; it is not a control. */
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand) 22%, transparent);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
 main:focus {
   outline: none;
 }
 
-:focus-visible {
-  outline: 3px solid var(--brand);
-  outline-offset: 2px;
+.prose-reading {
+  max-width: var(--content-reading);
+  line-height: 1.75;
+}
+
+.surface-elevated {
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a, button {
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
