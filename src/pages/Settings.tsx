@@ -145,7 +145,7 @@ export default function Settings() {
       </Card>
       <OfflineCard />
 
-      <Card className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
         <h2 className="text-lg font-semibold">Your data</h2>
         <p className="text-sm text-muted">{attempts.length} {attempts.length === 1 ? 'answer' : 'answers'} on this device. A backup file holds your answers, bookmarks, collections, notes, reports and finished mock exams. It does not contain your email or password.</p>
         <div className="flex flex-wrap gap-3">
