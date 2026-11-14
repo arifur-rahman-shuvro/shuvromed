@@ -16,8 +16,9 @@
   --danger: #b42332;
   --success: #18794e;
   --focus: #087f73;
-  --shadow-soft: 0 10px 30px rgb(16 44 41 / 6%);
-  --radius-card: 1.125rem;
+  --shadow-soft: 0 8px 26px rgb(16 44 41 / 7%), 0 1px 2px rgb(16 44 41 / 4%);
+  --radius-card: 1.25rem;
+  --content-wide: 76rem;
   --content-reading: 72ch;
 }
 
@@ -36,7 +37,7 @@
   --danger: #ff8585;
   --success: #69d6a1;
   --focus: #70ddca;
-  --shadow-soft: 0 12px 32px rgb(0 0 0 / 22%);
+  --shadow-soft: 0 12px 34px rgb(0 0 0 / 24%), 0 1px 2px rgb(0 0 0 / 18%);
 }
 
 @theme inline {
@@ -121,5 +122,26 @@ main:focus {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Subtle visual texture keeps the workspace calm while avoiding a flat, template-like canvas. */
+#main {
+  isolation: isolate;
+}
+
+#main > * {
+  min-width: 0;
+}
+
+.surface-elevated {
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: var(--radius-card);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a, button, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
   }
 }
