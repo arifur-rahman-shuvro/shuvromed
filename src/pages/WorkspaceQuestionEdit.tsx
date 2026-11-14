@@ -131,7 +131,7 @@ export default function WorkspaceQuestionEdit() {
   if (status === 'missing') return <div className="mx-auto flex w-full max-w-4xl flex-col gap-6"><h1 className="text-2xl font-bold">Question not found</h1><p className="text-muted">It may have been deleted on another device.</p><Link className="underline" to="/app/workspace/questions">Back to my questions</Link></div>
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Question bank</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{editing ? 'Edit question' : 'New question'}</h1></div>
       {sync ? <SyncBar sync={sync} /> : null}
 
