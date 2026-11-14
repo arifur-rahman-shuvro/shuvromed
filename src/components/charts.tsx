@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 /** Compact visual comparison; the exact value remains visible as text. */
 export function BarRow({ label, valuePct, valueText, detail }: { label: ReactNode; valuePct: number | null; valueText: string; detail?: string }) {
@@ -33,7 +33,7 @@ export function DayBars({ bars, caption }: { bars: DayBar[]; caption: string }) 
         role="img"
         aria-label={`${caption}: ${bars.map((b) => `${b.label}, ${b.text}`).join('; ')}`}
         className="relative grid h-36 grid-cols-[repeat(var(--bar-count),minmax(0,1fr))] items-end gap-1.5 rounded-xl bg-bg/70 px-2 pb-2 pt-3 sm:gap-2 sm:px-3"
-        style={{ '--bar-count': Math.max(1, bars.length) } as React.CSSProperties}
+        style={{ '--bar-count': Math.max(1, bars.length) } as CSSProperties}
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-3 top-1/4 border-t border-dashed border-line/70" />
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-3 top-2/4 border-t border-dashed border-line/70" />
