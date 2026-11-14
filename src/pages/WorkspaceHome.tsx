@@ -87,7 +87,7 @@ export default function WorkspaceHome() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-brand">Clinical Aurora · Learning space</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Your workspace</h1>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Home</h1><h2 className="sr-only">Dashboard</h2>
           <p className="mt-1 text-sm text-muted">A clear picture of what you know—and what to learn next.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export default function WorkspaceHome() {
               <div className="grid gap-3 border-t border-line p-4 sm:grid-cols-3 sm:p-5">
                 {steps.map((step) => (
                   <div key={step.number} className="rounded-2xl bg-bg p-4">
-                    <p className="text-[10px] font-bold tracking-[.16em] text-brand">{step.number} · {step.done ? 'COMPLETE' : 'NEXT STEP'}</p>
+                    <p className="text-[10px] font-bold tracking-[.16em] text-brand">Step {i + 1}: {step.title}{step.done ? ' (done)' : ''}</p>
                     <h3 className="mt-2 font-semibold">{step.title}</h3>
                     <p className="mt-1 min-h-10 text-xs leading-5 text-muted">{step.body}</p>
                     {!step.done ? <div className="mt-3 flex flex-wrap gap-2"><LinkButton to={step.to}>{step.cta}</LinkButton>{step.alt ? <LinkButton variant="secondary" to={step.alt.to}>{step.alt.cta}</LinkButton> : null}</div> : <p className="mt-3 text-xs font-semibold text-success">Ready ✓</p>}
