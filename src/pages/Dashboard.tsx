@@ -6,9 +6,11 @@ import { useGamification } from '../gamification/pref'
 import { useDailyGoal } from '../prefs/settings'
 import { buildSchedule, dueQuestions } from '../practice/srs'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
+import { useWorkspaceEnabled } from '../workspace/flag'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const workspaceOn = useWorkspaceEnabled(user?.id)
   const attempts = useAttempts(user?.id)
   const showXp = useGamification(user?.id)
   const goal = useDailyGoal(user?.id)
@@ -49,27 +51,26 @@ export default function Dashboard() {
         <Stat label="Due revisions" value={String(due)} hint="Open Revision to study them" />
       </section>
 
-      <div className="flex flex-wrap gap-3">
-        <LinkButton to="/app/subjects">Browse subjects</LinkButton>
-        <LinkButton to="/app/practice" variant="secondary">
-          Quick practice
-        </LinkButton>
-        <LinkButton to="/app/revision" variant="secondary">
-          Revision ({due} due)
-        </LinkButton>
-        <LinkButton to="/app/bookmarks" variant="secondary">
-          Bookmarks
-        </LinkButton>
-        <LinkButton to="/app/notebook" variant="secondary">
-          Notebook
-        </LinkButton>
-        <LinkButton to="/app/mock" variant="secondary">
-          Mock exam
-        </LinkButton>
-        <LinkButton to="/app/progress" variant="secondary">
-          Progress
-        </LinkButton>
-      </div>
+      <nav aria-label="Study shortcuts" className="flex flex-wrap gap-3">
+        {workspaceOn ? (
+          <>
+            <LinkButton to="/app/workspace/questions">Open question bank</LinkButton>
+            <LinkButton to="/app/workspace/practice" variant="secondary">Build a practice session</LinkButton>
+            <LinkButton to="/app/workspace/subjects" variant="secondary">My subjects</LinkButton>
+            <LinkButton to="/app/workspace/revision" variant="secondary">Revision and insights ({due} due)</LinkButton>
+          </>
+        ) : (
+          <>
+            <LinkButton to="/app/subjects">Browse subjects</LinkButton>
+            <LinkButton to="/app/practice" variant="secondary">Quick practice</LinkButton>
+            <LinkButton to="/app/revision" variant="secondary">Revision ({due} due)</LinkButton>
+            <LinkButton to="/app/bookmarks" variant="secondary">Bookmarks</LinkButton>
+            <LinkButton to="/app/notebook" variant="secondary">Notebook</LinkButton>
+            <LinkButton to="/app/mock" variant="secondary">Mock exam</LinkButton>
+            <LinkButton to="/app/progress" variant="secondary">Progress</LinkButton>
+          </>
+        )}
+      </nav>
 
       {s.recentDays.length === 0 ? (
         <EmptyState
