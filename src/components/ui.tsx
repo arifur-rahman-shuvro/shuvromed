@@ -27,7 +27,7 @@ export function LinkButton({
 }
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-5 ${className}`}>{children}</div>
+  return <div className={`rounded-[var(--radius-card)] border border-line/90 bg-surface p-4 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-200 sm:p-5 ${className}`}>{children}</div>
 }
 
 export function Skeleton({ className = '' }: { className?: string }) {
