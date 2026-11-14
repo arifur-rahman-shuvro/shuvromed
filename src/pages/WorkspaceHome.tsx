@@ -117,7 +117,7 @@ export default function WorkspaceHome() {
                 </div>
               </div>
               <div className="grid gap-3 border-t border-line p-4 sm:grid-cols-3 sm:p-5">
-                {steps.map((step) => (
+                {steps.map((step, i) => (
                   <div key={step.number} className="rounded-2xl bg-bg p-4">
                     <p className="text-[10px] font-bold tracking-[.16em] text-brand">Step {i + 1}: {step.title}{step.done ? ' (done)' : ''}</p>
                     <h3 className="mt-2 font-semibold">{step.title}</h3>
