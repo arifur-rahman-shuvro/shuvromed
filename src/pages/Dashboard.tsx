@@ -18,7 +18,7 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Your learning workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Good to see you</h1></div>
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Your learning workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard</h1><p className="mt-1 text-sm text-muted">Good to see you. Ready for a focused study session?</p></div>
 
       <section aria-label="Daily goal" className="rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-6">
         <div className="flex items-baseline justify-between">
