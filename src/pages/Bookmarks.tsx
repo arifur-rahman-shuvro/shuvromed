@@ -33,11 +33,11 @@ export default function Bookmarks() {
   const practiceUrl = `/app/practice/play?${configToParams({ ...DEFAULT_CONFIG, mode: 'bookmarked', count: 20 }, newSeed()).toString()}`
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Bookmarks</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Saved learning</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Bookmarks</h1></div>
 
-      <Card className="flex flex-col gap-3">
-        <h2 className="font-semibold">Collections</h2>
+      <Card className="flex flex-col gap-4 border-line/90 p-4 shadow-sm sm:p-5">
+        <h2 className="text-base font-semibold tracking-tight">Collections</h2>
         <form onSubmit={create} className="flex flex-wrap items-end gap-2" aria-label="New collection">
           <div className="min-w-0 flex-1">
             <label htmlFor="coll-name" className="mb-1 block text-sm font-medium">New collection name</label>
