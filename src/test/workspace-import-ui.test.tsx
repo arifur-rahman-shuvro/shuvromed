@@ -1,3 +1,4 @@
+// Imported workspace data is local-first; remote assertions wait for the complete sync pass.
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import { render, screen, waitFor } from '@testing-library/react'
