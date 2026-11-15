@@ -75,6 +75,8 @@ describe('first screen after the cutover', () => {
     await screen.findByText(/Question 1 of 1/)
     await user.click(screen.getByRole('button', { name: 'Pause and leave' }))
     await router.navigate('/app')
+    // The home summary depends on the remote subject/question pull; wait for that initial sync before checking sessions.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
     expect(await screen.findByRole('link', { name: 'Resume' })).toBeTruthy()
   })
 })
