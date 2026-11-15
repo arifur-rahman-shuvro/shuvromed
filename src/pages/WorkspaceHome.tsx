@@ -33,7 +33,7 @@ export default function WorkspaceHome() {
   const load = useCallback(async () => {
     setStatus('loading')
     const [w, q, s, a] = await Promise.all([ws.load(), qr.list(), sessions.list(), sessions.allAttempts()])
-    if (w.error || !w.data || q.error || !q.data) { setStatus('error'); return }
+    if (w.error || !w.data || q.error || !q.data || s.error || !s.data || a.error || !a.data) { setStatus('error'); return }
     setSubjects(w.data.subjects.filter((x) => !x.archived))
     setQuestions(q.data)
     setList(s.data ?? [])
