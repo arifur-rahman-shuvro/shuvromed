@@ -30,7 +30,7 @@ describe('dashboard (signed in)', () => {
     localStorage.setItem(`shuvromed.workspace.enabled.v1.${TEST_USER_ID}`, '1')
     renderApp('/app')
     await screen.findByRole('heading', { name: 'Home', level: 1 })
-    expect(screen.getByRole('link', { name: 'Explore subjects' })).toHaveAttribute('href', '/app/workspace/subjects')
+    expect(await screen.findByRole('link', { name: 'Explore subjects' })).toHaveAttribute('href', '/app/workspace/subjects')
     expect(screen.getByRole('link', { name: 'Add questions' })).toHaveAttribute('href', '/app/workspace/questions/new')
     expect(screen.getByRole('link', { name: 'Import questions' })).toHaveAttribute('href', '/app/workspace/import')
     expect(screen.getByRole('link', { name: 'Start practising' })).toHaveAttribute('href', '/app/workspace/practice')
