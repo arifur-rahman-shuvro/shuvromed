@@ -65,6 +65,17 @@ function Shell() {
   const [query, setQuery] = useState('')
   const paletteRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const paletteReturnFocus = useRef<HTMLElement | null>(null)
+
+  function openPalette() {
+    paletteReturnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setPaletteOpen(true)
+  }
+
+  function closePalette(restoreFocus = true) {
+    setPaletteOpen(false)
+    if (restoreFocus) window.requestAnimationFrame(() => paletteReturnFocus.current?.focus())
+  }
 
   useEffect(() => {
     const follow = () => setDark(resolveDark(getThemePref()))
@@ -76,13 +87,14 @@ function Shell() {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
-        setPaletteOpen((open) => !open)
+        if (paletteOpen) closePalette()
+        else openPalette()
       }
-      if (event.key === 'Escape') setPaletteOpen(false)
+      if (event.key === 'Escape' && paletteOpen) closePalette()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [paletteOpen])
 
   useEffect(() => {
     if (paletteOpen) {
@@ -120,7 +132,8 @@ function Shell() {
   }
 
   function runCommand(path: string) {
-    setPaletteOpen(false)
+    paletteReturnFocus.current = null
+    closePalette(false)
     navigate(path)
   }
 
@@ -169,7 +182,7 @@ function Shell() {
         </nav>
 
         <div className="mt-auto border-t border-line pt-4">
-          <button type="button" onClick={() => setPaletteOpen(true)} className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-xs text-muted hover:bg-surface2 hover:text-ink ${collapsed ? 'justify-center' : ''}`} title="Open command menu">
+          <button type="button" onClick={openPalette} className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-xs text-muted hover:bg-surface2 hover:text-ink ${collapsed ? 'justify-center' : ''}`} title="Open command menu">
             <span className="grid size-7 place-items-center text-base" aria-hidden="true">⌘</span>
             {!collapsed ? <><span>Quick actions</span><kbd className="ml-auto rounded border border-line px-1.5 py-0.5 text-[10px]">Ctrl K</kbd></> : null}
           </button>
@@ -212,7 +225,7 @@ function Shell() {
       </nav>
 
       {paletteOpen ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/45 px-3 pt-[12vh] backdrop-blur-[2px] sm:px-6" onMouseDown={(event) => { if (event.target === event.currentTarget) setPaletteOpen(false) }}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/45 px-3 pt-[12vh] backdrop-blur-[2px] sm:px-6" onMouseDown={(event) => { if (event.target === event.currentTarget) closePalette() }}>
           <div ref={paletteRef} role="dialog" aria-modal="true" aria-label="Command palette" className="w-full max-w-xl overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl" onKeyDown={(event) => {
             if (event.key === 'Tab') {
               const controls = paletteRef.current?.querySelectorAll<HTMLElement>('input:not(:disabled),button:not(:disabled)')
