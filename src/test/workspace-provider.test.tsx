@@ -53,6 +53,8 @@ describe('My subjects with the on-device store', () => {
   it('shows what another device added after a sync', async () => {
     mount()
     await screen.findByText('No subjects yet')
+    // The first automatic pull can finish after the empty list renders. Wait until manual sync is available.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
     server.externalInsert('user_subjects', { name: 'Physiology', description: null, sort_order: 0, archived_at: null })
     await userEvent.click(screen.getByRole('button', { name: 'Sync now' }))
     await screen.findByRole('heading', { name: 'Physiology', level: 2 })

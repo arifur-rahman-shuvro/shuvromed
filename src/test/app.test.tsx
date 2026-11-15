@@ -1,9 +1,11 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
 import { applyTheme, resolveDark } from '../lib/theme'
 import { renderApp, TEST_USER_ID } from './utils'
+
+beforeEach(() => localStorage.clear())
 
 describe('landing', () => {
   it('shows the educational disclaimer and sign-up / sign-in links', async () => {
@@ -24,16 +26,17 @@ describe('dashboard (signed in)', () => {
     expect(screen.getByText('0 days')).toBeInTheDocument()
   })
 
-  it('routes study shortcuts into the private workspace when it is enabled', async () => {
+  it('routes workspace setup actions to private learning modules when enabled', async () => {
     localStorage.setItem(`shuvromed.workspace.enabled.v1.${TEST_USER_ID}`, '1')
     renderApp('/app')
-    await screen.findByRole('heading', { name: 'Dashboard' })
-    const shortcuts = screen.getByRole('navigation', { name: 'Study shortcuts' })
-    expect(screen.getByRole('link', { name: 'Open question bank' })).toHaveAttribute('href', '/app/workspace/questions')
-    expect(screen.getByRole('link', { name: 'Build a practice session' })).toHaveAttribute('href', '/app/workspace/practice')
-    expect(screen.getByRole('link', { name: 'My subjects' })).toHaveAttribute('href', '/app/workspace/subjects')
-    expect(screen.getByRole('link', { name: /Revision and insights/ })).toHaveAttribute('href', '/app/workspace/revision')
-    expect(shortcuts.querySelector('a[href="/app/practice"]')).toBeNull()
+    await screen.findByRole('heading', { name: 'Home', level: 1 })
+    expect(screen.getByRole('link', { name: 'Explore subjects' })).toHaveAttribute('href', '/app/workspace/subjects')
+    expect(screen.getByRole('link', { name: 'Add questions' })).toHaveAttribute('href', '/app/workspace/questions/new')
+    expect(screen.getByRole('link', { name: 'Import questions' })).toHaveAttribute('href', '/app/workspace/import')
+    expect(screen.getByRole('link', { name: 'Start practising' })).toHaveAttribute('href', '/app/workspace/practice')
+    const menu = screen.getByRole('navigation', { name: 'Main' })
+    expect(menu.querySelector('a[href="/app/subjects"]')).toBeNull()
+    expect(screen.getByRole('link', { name: 'My questions' })).toHaveAttribute('href', '/app/workspace/questions')
   })
 
   it('navigates between sections via the sidebar', async () => {
