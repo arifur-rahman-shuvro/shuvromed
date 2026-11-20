@@ -37,9 +37,9 @@ export default function AnswerArea({ question: q, options, response, onChange, d
 
   if (q.type === 'FILL_GAP') {
     return (
-      <div>
-        <p className="text-sm font-medium text-muted">Type the missing {blankMarkers(q.stem).length === 1 ? 'word' : 'words'}</p>
-        <p className="mt-1 whitespace-pre-wrap text-lg leading-9">
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">Type the missing {blankMarkers(q.stem).length === 1 ? 'word' : 'words'}</p>
+        <p className="whitespace-pre-wrap text-base leading-8 tracking-tight sm:text-lg sm:leading-9">
           {q.stem.split(SPLIT).map((part, i) => {
             const m = /^\{\{(.+)\}\}$/.exec(part)
             if (!m) return <span key={i}>{part}</span>
@@ -48,7 +48,7 @@ export default function AnswerArea({ question: q, options, response, onChange, d
             return (
               <input
                 key={i}
-                className={`mx-1 min-h-11 w-40 max-w-full rounded-lg border bg-surface px-2 align-middle text-base ${det ? (det.ok ? 'border-success' : 'border-danger') : 'border-line'}`}
+                className={`mx-1 min-h-11 w-40 max-w-full rounded-lg border bg-surface px-3 align-middle text-base outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10 ${det ? (det.ok ? 'border-success' : 'border-danger') : 'border-line'}`}
                 aria-label={`Answer for blank ${blankMarkers(q.stem).indexOf(id) + 1}`}
                 value={response.answers?.[id] ?? ''}
                 disabled={off}
@@ -62,19 +62,19 @@ export default function AnswerArea({ question: q, options, response, onChange, d
     )
   }
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="whitespace-pre-wrap text-lg font-medium">{q.stem}</legend>
+    <fieldset className="flex flex-col gap-2.5">
+      <legend className="mb-1 whitespace-pre-wrap text-base font-semibold leading-7 tracking-tight text-ink sm:text-lg">{q.stem}</legend>
       {q.type === 'MULTIPLE_MCQ' ? <p className="text-sm text-muted">Choose all that apply.</p> : null}
       {q.type === 'TRUE_FALSE'
         ? ([true, false] as const).map((v) => (
-            <label key={String(v)} className="flex min-h-12 items-center gap-3 rounded-xl border border-line px-3">
+            <label key={String(v)} className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-brand/50 hover:bg-surface2 has-[:checked]:border-brand has-[:checked]:bg-brand/5 has-[:checked]:ring-1 has-[:checked]:ring-brand/20">
               <input type="radio" name="answer" className="size-5" checked={response.value === v} disabled={off} onChange={() => onChange({ value: v })} />
               <span>{v ? 'True' : 'False'}{done ? (v === (q.content as TrueFalseContent).correct_answer ? ' (correct answer)' : response.value === v ? ' (your answer, not correct)' : '') : ''}</span>
             </label>
           ))
         : options.map((o) => (
             <div key={o.id} className="flex flex-col">
-              <label className={`flex min-h-12 items-center gap-3 rounded-xl border px-3 py-2 ${done && correctSet.has(o.id) ? 'border-success' : done && chosen.has(o.id) ? 'border-danger' : 'border-line'}`}>
+              <label className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 py-3 transition-colors focus-within:ring-2 focus-within:ring-brand/30 ${done && correctSet.has(o.id) ? 'border-success bg-success/5' : done && chosen.has(o.id) ? 'border-danger bg-danger/5' : chosen.has(o.id) ? 'border-brand bg-brand/5 ring-1 ring-brand/20' : 'border-line bg-surface hover:border-brand/50 hover:bg-surface2'}`}>
                 <input
                   type={q.type === 'SBA' ? 'radio' : 'checkbox'}
                   name="answer"
@@ -86,7 +86,7 @@ export default function AnswerArea({ question: q, options, response, onChange, d
                     else onChange({ selected: e.target.checked ? [...chosen, o.id] : [...chosen].filter((x) => x !== o.id) })
                   }}
                 />
-                <span>{o.text}{hint(o.id)}</span>
+                <span className="text-sm leading-6 text-ink">{o.text}{hint(o.id)}</span>
               </label>
               {done && o.explanation ? <p className="px-3 pt-1 text-sm text-muted">{o.explanation}</p> : null}
             </div>

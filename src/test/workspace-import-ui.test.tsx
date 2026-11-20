@@ -1,3 +1,4 @@
+// Imported workspace data is local-first; remote assertions wait for the complete sync pass.
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -72,9 +73,14 @@ describe('Import and export screen', () => {
 
     await user.click(screen.getByRole('button', { name: 'Import 2 questions' }))
     await screen.findByText('Imported 2 questions.')
+    // Import is local-first; wait for any automatic sync to finish before requesting a manual one.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
     await user.click(screen.getByRole('button', { name: 'Sync now' }))
-    await waitFor(() => expect(rows('user_questions')).toHaveLength(2))
-    expect(rows('user_tags').map((r) => r.name)).toEqual(['FCPS Part 1'])
+    // Question rows can reach the server before the tag rows in the same sync pass.
+    await waitFor(() => {
+      expect(rows('user_questions')).toHaveLength(2)
+      expect(rows('user_tags').map((r) => r.name)).toEqual(['FCPS Part 1'])
+    })
     await user.click(screen.getByRole('link', { name: 'Open My questions' }))
     expect(await screen.findByText('Four chambers?')).toBeTruthy()
   })

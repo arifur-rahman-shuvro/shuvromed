@@ -15,7 +15,7 @@ import { useWorkspaceRepo } from '../workspace/repo'
 import SyncBar from '../workspace/SyncBar'
 import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 
-const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
+const input = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 const CONF = ['Guessing', 'Not sure', 'Fairly sure', 'Sure', 'Certain']
 
 /** What to revise now, and where you are weak. Worked out from your saved answers; nothing extra is stored. */
@@ -79,9 +79,9 @@ export default function WorkspaceRevision() {
   const maxWeek = Math.max(1, ...data.trend.map((w) => w.answers))
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">Revision and insights</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Adaptive learning</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Revision and insights</h1></div>
         <Link className="underline" to="/app/workspace/practice">Practice and exams</Link>
       </div>
       {sync ? <SyncBar sync={sync} /> : null}
@@ -93,7 +93,7 @@ export default function WorkspaceRevision() {
       {status === 'ready' && t.answers > 0 ? (
         <>
           <section aria-label="Due for revision" className="flex flex-col gap-2">
-            <h2 className="text-lg font-semibold">Due for revision</h2>
+            <h2 className="text-base font-semibold tracking-tight">Due for revision</h2>
             <p>{data.due.length === 0 ? 'Nothing is due right now.' : `${plural(data.due.length, 'question')} due now.`}</p>
             {data.due.length > 0 ? (
               <>
@@ -108,7 +108,7 @@ export default function WorkspaceRevision() {
           </section>
 
           <section aria-label="Overview" className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold">Overview</h2>
+            <h2 className="text-base font-semibold tracking-tight">Overview</h2>
             <p>{plural(t.answers, 'answer')} on {plural(t.days, 'day')} · accuracy {t.accuracyPct}%{t.avgSeconds !== null ? ` · about ${t.avgSeconds}s per question` : ''}</p>
           </section>
 

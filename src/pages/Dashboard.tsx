@@ -6,9 +6,11 @@ import { useGamification } from '../gamification/pref'
 import { useDailyGoal } from '../prefs/settings'
 import { buildSchedule, dueQuestions } from '../practice/srs'
 import { formatAccuracy, getDashboardStats } from '../lib/stats'
+import { useWorkspaceEnabled } from '../workspace/flag'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const workspaceOn = useWorkspaceEnabled(user?.id)
   const attempts = useAttempts(user?.id)
   const showXp = useGamification(user?.id)
   const goal = useDailyGoal(user?.id)
@@ -17,12 +19,12 @@ export default function Dashboard() {
   const pct = Math.min(100, Math.round((s.answeredToday / s.dailyGoal) * 100))
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Your learning workspace</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard</h1><p className="mt-1 text-sm text-muted">Good to see you. Ready for a focused study session?</p></div>
 
-      <section aria-label="Daily goal" className="rounded-2xl border border-line bg-surface p-4">
+      <section aria-label="Daily goal" className="rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-6">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-semibold">Daily goal</h2>
+          <h2 className="text-base font-semibold tracking-tight">Daily goal</h2>
           <p className="text-sm text-muted">
             {s.answeredToday} / {s.dailyGoal} questions
           </p>
@@ -32,10 +34,11 @@ export default function Dashboard() {
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={pct}
+          aria-valuetext={`${s.answeredToday} of ${s.dailyGoal} questions completed`}
           aria-label="Daily goal progress"
-          className="mt-3 h-3 overflow-hidden rounded-full bg-surface2"
+          className="mt-4 h-2.5 overflow-hidden rounded-full bg-surface2"
         >
-          <div className="h-full bg-brand" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${pct}%` }} />
         </div>
       </section>
 
@@ -48,27 +51,26 @@ export default function Dashboard() {
         <Stat label="Due revisions" value={String(due)} hint="Open Revision to study them" />
       </section>
 
-      <div className="flex flex-wrap gap-3">
-        <LinkButton to="/app/subjects">Browse subjects</LinkButton>
-        <LinkButton to="/app/practice" variant="secondary">
-          Quick practice
-        </LinkButton>
-        <LinkButton to="/app/revision" variant="secondary">
-          Revision ({due} due)
-        </LinkButton>
-        <LinkButton to="/app/bookmarks" variant="secondary">
-          Bookmarks
-        </LinkButton>
-        <LinkButton to="/app/notebook" variant="secondary">
-          Notebook
-        </LinkButton>
-        <LinkButton to="/app/mock" variant="secondary">
-          Mock exam
-        </LinkButton>
-        <LinkButton to="/app/progress" variant="secondary">
-          Progress
-        </LinkButton>
-      </div>
+      <nav aria-label="Study shortcuts" className="flex flex-wrap gap-3">
+        {workspaceOn ? (
+          <>
+            <LinkButton to="/app/workspace/questions">Open question bank</LinkButton>
+            <LinkButton to="/app/workspace/practice" variant="secondary">Build a practice session</LinkButton>
+            <LinkButton to="/app/workspace/subjects" variant="secondary">My subjects</LinkButton>
+            <LinkButton to="/app/workspace/revision" variant="secondary">Revision and insights ({due} due)</LinkButton>
+          </>
+        ) : (
+          <>
+            <LinkButton to="/app/subjects">Browse subjects</LinkButton>
+            <LinkButton to="/app/practice" variant="secondary">Quick practice</LinkButton>
+            <LinkButton to="/app/revision" variant="secondary">Revision ({due} due)</LinkButton>
+            <LinkButton to="/app/bookmarks" variant="secondary">Bookmarks</LinkButton>
+            <LinkButton to="/app/notebook" variant="secondary">Notebook</LinkButton>
+            <LinkButton to="/app/mock" variant="secondary">Mock exam</LinkButton>
+            <LinkButton to="/app/progress" variant="secondary">Progress</LinkButton>
+          </>
+        )}
+      </nav>
 
       {s.recentDays.length === 0 ? (
         <EmptyState
@@ -77,7 +79,7 @@ export default function Dashboard() {
         />
       ) : (
         <section aria-label="Recent activity" className="rounded-2xl border border-line bg-surface p-4">
-          <h2 className="mb-2 font-semibold">Recent activity</h2>
+          <h2 className="mb-3 text-base font-semibold tracking-tight">Recent activity</h2>
           <ul className="flex flex-col gap-1">
             {s.recentDays.map((d) => (
               <li key={d.date} className="flex justify-between gap-3">

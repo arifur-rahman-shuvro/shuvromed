@@ -76,27 +76,27 @@ export default function WorkspaceSessionResult() {
   const pct = res.max ? Math.round((res.score / res.max) * 1000) / 10 : 0
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">{session.status === 'abandoned' ? 'Stopped session' : 'Result'}</h1>
+        <h1 className="mr-auto text-2xl font-semibold tracking-tight sm:text-3xl">{session.status === 'abandoned' ? 'Stopped session' : 'Result'}</h1>
         <Link className="underline" to="/app/workspace/sessions">Past sessions</Link>
         <Link className="underline" to="/app/workspace/practice">New session</Link>
       </div>
-      <p className="text-muted">{session.title}</p>
+      <p className="text-sm text-muted">{session.title}</p>
 
       {session.status === 'abandoned' ? <p>This session was stopped before it was finished, so it has no score.</p> : (
-        <Card>
-          <p className="text-3xl font-bold" aria-label="Score">{res.score} / {res.max} ({pct}%)</p>
-          <p className="mt-1 text-sm">{res.correct} correct · {res.partial} partly correct · {res.incorrect} incorrect · {res.unanswered} not answered</p>
-          <p className="text-sm text-muted">Time: {formatDuration(session.elapsedMs)}{session.timeLimitSeconds ? ` of ${formatDuration(session.timeLimitSeconds * 1000)}` : ''}{!cfg.negativeMarking ? ' · negative marking was off' : ''}</p>
+        <Card className="border-brand/20 bg-brand/5 p-5 sm:p-7">
+          <p className="text-4xl font-semibold tracking-tight tabular-nums text-brand" aria-label="Score">{res.score} / {res.max} ({pct}%)</p>
+          <p className="mt-2 text-sm leading-6 text-ink">{res.correct} correct · {res.partial} partly correct · {res.incorrect} incorrect · {res.unanswered} not answered</p>
+          <p className="mt-1 text-xs text-muted">Time: {formatDuration(session.elapsedMs)}{session.timeLimitSeconds ? ` of ${formatDuration(session.timeLimitSeconds * 1000)}` : ''}{!cfg.negativeMarking ? ' · negative marking was off' : ''}</p>
         </Card>
       )}
 
       {session.status === 'finished' && summary.bySubject.length > 1 ? (
-        <section aria-label="By subject" className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">By subject</h2>
-          <ul className="flex flex-col gap-1 text-sm">
-            {summary.bySubject.map((b) => <li key={b.subjectId}>{subjects.get(b.subjectId) ?? 'Subject'}: {b.score} of {b.total} ({b.correct} correct)</li>)}
+        <section aria-label="By subject" className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold tracking-tight">By subject</h2>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {summary.bySubject.map((b) => <li key={b.subjectId} className="rounded-xl border border-line bg-surface p-3 text-sm"><p className="font-medium">{subjects.get(b.subjectId) ?? 'Subject'}</p><p className="mt-1 text-muted">{b.score} of {b.total} · {b.correct} correct</p></li>)}
           </ul>
         </section>
       ) : null}
@@ -104,9 +104,9 @@ export default function WorkspaceSessionResult() {
       {error ? <p role="alert" className="text-danger">{error}</p> : null}
       {wrong.length > 0 ? <div><Button onClick={() => void again()}>Practise the {plural(wrong.length, 'question')} I missed</Button></div> : null}
 
-      <section aria-label="Review" className="flex flex-col gap-2">
+      <section aria-label="Review" className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
-          <h2 className="mr-auto text-lg font-semibold">Review</h2>
+          <h2 className="mr-auto text-base font-semibold tracking-tight">Review</h2>
           <button type="button" className="min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2" aria-pressed={only === 'wrong'} onClick={() => setOnly(only === 'wrong' ? 'all' : 'wrong')}>{only === 'wrong' ? 'Show all' : 'Show only missed'}</button>
         </div>
         <ul className="flex flex-col gap-2">
@@ -117,10 +117,10 @@ export default function WorkspaceSessionResult() {
             const isOpen = open === q.id
             return (
               <li key={q.id}>
-                <Card>
-                  <button type="button" className="w-full min-h-11 text-left" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : q.id)}>
+                <Card className="border-line/90 transition-colors hover:border-brand/30">
+                  <button type="button" className="w-full min-h-12 text-left" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : q.id)}>
                     <span className="text-sm text-muted">Question {i + 1} · {OUT[o]}</span>
-                    <span className="block line-clamp-2">{q.stem}</span>
+                    <span className="mt-1 block line-clamp-2 text-sm font-medium leading-6 text-ink">{q.stem}</span>
                   </button>
                   {isOpen ? (
                     <div className="mt-3 flex flex-col gap-3">

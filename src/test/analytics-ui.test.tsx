@@ -47,7 +47,7 @@ describe('analytics page', () => {
     put('demo-anat-cor-001', true)
     renderApp('/app/analytics')
     const days = await screen.findByRole('region', { name: 'Recent days' })
-    await userEvent.click(within(days).getByText('View as a table'))
+    await userEvent.click(within(days).getByText('View exact activity data'))
     const table = within(days).getByRole('table', { name: /Answers per day/ })
     expect(within(table).getAllByRole('row')).toHaveLength(15) // header + 14 days
     expect(within(table).getByText('1 (1 correct)')).toBeInTheDocument()

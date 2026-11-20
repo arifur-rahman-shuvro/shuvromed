@@ -87,21 +87,21 @@ function Exam({ userId, run, questions, topics, finishing }: { userId: string; f
   const low = remaining <= 60_000
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
       <h1 className="sr-only">Mock exam in progress</h1>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-semibold" data-testid="mock-progress">Question {run.current + 1} of {run.questionIds.length}</p>
+        <p className="text-sm font-semibold tabular-nums" data-testid="mock-progress">Question {run.current + 1} of {run.questionIds.length}</p>
         <p role="timer" aria-label="Time remaining" className={low ? 'font-bold text-danger' : 'text-muted'}>{formatClock(remaining)} left</p>
       </div>
 
-      <Card>
-        <div className="mb-3 flex flex-wrap gap-2">
+      <Card className="border-line/90 p-4 shadow-sm sm:p-6">
+        <div className="mb-4 flex flex-wrap gap-2">
           {question.isDemo ? <Badge tone="demo">DEMO · unreviewed sample</Badge> : null}
           <Badge>{topicName(question.topicId)}</Badge>
           {flagged ? <Badge>Flagged for review</Badge> : null}
         </div>
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-3 whitespace-pre-line text-lg font-medium">{question.stem}</legend>
+          <legend className="mb-4 whitespace-pre-line text-base font-semibold leading-7 tracking-tight sm:text-lg">{question.stem}</legend>
           {presented.options.map((o) => (
             <label key={o.label} className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 ${chosen === o.id ? 'border-brand' : 'border-line'}`}>
               <input type="radio" name="mock-answer" value={o.id} checked={chosen === o.id} onChange={() => update(setAnswer(run, qid, o.id))} className="mt-1 size-5" />

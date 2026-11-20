@@ -88,9 +88,9 @@ export default function WorkspaceImport() {
   const creates = plan ? plan.newSubjects.length + plan.newTopics.length + plan.newTags.length : 0
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">Import and export</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Data portability</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Import and export</h1></div>
         <Link className="underline" to="/app/workspace/questions">My questions</Link>
       </div>
       {sync ? <SyncBar sync={sync} /> : null}

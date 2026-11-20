@@ -9,7 +9,7 @@ import { DEFAULT_MOCK, MOCK_MAX_QUESTIONS, MOCK_SECONDS_PER_QUESTION, buildMock,
 import { discardActive, saveActive, useMock } from '../mock/store'
 import { newSeed } from '../practice/params'
 
-const field = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3'
+const field = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 const label = 'mb-1 block text-sm font-medium'
 const minutes = (s: number) => Math.round(s / 60)
 
@@ -49,8 +49,8 @@ export default function MockSetup() {
 
   const active = mock.active
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold">Mock exam</h1>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Timed assessment</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Mock exam</h1></div>
 
       {active ? (
         <Card className="flex flex-col gap-3">
@@ -71,7 +71,7 @@ export default function MockSetup() {
       ) : manifest.totalQuestions === 0 ? (
         <EmptyState title="No questions available yet" body="There are no published questions to build an exam from." />
       ) : (
-        <form onSubmit={start} className="flex flex-col gap-5" aria-label="Mock exam setup">
+        <form onSubmit={start} className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6" aria-label="Mock exam setup">
           <p className="text-muted">A mock exam gives no feedback until the end. You can change answers and flag questions for review. Unanswered questions count as wrong.</p>
           <div>
             <label htmlFor="m-subject" className={label}>Subject</label>

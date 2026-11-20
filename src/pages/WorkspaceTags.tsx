@@ -8,8 +8,8 @@ import { useWorkspaceEnabled } from '../workspace/flag'
 import SyncBar from '../workspace/SyncBar'
 import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 
-const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
-const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
+const small = 'min-h-10 rounded-lg px-3 text-xs font-semibold text-muted transition-colors hover:bg-surface2 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand'
+const input = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 const GROUPS: { category: TagCategory; title: string; hint: string }[] = [
   { category: 'exam', title: 'Exam tags', hint: 'A question with at least one exam tag belongs to those exams only. A question with none is Universal and is available to every exam.' },
   { category: 'general', title: 'General tags', hint: 'Your own labels, such as high yield or revise again. They never change whether a question is Universal.' },
@@ -52,9 +52,9 @@ export default function WorkspaceTags() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">My tags</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Question organization</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">My tags</h1></div>
         <Link className="underline" to="/app/workspace/questions">My questions</Link>
       </div>
       {sync ? <SyncBar sync={sync} /> : null}
@@ -66,7 +66,7 @@ export default function WorkspaceTags() {
         const list = tags.filter((t) => t.category === g.category)
         return (
           <section key={g.category} aria-label={g.title} className="flex flex-col gap-2">
-            <h2 className="text-lg font-semibold">{g.title}</h2>
+            <h2 className="text-base font-semibold tracking-tight">{g.title}</h2>
             <p className="text-sm text-muted">{g.hint}</p>
             {list.length === 0 ? <EmptyState title={`No ${g.category} tags yet`} body="Add one below." /> : (
               <ul className="flex flex-col gap-2">

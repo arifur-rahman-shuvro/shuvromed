@@ -43,9 +43,9 @@ export default function WorkspaceHealth() {
   const pct = storage?.usedBytes != null && storage.quotaBytes ? Math.min(100, Math.round((storage.usedBytes / storage.quotaBytes) * 1000) / 10) : null
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">Data health</h1>
+        <div className="mr-auto"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted">Workspace integrity</p><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Data health</h1></div>
         <Link className="underline" to="/app/settings">Settings</Link>
       </div>
       {sync ? <SyncBar sync={sync} /> : null}

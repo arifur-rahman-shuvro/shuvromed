@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -45,9 +45,9 @@ describe('first screen after the cutover', () => {
   it('a new install lands on Home with the three-step guide and the workspace menu', async () => {
     mount('/app')
     await screen.findByRole('heading', { name: 'Home', level: 1 })
-    expect(await screen.findByText(/Step 1: Create a subject/)).toBeTruthy()
-    expect(screen.getByText(/Step 2: Add your questions/)).toBeTruthy()
-    expect(screen.getByText(/Step 3: Practise or sit an exam/)).toBeTruthy()
+    expect(await screen.findByText(/Step 1: Create your first subject/)).toBeTruthy()
+    expect(screen.getByText(/Step 2: Build your question bank/)).toBeTruthy()
+    expect(screen.getByText(/Step 3: Start learning actively/)).toBeTruthy()
     const menu = screen.getByRole('navigation', { name: 'Main' })
     expect(within(menu).getByRole('link', { name: 'My questions' })).toBeTruthy()
     expect(within(menu).getByRole('link', { name: 'Data health' })).toBeTruthy()
@@ -57,12 +57,13 @@ describe('first screen after the cutover', () => {
   it('marks finished steps and then shows the summary instead of the guide', async () => {
     const s = seedSubject()
     mount('/app')
-    expect(await screen.findByText(/Step 1: Create a subject \(done\)/)).toBeTruthy()
+    expect(await screen.findByText(/Step 1: Create your first subject \(done\)/)).toBeTruthy()
     seedQuestion(s.id, 'First question')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
     await user.click(screen.getByRole('button', { name: 'Sync now' }))
-    expect(await screen.findByText('due for revision')).toBeTruthy()
-    expect(screen.queryByText(/Welcome/)).toBeNull()
-    expect(screen.getByLabelText('Summary').textContent).toContain('1')
+    expect(await screen.findByText('Due for revision')).toBeTruthy()
+    expect(screen.queryByText(/Build knowledge that stays with you/)).toBeNull()
+    expect(screen.getByRole('region', { name: 'Study overview' }).textContent).toContain('1')
   })
 
   it('shows an unfinished session to continue', async () => {
@@ -73,8 +74,12 @@ describe('first screen after the cutover', () => {
     await user.click(screen.getByRole('button', { name: 'Start practice' }))
     await screen.findByText(/Question 1 of 1/)
     await user.click(screen.getByRole('button', { name: 'Pause and leave' }))
+    // Wait for the async save-and-navigate handler before navigating back to Home.
+    await waitFor(() => expect(router.state.location.pathname).toBe('/app/workspace/sessions'))
     await router.navigate('/app')
-    expect(await screen.findByRole('link', { name: /^Continue:/ })).toBeTruthy()
+    // The home summary depends on the remote subject/question pull; wait for that initial sync before checking sessions.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
+    expect(await screen.findByRole('link', { name: 'Resume' })).toBeTruthy()
   })
 })
 

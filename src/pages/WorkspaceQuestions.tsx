@@ -14,8 +14,8 @@ import SyncBar from '../workspace/SyncBar'
 import { useWorkspaceSync } from '../workspace/WorkspaceProvider'
 import { useWorkspaceRepo } from '../workspace/repo'
 
-const small = 'min-h-11 rounded-lg px-3 text-sm font-medium hover:bg-surface2'
-const input = 'min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base'
+const small = 'min-h-10 rounded-lg px-3 text-xs font-semibold text-muted transition-colors hover:bg-surface2 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand'
+const input = 'min-h-12 w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10'
 const PAGE = 50
 const KEEP = 'shuvromed-bank-view'
 
@@ -163,17 +163,17 @@ export default function WorkspaceQuestions() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-bold">My questions</h1>
+        <h1 className="mr-auto text-2xl font-semibold tracking-tight sm:text-3xl">My questions</h1>
         <Button variant="secondary" onClick={() => { setSelecting((v) => !v); setPicked(new Set()); setConfirmMove(false) }}>{selecting ? 'Done selecting' : 'Select'}</Button>
         <LinkButton variant="secondary" to="/app/workspace/practice">Practice</LinkButton>
         <LinkButton to="/app/workspace/questions/new">Add question</LinkButton>
       </div>
-      <p className="text-muted">Your own questions, private to you. <Link className="underline" to="/app/workspace/subjects">Subjects and topics</Link> · <Link className="underline" to="/app/workspace/tags">Tags</Link> · <Link className="underline" to="/app/workspace/import">Import / export</Link></p>
+      <p className="text-sm leading-6 text-muted">Your own questions, private to you. <Link className="underline" to="/app/workspace/subjects">Subjects and topics</Link> · <Link className="underline" to="/app/workspace/tags">Tags</Link> · <Link className="underline" to="/app/workspace/import">Import / export</Link></p>
       {sync ? <SyncBar sync={sync} /> : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 shadow-sm sm:flex-row sm:items-end sm:p-4">
         <label className="flex flex-1 flex-col gap-1 text-sm font-medium">Search questions
           <input type="search" className={input} value={filter.text} placeholder="Wording, options, answers, explanation" onChange={(e) => setFilter({ ...filter, text: e.target.value })} />
         </label>
@@ -266,17 +266,17 @@ export default function WorkspaceQuestions() {
         <ul className="flex flex-col gap-3">
           {results.slice(0, visible).map((q) => (
             <li key={q.id}>
-              <Card>
+              <Card className="group border-line/90 transition-colors hover:border-brand/40 hover:shadow-sm">
                 {selecting ? <label className="mb-2 flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" className="size-5" checked={picked.has(q.id)} onChange={(e) => togglePick(q.id, e.target.checked)} aria-label={`Select: ${stemPreview(q.stem, 40)}`} /> Select</label> : null}
-                <p className={q.archived ? 'text-muted' : ''}>{stemPreview(q.stem, 160)}</p>
-                <p className="mt-1 text-sm text-muted">
+                <p className={q.archived ? 'text-sm font-semibold leading-7 text-muted' : 'text-sm font-semibold leading-7 tracking-tight text-ink sm:text-base'}>{stemPreview(q.stem, 160)}</p>
+                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
                   {TYPE_INFO[q.type].label} · {subjectName(q.subjectId)}{q.topicIds.length ? ` · ${plural(q.topicIds.length, 'topic')}` : ''}{q.difficulty ? ` · ${q.difficulty}` : ''}{q.archived ? ' · archived' : ''}
                 </p>
-                <p className="mt-1 flex flex-wrap gap-1 text-xs">
-                  {isUniversal(q.tagIds, tags) ? <span className="rounded-full border border-line px-2 py-0.5">Universal</span> : null}
-                  {q.tagIds.filter((id) => tagName(id)).map((id) => <span key={id} className="rounded-full bg-surface2 px-2 py-0.5">{tagName(id)}</span>)}
+                <p className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+                  {isUniversal(q.tagIds, tags) ? <span className="rounded-full border border-line bg-bg px-2.5 py-1 font-medium text-muted">Universal</span> : null}
+                  {q.tagIds.filter((id) => tagName(id)).map((id) => <span key={id} className="rounded-full bg-surface2 px-2.5 py-1 font-medium text-muted">{tagName(id)}</span>)}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-1">
+                <div className="mt-3 flex flex-wrap gap-1.5 border-t border-line/70 pt-2">
                   <Link className={small + ' inline-flex items-center border border-line'} to={`/app/workspace/questions/${q.id}`} aria-label={`Edit: ${stemPreview(q.stem, 40)}`}>Edit</Link>
                   <Link className={small + ' inline-flex items-center'} to={`/app/workspace/questions/${q.id}/history`} aria-label={`History: ${stemPreview(q.stem, 40)}`}>History</Link>
                   <button type="button" className={small} onClick={() => void toggleArchive(q)} aria-label={`${q.archived ? 'Restore' : 'Archive'}: ${stemPreview(q.stem, 40)}`}>{q.archived ? 'Restore' : 'Archive'}</button>
