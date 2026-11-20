@@ -74,6 +74,8 @@ describe('first screen after the cutover', () => {
     await user.click(screen.getByRole('button', { name: 'Start practice' }))
     await screen.findByText(/Question 1 of 1/)
     await user.click(screen.getByRole('button', { name: 'Pause and leave' }))
+    // Wait for the async save-and-navigate handler before navigating back to Home.
+    await waitFor(() => expect(router.state.location.pathname).toBe('/app/workspace/sessions'))
     await router.navigate('/app')
     // The home summary depends on the remote subject/question pull; wait for that initial sync before checking sessions.
     await waitFor(() => expect(screen.getByRole('button', { name: 'Sync now' })).toBeEnabled())
