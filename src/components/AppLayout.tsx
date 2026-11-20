@@ -200,7 +200,7 @@ function Shell() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            <button type="button" onClick={() => setPaletteOpen(true)} className="flex min-h-10 items-center gap-2 rounded-xl border border-line bg-bg px-3 text-xs text-muted transition-colors hover:border-brand/50 hover:text-ink" aria-label="Search commands">
+            <button type="button" onClick={openPalette} className="flex min-h-10 items-center gap-2 rounded-xl border border-line bg-bg px-3 text-xs text-muted transition-colors hover:border-brand/50 hover:text-ink" aria-label="Search commands">
               <span aria-hidden="true">⌕</span><span className="hidden sm:inline">Search or jump to…</span><kbd className="hidden rounded border border-line bg-surface px-1.5 py-0.5 text-[10px] sm:inline">⌘ K</kbd>
             </button>
             <button type="button" onClick={toggleTheme} aria-pressed={dark} className="grid size-10 place-items-center rounded-xl text-muted transition-colors hover:bg-surface2 hover:text-ink" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Light mode' : 'Dark mode'}>
